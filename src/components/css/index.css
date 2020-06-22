@@ -11,3 +11,5 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.srd-diagram { height: 80vh; background-color: aliceblue; width: 90%; }

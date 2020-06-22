@@ -1,0 +1,40 @@
+.file-container{
+    flex-wrap: wrap;
+    display: flex;
+    flex-direction: row;
+}
+
+.small-padding{
+    padding: 1%;
+}
+
+.sc-file{
+    width: 240px;
+    overflow: hidden;
+    font-size: 10pt;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: rgba(223, 212, 204, 0.548);
+    margin: 2px;
+    padding: 7px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.sc-file:hover{
+    background-color: rgba(165, 159, 154, 0.507);
+}
+
+.sc-file-description{
+    max-width: 180px;
+    float: left;
+    margin-left: 7px;
+}
+
+.sc-file-date{
+    font-size: 8pt;
+}
+
+.file-icon{
+    color: rgb(8, 117, 50);
+    float: left;
+}
