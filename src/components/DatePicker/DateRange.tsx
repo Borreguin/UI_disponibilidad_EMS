@@ -17,8 +17,27 @@ export const to_yyyy_mm_dd = (date) => {
   return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 }
 
-export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
+export const get_last_month_dates = () => { 
+  let now = new Date();
+  let last_day_month = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  let first_day_month = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+  first_day_month.setMonth(now.getMonth() - 1);
+  first_day_month.setDate(1);
+  last_day_month.setDate(0);
   
+  return {first_day_month:first_day_month, last_day_month:last_day_month}
+
+}
+
+export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
   
   constructor(props) { 
     super(props);
@@ -28,22 +47,10 @@ export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
       end_date: new Date()
     }
     if (this.props.last_month) {
-      let last_day_month = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
-      let first_day_month = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
-      first_day_month.setMonth(now.getMonth() - 1);
-      first_day_month.setDate(1);
-      last_day_month.setDate(0);
+      let r = get_last_month_dates()
       this.state = {
-        ini_date: first_day_month,
-        end_date: last_day_month
+        ini_date: r.first_day_month,
+        end_date: r.last_day_month
       }
     } 
     this.handle_picker_change();

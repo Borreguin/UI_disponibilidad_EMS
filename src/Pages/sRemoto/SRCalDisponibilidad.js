@@ -10,43 +10,74 @@ import { faPencilAlt, faPenFancy } from "@fortawesome/free-solid-svg-icons";
 import {
   DateRange,
   to_yyyy_mm_dd,
+  get_last_month_dates,
 } from "../../components/DatePicker/DateRange";
 import ReactJson from "react-json-view";
 import NodeReport from "./SRCalDisponibilidad_nodes";
+import SRGeneralReport from "../../components/Reports/SRReport/GeneralReport";
 
 // Pagina inicial de manejo de nodos:
 class SRCalDisponibilidad extends Component {
   /* Configuración de la página: */
-  state = {
-    brand: { route: "/Pages/sRemoto", name: "Cálculo de disponibilidad " },
-    navData: [],
-    nodes: undefined,
-    search: "",
-    loading: true,
-    calculating: false,
-    ini_date: new Date(),
-    end_date: new Date(),
-    log: { estado: "Listo para realizar cálculo" },
-    edited: false,
-  };
-
-  async componentDidMount() {
-    this._search_nodes_now();
+  constructor(props) {
+    super(props);
+    let r = get_last_month_dates();
+    this.state = {
+      ini_date: r.first_day_month,
+      end_date: r.last_day_month,
+      brand: { route: "/Pages/sRemoto", name: "Cálculo de disponibilidad " },
+      navData: [],
+      filtered_reports: undefined, // lista de reportes filtrados
+      report: undefined, // reporte entero
+      search: "", // filtrar reportes
+      loading: true,
+      calculating: false,
+      log: { estado: "Listo para realizar cálculo" },
+      edited: false,
+    };
   }
 
-  // permite manejar los cambios ocurridos en el hijo:
-  // new_entities viene desde el hijo como consecuencia
-  // de un cambio
+  async componentDidMount() {
+    this._search_report_now();
+  }
+
+  // permite manejar los cambios ocurridos en los hijos:
   handle_picker_change = (ini_date, end_date) => {
     this.setState({ ini_date: ini_date, end_date: end_date });
   };
 
-  _search_nodes_now = async () => {
-    this.setState({ nodes: undefined, loading: true });
-    await fetch("/api/admin-sRemoto/nodos/" + this.state.search)
+  // permite manejar cambios ocurridos en detalle de cálculo:
+  handle_calculation_details = () => {
+    this._search_report_now();
+  };
+
+  _search_report_now = async () => {
+    if (String(this.state.ini_date) === String(this.state.end_date)) {
+      this.setState({
+        loading: false,
+        edited: true,
+        calculating: false,
+        log: { msg: "Seleccione fechas distintas para el cálculo" },
+      });
+      return;
+    }
+    this.setState({
+      filtered_reports: undefined,
+      loading: true,
+      report: undefined,
+    });
+    await fetch("/api/disp-sRemoto/disponibilidad/" + this._range_time())
       .then((res) => res.json())
-      .then((nodes) => {
-        this.setState({ nodes: nodes });
+      .then((report) => {
+        if (report.errors === undefined) {
+          this.setState({
+            filtered_reports: report.reportes_nodos,
+            report: report,
+          });
+          if (report.novedades !== undefined) {
+            this.setState({ log: report.novedades.detalle });
+          }
+        }
       })
       .catch(console.log);
     this.setState({ loading: false });
@@ -56,12 +87,32 @@ class SRCalDisponibilidad extends Component {
     this.setState({ search: e.target.value.trim() });
   };
 
+  _filter_reports = (e) => {
+    let to_filter = "";
+    if (e.target !== undefined) {
+      to_filter = String(e.target.value).toLowerCase();
+    } else {
+      to_filter = String(e).toLowerCase();
+    }
+    let filtered_reports = [];
+    if (to_filter === "" && this.state.report !== undefined) {
+      this.setState({ filtered_reports: this.state.report.reportes_nodos });
+    } else if (this.state.report !== undefined) {
+      this.state.report.reportes_nodos.forEach((report, ix) => {
+        if (report.nombre.toLowerCase().includes(to_filter)) {
+          filtered_reports.push(this.state.report.reportes_nodos[ix]);
+        }
+      });
+      this.setState({ filtered_reports: filtered_reports });
+    }
+  };
+
   _notification = () => {
     if (this.state.loading) {
       return this._loading();
     }
 
-    if (this.state.nodes === undefined || this.state.nodes.length === 0) {
+    if (this.state.report === undefined) {
       return this._not_found();
     }
   };
@@ -78,7 +129,11 @@ class SRCalDisponibilidad extends Component {
   _not_found = () => {
     return (
       <div>
-        <span> No hay resultados para la búsqueda...</span>
+        <span>
+          {
+            " No hay resultados para la búsqueda, el cálculo en referencia no existe."
+          }
+        </span>
       </div>
     );
   };
@@ -93,28 +148,31 @@ class SRCalDisponibilidad extends Component {
 
   _nodes_names = () => {
     let node_names = [];
-    if (this.state.nodes !== undefined)
-      this.state.nodes.forEach((node) => {
-        node_names.push(node.nombre);
+    if (this.state.filtered_reports !== undefined)
+      this.state.filtered_reports.forEach((report) => {
+        node_names.push(report.nombre);
       });
+    console.log(node_names);
     return node_names;
   };
 
   _cal_all = async (method) => {
     let msg = "";
-    if (method === "POST") {
-      msg = "Empezando cálculo de los nodos: \n";
-    } else {
-      msg = "Empezando rescritura de cálculos de los nodos: \n";
-    }
+    let pcc =
+      this.state.search === "" ? "todos los nodos" : this._nodes_names();
 
+    if (method === "POST") {
+      msg = "Empezando cálculo de " + pcc;
+    } else {
+      msg = "Empezando rescritura de " + pcc;
+    }
     this.setState({
       log: {
         estado: "Iniciando",
-        mensaje: msg + this._nodes_names(),
+        mensaje: msg,
       },
       edited: true,
-      calculating: true
+      calculating: true,
     });
     let path = "";
     let payload = {
@@ -122,22 +180,35 @@ class SRCalDisponibilidad extends Component {
       headers: { "Content-Type": "application/json" },
     };
 
-    if (this.state.search === "" && this.state.nodes.length > 0) {
+    if (this.state.search === "") {
       path = "/api/disp-sRemoto/disponibilidad/" + this._range_time();
-    } else if (this.state.search !== "" && this.state.nodes.length > 0) {
+    } else if (
+      this.state.search !== "" &&
+      this.state.report !== undefined &&
+      this.state.report.reportes_nodos.length > 0
+    ) {
       path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
       payload["body"] = JSON.stringify({ nodos: this._nodes_names() });
     }
+
     await fetch(path, payload)
       .then((res) => res.json())
       .then((json) => {
+        this.setState({ loading: true });
         if (json.errors !== undefined) {
-          this.setState({ log: json.errors, edited: true, calculating: false});
+          this.setState({ log: json.errors, edited: true, calculating: false });
         } else {
           json["estado"] = "Finalizado";
-          this.setState({ log: json, edited: true, calculating: false });
+          this.setState({
+            log: json,
+            edited: true,
+            calculating: false,
+            report: json.report,
+          });
         }
       });
+    this._filter_reports(this.state.search);
+    this.setState({ loading: false });
   };
 
   render() {
@@ -169,11 +240,11 @@ class SRCalDisponibilidad extends Component {
               <Form.Label column sm="2" className="sc-btn-search">
                 <Button
                   variant="outline-dark"
-                  onClick={this._search_nodes_now}
-                  disabled={this.state.nodes === undefined || this.state.calculating}
+                  onClick={this._search_report_now}
+                  disabled={this.state.loading || this.state.calculating}
                   className="btn-search"
                 >
-                  Buscar
+                  Actualizar
                 </Button>
               </Form.Label>
 
@@ -181,13 +252,19 @@ class SRCalDisponibilidad extends Component {
                 <Form.Control
                   type="text"
                   onBlur={this._update_search}
+                  onChange={this._filter_reports}
                   placeholder="Nodo a buscar"
+                  disabled={this.state.calculating}
                 />
               </Col>
-              <div className="sc-btn-cal">
+              <div className="sc-body-cal">
                 <Button
                   variant="outline-light"
-                  className={this.state.loading || this.state.calculating? "btn-cal-disp-dis": "btn-cal-disp"}
+                  className={
+                    this.state.loading || this.state.calculating
+                      ? "btn-cal-disp-dis"
+                      : "btn-cal-disp"
+                  }
                   onClick={() => this._cal_all("POST")}
                 >
                   <FontAwesomeIcon inverse icon={faPencilAlt} size="lg" />{" "}
@@ -195,14 +272,29 @@ class SRCalDisponibilidad extends Component {
                 </Button>
                 <Button
                   variant="outline-light"
-                  className={this.state.loading || this.state.calculating? "btn-cal-disp-dis": "btn-cal-disp"}
+                  className={
+                    this.state.loading || this.state.calculating
+                      ? "btn-cal-disp-dis"
+                      : "btn-cal-disp"
+                  }
                   onClick={() => this._cal_all("PUT")}
                 >
                   <FontAwesomeIcon inverse icon={faPenFancy} size="lg" />{" "}
                   RE-ESCRIBIR CÁLCULO
                 </Button>
               </div>
-              <div className="sc-btn-cal">
+            </Form.Group>
+            <div className="div-cards">
+              {this.state.report === undefined ? (
+                <></>
+              ) : (
+                <SRGeneralReport
+                  report={this.state.report}
+                  calculating={this.state.calculating}
+                />
+              )}
+
+              <div className="sc-body-cal">
                 <div
                   className={
                     this.state.edited ? "sc-log-changed" : "sc-log-normal"
@@ -212,7 +304,7 @@ class SRCalDisponibilidad extends Component {
                   }}
                 >
                   <ReactJson
-                    name="info"
+                    name="novedades"
                     displayObjectSize={true}
                     collapsed={true}
                     iconStyle="circle"
@@ -223,18 +315,20 @@ class SRCalDisponibilidad extends Component {
                 </div>
               </div>
               <div style={{ marginLeft: "15px" }}>{this._notification()}</div>
-            </Form.Group>
-            <div className="div-cards">
-              {this.state.loading ||
-              this.state.nodes === undefined ||
-              this.state.nodes.length === 0 ? (
+
+              {this.state.loading ? (
                 <div></div>
               ) : (
-                  <NodeReport nodes={this.state.nodes}
+                <div className="sc-src-details">
+                  <div className="subtitle-details">DETALLES DE CÁLCULO </div>
+                  <NodeReport
+                    reports={this.state.filtered_reports}
                     ini_date={this.state.ini_date}
                     end_date={this.state.end_date}
                     calculating={this.state.calculating}
+                    onChange={this.handle_calculation_details}
                   />
+                </div>
               )}
             </div>
           </div>

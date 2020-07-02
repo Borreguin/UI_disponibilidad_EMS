@@ -38,3 +38,7 @@
     color: rgb(8, 117, 50);
     float: left;
 }
+
+.file-subtitle{
+    display: block;
+}

@@ -5,15 +5,23 @@
 }
 
 .div-cards {
-  height: 90vh;
+  height: 95vh;
   width: 100%;
-  padding: 10px;
+  padding-top: 170px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .sc-search {
+  position: fixed;
+  width: 80%;
+  margin-left: 5px;
+  margin-right: 5px;
+  top: 60px;
   padding-top: 1% !important;
-  padding-left: 1% !important;
   padding-right: 1% !important;
+  z-index: 1000;
+  background-color: white;
 }
 .sc-btn-search {
   margin-top: -9px;
@@ -43,7 +51,9 @@
   width: 100%;
   padding: 2px;
   background-color: rgba(36, 39, 43, 0.534);
-  margin: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .btn-add-node:hover {
@@ -72,10 +82,10 @@
   background-color: rgb(59, 179, 29);
 }
 
-.sc-btn-cal{
+.sc-body-cal{
   width: 100%;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .sc-log-changed{
@@ -86,4 +96,24 @@
 .sc-log-normal{
   width: 100%;
   border: 3px solid black !important;
+}
+
+.subtitle-details{
+  text-align: center;
+  color: white;
+  background-color: rgba(1, 23, 32, 0.788);
+  font-size: 12pt;
+  border-radius: 2px;
+}
+
+.lb-bck-version{
+  width: 100%;
+  margin-left: 15px;
+  margin-bottom: 7px;
+}
+
+.sc-src-details{
+ margin-top: 15px;
+ border: 1px solid rgba(121, 121, 121, 0.884);
+ border-radius: 4px;
 }

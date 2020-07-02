@@ -197,13 +197,12 @@
 }
 
 .entity-seccion{
-    min-width: 600px;
+    min-width: 400px;
     width: 70%;
     float: right;
 }
 
 .src-btn-plus{
-
    height: 30px;
    width: 100%;
    padding: 1px;

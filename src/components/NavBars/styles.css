@@ -12,7 +12,11 @@
     background-color: rgba(255, 255, 255, 0.692);
     border-radius: 5px;
 }
-
+.nav-bar-style{
+    z-index:  1001 !important;
+    position: fixed !important;
+    width: 100%;
+}
 
 .nav-link-custom{
     font-size: 14pt;

@@ -1,31 +1,44 @@
 import React, { Component } from "react";
 import RepGeneral from "../../components/Cards/Report/RepGeneral";
 import "./styles.css";
-import { Node } from "../../components/Cards/SRCard/SRCardModel";
+import { SummaryReport } from "../../components/Reports/SRReport/Report";
+import IndividualReport from "../../components/Reports/SRReport/IndividualReport";
+import StatusCalcReport from "../../components/Reports/SRReport/StatusCalcReport";
 
 type NodeReportProps = {
-  nodes: Array<Node>;
+  reports: Array<SummaryReport>;
   ini_date: Date;
   end_date: Date;
   calculating: boolean;
+  onChange: Function;
 };
 
-
 class NodeReport extends Component<NodeReportProps> {
-
- 
   render() {
     return (
       <div>
-        {this.props.nodes.length>0?
-          this.props.nodes.map((node) => (
-            <RepGeneral node={node} key={node.id_node}
-              ini_date={this.props.ini_date} end_date={this.props.end_date}
-              calculating={this.props.calculating}
-            />
-          )) :
+        {this.props.calculating ?
+          <StatusCalcReport
+            ini_date={this.props.ini_date}
+            end_date={this.props.end_date}
+          />
+          :
           <></>
         }
+        {this.props.reports === undefined || this.props.calculating ? (
+          <></>
+        ) : (
+          this.props.reports.map((report) => (
+            <IndividualReport
+              key={report.id_report}
+              report={report}
+              calculating={this.props.calculating}
+              ini_date={this.props.ini_date}
+              end_date={this.props.end_date}
+              onChange={this.props.onChange}
+            />
+          ))
+        )}
       </div>
     );
   }

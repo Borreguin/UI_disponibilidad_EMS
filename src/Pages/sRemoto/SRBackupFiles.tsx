@@ -31,7 +31,7 @@ class SRBackupFiles extends Component {
       .then((json) => {
         if (json.result !== undefined) {
           if (json.result === {}) {
-            this.setState({ files: undefined , filtered_files: undefined});
+            this.setState({ files: undefined, filtered_files: undefined });
           } else {
             this.setState({ files: json.result, filtered_files: json.result });
           }
@@ -47,22 +47,24 @@ class SRBackupFiles extends Component {
     this.setState({ search: e.target.value.trim() });
   };
 
-  _filter = (e) => { 
+  _filter = (e) => {
     let filtered_files = {};
     for (const group in this.state.files) {
-      if (group.toLowerCase().includes(e.target.value.toLowerCase())) { 
-        filtered_files[group] = this.state.files[group]
+      if (group.toLowerCase().includes(e.target.value.toLowerCase())) {
+        filtered_files[group] = this.state.files[group];
       }
     }
-    this.setState({filtered_files: filtered_files})
-  }
+    this.setState({ filtered_files: filtered_files });
+  };
 
   _notification = () => {
-    
     if (this.state.loading) {
       return this._loading();
     }
-    if (this.state.files === undefined || Object.keys(this.state.files).length === 0 ) {
+    if (
+      this.state.files === undefined ||
+      Object.keys(this.state.files).length === 0
+    ) {
       return this._not_found();
     }
     if (this.state.error) {
@@ -133,10 +135,17 @@ class SRBackupFiles extends Component {
                   placeholder="Archivos a buscar"
                 />
               </Col>
+              <Row className="lb-bck-version">
+                Cada grupo de versionamiento contiene hasta 7 archivos con el
+                mismo nombre. Aquellos que fueron subidos al sistema con el
+                mismo nombre son renombrados con @1 para la versión penúltima
+                hasta @6 que es la versión más antigua. Haga click sobre un
+                grupo de versionamiento para ver más detalle:
+              </Row>
             </Form.Group>
             <div style={{ marginLeft: "15px" }}>{this._notification()}</div>
             <div className="div-cards">
-              <FileManager files={this.state.filtered_files}/>
+              <FileManager files={this.state.filtered_files} />
             </div>
           </div>
         </div>

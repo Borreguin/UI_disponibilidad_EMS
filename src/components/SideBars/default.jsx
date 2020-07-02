@@ -8,7 +8,7 @@ const DefaultSideBar = (props) => {
     const {menu} = props;
     const div_space = { "height": "65px" }
     const custom_style = { "zIndex": 1000 }
-    
+    // pinned
     return (
        
         <React.Fragment>

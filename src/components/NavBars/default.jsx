@@ -9,7 +9,7 @@ const DefaultNavBar = (props) => {
     
     return ( 
         <React.Fragment>
-            <Navbar bg={bg} variant={variant} expand="sm" style={{"zIndex": 1001}}>
+            <Navbar bg={bg} variant={variant} expand="sm" className="nav-bar-style">
                 <Navbar.Brand  className="nav-brand-custom"  href={brand.route}>{brand.name}</Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse>
