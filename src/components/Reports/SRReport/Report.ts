@@ -102,6 +102,7 @@ export type reporte_utr = {
   indisponibilidad_acumulada_minutos: number,
   consignaciones: [],
   consignaciones_acumuladas_minutos: number,
+  disponibilidad_promedio_porcentage: number,
   ponderacion: number
 }
 

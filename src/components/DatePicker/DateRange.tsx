@@ -41,7 +41,6 @@ export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
   
   constructor(props) { 
     super(props);
-    let now = new Date();
     this.state = {
       ini_date: new Date(),
       end_date: new Date()

@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Spinner, Col, Button, Card } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPenFancy } from "@fortawesome/free-solid-svg-icons";
-import ReactJson from "react-json-view";
+import { Card } from "react-bootstrap";
 import "./style.css";
 import { Report } from "./Report";
 

@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Spinner, Col, Button, Card, ProgressBar } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPenFancy } from "@fortawesome/free-solid-svg-icons";
+import { Spinner, ProgressBar } from "react-bootstrap";
 import ReactJson from "react-json-view";
 import "./style.css";
-import { Report, StatusReport } from "./Report";
+import { StatusReport } from "./Report";
 import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
 
 type StatusCalcReportProps = {

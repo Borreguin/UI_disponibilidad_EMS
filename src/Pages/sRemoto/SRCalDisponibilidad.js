@@ -71,12 +71,12 @@ class SRCalDisponibilidad extends Component {
       .then((report) => {
         if (report.errors === undefined) {
           this.setState({
-            filtered_reports: report.reportes_nodos,
             report: report,
           });
-          if (report.novedades !== undefined) {
-            this.setState({ log: report.novedades.detalle });
-          }
+          this._filter_reports(this.state.search);
+        }
+        if (report.novedades !== undefined) {
+          this.setState({ log: report.novedades.detalle });
         }
       })
       .catch(console.log);
@@ -152,7 +152,6 @@ class SRCalDisponibilidad extends Component {
       this.state.filtered_reports.forEach((report) => {
         node_names.push(report.nombre);
       });
-    console.log(node_names);
     return node_names;
   };
 

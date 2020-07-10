@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import "./style.css";
 import { SummaryReport, reporte_nodo } from "./Report";
-import { Card, OverlayTrigger, Tooltip, Badge, Button, Spinner } from "react-bootstrap";
+import {
+  Card,
+  Badge,
+  Button,
+  Spinner,
+} from "react-bootstrap";
 import {
   faAngleDoubleUp,
   faAngleDoubleDown,
@@ -12,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
 import ReactTooltip from "react-tooltip";
 import DetailReport from "./DetailReport";
+import ReactJson from "react-json-view";
 
 type IndReportProps = {
   report: SummaryReport;
@@ -27,7 +33,7 @@ type IndReportState = {
   log: Object;
   disponibilidad: string;
   deleted: boolean;
-  report: reporte_nodo| undefined;
+  report: reporte_nodo | undefined;
 };
 
 const styleHeader = {
@@ -105,7 +111,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
 
   _open_close = () => {
     this.setState({ open: !this.state.open });
-    if (!this.state.open) { 
+    if (!this.state.open) {
       this._get_details_for_this_report();
     }
   };
@@ -130,7 +136,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
     );
     if (confirm) {
       this.setState({ calculating: true, disponibilidad: "---" });
-      let path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+      let path = "/api/disp-sRemoto/disponibilidad/" + this.props.report.tipo + "/" + this.props.report.nombre + "/" + this._range_time();
       await fetch(path, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -177,10 +183,10 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
           delete json.report;
           json["estado"] = "Finalizado";
           this.setState({ log: json, calculating: false, open: false });
+          this.handle_changes_report();
         }
-        this.handle_changes_report();
       })
-      .catch((res) => {
+      .catch(() => {
         this.setState({
           log: { estado: "error", msg: "No es posible conectar con la API" },
           calculating: false,
@@ -196,12 +202,22 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
       this.props.report.nombre +
       "/" +
       this._range_time();
-    
-    fetch(path).then((resp) => resp.json())
+
+    fetch(path)
+      .then((resp) => resp.json())
       .then((report) => {
-        this.setState({report: report});
+        let novedades = {}
+        if (report.entidades_fallidas.length > 0) { 
+          novedades["entidades_fallidas"] = report.entidades_fallidas;
+        }
+        if (report.utr_fallidas.length > 0) { 
+          novedades["utr_fallidas"] = report.utr_fallidas;
+        }
+        if (report.tags_fallidas.length > 0) { 
+          novedades["tags_fallidas"] = report.tags_fallidas;
+        }
+        this.setState({ report: report, log: novedades });
       });
-    
   };
 
   render() {
@@ -283,9 +299,27 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
           className={this.state.open ? "collapse show" : "collapse"}
           style={{ padding: "5px" }}
         >
-          {this.state.open && this.state.report ?
-            <DetailReport report={this.state.report}/>
-            : <div><Spinner animation="border" role="status" size="sm"/> <span>Espere por favor, cargando...</span> </div>}
+          {this.state.open && this.state.report ? (
+            <DetailReport report={this.state.report} />
+          ) : (
+            <div>
+              <Spinner animation="border" role="status" size="sm" />{" "}
+              <span>Espere por favor, cargando...</span>{" "}
+            </div>
+          )}
+          {this.state.report === undefined ? (
+            <></>
+          ) : (
+            <ReactJson
+              name="log"
+              displayObjectSize={true}
+              collapsed={true}
+              iconStyle="circle"
+              displayDataTypes={false}
+              theme="monokai"
+              src={this.state.log}
+            />
+          )}
         </Card.Body>
       </Card>
     );

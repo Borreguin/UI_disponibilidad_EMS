@@ -16,10 +16,10 @@ class SRManage extends Component {
   state = {
     brand: { route: "/Pages/sRemoto", name: "Sistema Remoto" },
     navData: [],
-    nodes: undefined,
+    nodes: [],
     search: "",
     loading: true,
-    filter_nodes: undefined,
+    filter_nodes: [],
   };
 
   async componentDidMount() {
@@ -27,11 +27,16 @@ class SRManage extends Component {
   }
 
   _search_nodes_now = async () => {
-    this.setState({ nodes: undefined, loading: true });
-    await fetch("/api/admin-sRemoto/nodos/" + this.state.search)
+    this.setState({ nodes: [], loading: true });
+    let path = "/api/admin-sRemoto/nodos/" + this.state.search;
+    await fetch(path)
       .then((res) => res.json())
       .then((nodes) => {
-        this.setState({ nodes: nodes, filter_nodes: nodes });
+        if (nodes.errors !== undefined) {
+          this.setState({ nodes: [], filter_nodes: [] });
+        } else {
+          this.setState({ nodes: nodes, filter_nodes: nodes });
+        }
       })
       .catch(console.log);
     this.setState({ loading: false });
@@ -40,7 +45,7 @@ class SRManage extends Component {
   _filter = (e) => {
     let filtered_nodes = [];
     let to_filter = e.target.value.toLowerCase();
-    if (this.state.nodes === undefined) return;
+    if (this.state.nodes.length === 0) return;
     this.state.nodes.forEach((node) => {
       if (node.nombre.toLowerCase().includes(to_filter)) {
         filtered_nodes.push(node);
@@ -58,7 +63,7 @@ class SRManage extends Component {
       return this._loading();
     }
 
-    if (this.state.nodes === undefined || this.state.nodes.length === 0) {
+    if (this.state.nodes.length === 0) {
       return this._not_found();
     }
   };
@@ -81,11 +86,12 @@ class SRManage extends Component {
   };
 
   _add_node = () => {
-    this.setState({ loading: true });
-    let lcl_nodes = [new_node()];
-    lcl_nodes = lcl_nodes.concat(this.state.nodes);
-    this.setState({ nodes: lcl_nodes, filter_nodes: lcl_nodes });
-    this.setState({ loading: false });
+      this.setState({ loading: true });
+      let lcl_nodes = [new_node()];
+      lcl_nodes = lcl_nodes.concat(this.state.nodes);
+      console.log(lcl_nodes);
+      this.setState({ nodes: lcl_nodes, filter_nodes: lcl_nodes });
+      this.setState({ loading: false });
   };
 
   render() {
@@ -112,7 +118,7 @@ class SRManage extends Component {
                 <Button
                   variant="outline-dark"
                   onClick={this._search_nodes_now}
-                  disabled={this.state.nodes === undefined}
+                  disabled={this.state.nodes.length === 0}
                   className="btn-search"
                 >
                   Actualizar
@@ -137,9 +143,7 @@ class SRManage extends Component {
               <div style={{ marginLeft: "15px" }}>{this._notification()}</div>
             </Form.Group>
             <div className="div-cards">
-              {this.state.loading ||
-              this.state.nodes === undefined ||
-              this.state.nodes.length === 0 ? (
+              {this.state.loading || this.state.nodes.length === 0 ? (
                 <div></div>
               ) : (
                 <NodePanel nodes={this.state.filter_nodes} />

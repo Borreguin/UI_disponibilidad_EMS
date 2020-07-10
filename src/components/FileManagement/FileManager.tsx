@@ -1,9 +1,5 @@
 import React, { Component } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { new_node } from "../Cards/SRCard/SRCardModel";
-import { Spinner, Form, Button, Row, Col, Card } from "react-bootstrap";
 import { Groups } from "./File";
 import FileContainer from "./FileContainer"
 

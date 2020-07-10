@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { faTools, faCalculator, faAddressBook, faBook, faCodeBranch } from "@fortawesome/free-solid-svg-icons";
+import { faTools, faCalculator, faBook, faCodeBranch } from "@fortawesome/free-solid-svg-icons";
 import { Route, BrowserRouter as Router } from 'react-router-dom'
 import SRManage from './SRModeling'
 import SRCalDisponibilidad  from './SRCalDisponibilidad'

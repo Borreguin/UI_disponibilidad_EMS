@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import RepGeneral from "../../components/Cards/Report/RepGeneral";
 import "./styles.css";
 import { SummaryReport } from "../../components/Reports/SRReport/Report";
 import IndividualReport from "../../components/Reports/SRReport/IndividualReport";

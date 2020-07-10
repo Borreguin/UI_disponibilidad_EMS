@@ -66,13 +66,13 @@ class SRCard extends Component<SRCardProps> {
 
   // permite indicar cuando un nodo has sido actualizado
   // mediante archivo
-  handle_on_node_upload = (new_node) => { 
+  handle_on_node_upload = (new_node) => {
     this.setState({ edited: true });
     this.lcl_node = _.cloneDeep(new_node);
     this.bck_node = _.cloneDeep(new_node);
     console.log(this.lcl_node);
     this.setState({ edited: false });
-  }
+  };
 
   _updateNombre = (e, trim) => {
     if (trim) {
@@ -113,7 +113,7 @@ class SRCard extends Component<SRCardProps> {
       .then((json) => {
         if (json.errors !== undefined) {
           this.setState({ message: json.errors, edited: true });
-          if (json.errors === "No se encontró el nodo") { 
+          if (json.errors === "No se encontró el nodo") {
             this._create_new_node();
           }
         } else {
@@ -141,10 +141,10 @@ class SRCard extends Component<SRCardProps> {
           this.setState({
             message: json.errors,
             edited: true,
-            visible: true
+            visible: true,
           });
         } else {
-          console.log("new node", json)
+          console.log("new node", json);
           this.bck_node = _.cloneDeep(json);
           this.is_edited();
           this.lcl_node = _.cloneDeep(json);
@@ -263,10 +263,14 @@ class SRCard extends Component<SRCardProps> {
             ></UploadNode>
           </div>
           <div className="entity-seccion">
-            <EntityCards
-              entidades={this.lcl_node.entidades}
-              onEntityChange={this.handle_entities_change}
-            />
+            {this.lcl_node.entidades === undefined ? (
+              <></>
+            ) : (
+              <EntityCards
+                entidades={this.lcl_node.entidades}
+                onEntityChange={this.handle_entities_change}
+              />
+            )}
           </div>
         </Card.Body>
       </Card>
