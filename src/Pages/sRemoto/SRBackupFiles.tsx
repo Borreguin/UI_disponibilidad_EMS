@@ -18,10 +18,16 @@ class SRBackupFiles extends Component {
     filtered_files: undefined,
     loading: true,
     error: false,
+    pinned: false,
   };
 
   async componentDidMount() {
     this._search_files_now();
+  }
+
+  // permite manejar el sideBar pinned or toggle
+  handle_onClickBtnPin = (btnPin) => { 
+    this.setState({ pinned: btnPin })
   }
 
   _search_files_now = async () => {
@@ -112,9 +118,15 @@ class SRBackupFiles extends Component {
           variant="dark"
           brand={this.state.brand}
           navData={this.state.navData}
+          showpinned={true}
+          onClickBtnPin={this.handle_onClickBtnPin}
         />
-        <div className="page-wrapper default-theme sidebar-bg bg1 toggled">
-          <DefaultSideBar menu={menu()} />
+        <div className=
+          {this.state.pinned ?
+          "page-wrapper default-theme sidebar-bg bg1 toggled pinned" :
+          "page-wrapper default-theme sidebar-bg bg1 toggled"}
+        >
+        <DefaultSideBar menu={menu()} pinned={this.state.pinned} />
           <div className="page-content">
             <Form.Group as={Row} className="sc-search">
               <Form.Label column sm="2" className="sc-btn-search">
@@ -136,11 +148,11 @@ class SRBackupFiles extends Component {
                 />
               </Col>
               <Row className="lb-bck-version">
-                Cada grupo de versionamiento contiene hasta 7 archivos con el
-                mismo nombre. Aquellos que fueron subidos al sistema con el
-                mismo nombre son renombrados con @1 para la versión penúltima
-                hasta @6 que es la versión más antigua. Haga click sobre un
-                grupo de versionamiento para ver más detalle:
+                Cada grupo de versionamiento contiene hasta 7 archivos que
+                fueron subidos con el mismo nombre. Los archivos son renombrados
+                con @1 para la versión penúltima y con @6 la versión más
+                antigua. Haga click sobre un grupo de versionamiento para ver
+                más detalle:
               </Row>
             </Form.Group>
             <div style={{ marginLeft: "15px" }}>{this._notification()}</div>

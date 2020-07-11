@@ -1,12 +1,7 @@
 import React, { Component } from "react";
 import "./style.css";
 import { SummaryReport, reporte_nodo } from "./Report";
-import {
-  Card,
-  Badge,
-  Button,
-  Spinner,
-} from "react-bootstrap";
+import { Card, Badge, Button, Spinner } from "react-bootstrap";
 import {
   faAngleDoubleUp,
   faAngleDoubleDown,
@@ -136,7 +131,13 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
     );
     if (confirm) {
       this.setState({ calculating: true, disponibilidad: "---" });
-      let path = "/api/disp-sRemoto/disponibilidad/" + this.props.report.tipo + "/" + this.props.report.nombre + "/" + this._range_time();
+      let path =
+        "/api/disp-sRemoto/disponibilidad/" +
+        this.props.report.tipo +
+        "/" +
+        this.props.report.nombre +
+        "/" +
+        this._range_time();
       await fetch(path, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -206,14 +207,14 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
     fetch(path)
       .then((resp) => resp.json())
       .then((report) => {
-        let novedades = {}
-        if (report.entidades_fallidas.length > 0) { 
+        let novedades = {};
+        if (report.entidades_fallidas.length > 0) {
           novedades["entidades_fallidas"] = report.entidades_fallidas;
         }
-        if (report.utr_fallidas.length > 0) { 
+        if (report.utr_fallidas.length > 0) {
           novedades["utr_fallidas"] = report.utr_fallidas;
         }
-        if (report.tags_fallidas.length > 0) { 
+        if (report.tags_fallidas.length > 0) {
           novedades["tags_fallidas"] = report.tags_fallidas;
         }
         this.setState({ report: report, log: novedades });
@@ -265,9 +266,22 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
             <div className="ir-process-label"> Total:</div>
             <div className="ir-process-value"> {this._total_tags()}</div>
           </div>
-          <span className="ir-date">
+          <div className="ir-summary">
+            <span className="ir-date">
             {this._format_date(this.props.report.actualizado)}
-          </span>
+            </span>
+            
+            <span>
+              {this.props.report.novedades.tags_fallidas.length === 0 ? (
+                <Badge variant="success">Completo</Badge>
+              ) : (
+                <Badge variant="warning">
+                  {this.props.report.novedades.tags_fallidas.length}{" tags sin calcular"}
+                </Badge>
+              )}
+            </span>
+          </div>
+
           <Button
             data-tip="Eliminar cálculo"
             variant="outline-light"

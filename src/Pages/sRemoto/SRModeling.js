@@ -26,6 +26,11 @@ class SRManage extends Component {
     this._search_nodes_now();
   }
 
+  // permite manejar el sideBar pinned or toggle
+  handle_onClickBtnPin = (btnPin) => { 
+    this.setState({ pinned: btnPin })
+  }
+
   _search_nodes_now = async () => {
     this.setState({ nodes: [], loading: true });
     let path = "/api/admin-sRemoto/nodos/" + this.state.search;
@@ -109,9 +114,15 @@ class SRManage extends Component {
           variant="dark"
           brand={this.state.brand}
           navData={this.state.navData}
+          showpinned={true}
+          onClickBtnPin={this.handle_onClickBtnPin}
         />
-        <div className="page-wrapper default-theme sidebar-bg bg1 toggled">
-          <DefaultSideBar menu={menu()} />
+        <div className=
+          {this.state.pinned ?
+          "page-wrapper default-theme sidebar-bg bg1 toggled pinned" :
+          "page-wrapper default-theme sidebar-bg bg1 toggled"}
+        >
+          <DefaultSideBar menu={menu()} pinned={this.state.pinned}/>
           <div className="page-content">
             <Form.Group as={Row} className="sc-search">
               <Form.Label column sm="2" className="sc-btn-search">

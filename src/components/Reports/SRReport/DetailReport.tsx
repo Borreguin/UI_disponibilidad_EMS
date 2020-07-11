@@ -16,10 +16,11 @@ type DetReportProps = {
 };
 
 type DetReportState = {
-  show: boolean;
+  show: boolean; //For Modal
   utr: reporte_utr;
   search: string;
   filter_tags: Array<tag_details>;
+  open: object;
 };
 
 let columns = [
@@ -35,7 +36,6 @@ let columns = [
   },
 ];
 
-
 class DetailReport extends Component<DetReportProps, DetReportState> {
   constructor(props) {
     super(props);
@@ -44,6 +44,7 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
       utr: undefined,
       search: "",
       filter_tags: [],
+      open: {},
     };
   }
 
@@ -58,9 +59,24 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
     );
   };
 
+  _open_close = (entidad_nombre) => {
+    let open = this.state.open;
+    if (open[entidad_nombre] === undefined) {
+      open[entidad_nombre] = true;
+    } else {
+      open[entidad_nombre] = !open[entidad_nombre];
+    }
+    this.setState({ open: open });
+    console.log(open);
+    console.log("state", this.state.open)
+  };
+
   _render_utr_report = (utr: reporte_utr) => {
     return (
-      <Card.Body className="dr-utr-body" key={utr.id_utr}>
+      <Card.Body
+        className="dr-utr-body"
+        key={utr.id_utr}
+      >
         <div className="dr-utr-description">
           <Line className="dr-utr-bar" percent={utr.ponderacion * 100} />
           <div>{utr.tipo}</div>
@@ -87,7 +103,8 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
   _render_entity_report = (entity: reporte_entidad) => {
     return (
       <Card key={entity.entidad_nombre} className="dr-container" border="dark">
-        <Card.Header className="dr-entity-header">
+        <Card.Header className="dr-entity-header"
+          onClick={() => this._open_close(entity.entidad_nombre)}>
           <span>
             <Circle
               strokeWidth={15}
@@ -117,7 +134,14 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
             ) + " %"}
           </span>
         </Card.Header>
-        <CardGroup className="dr-utr-group">
+        <CardGroup
+          className={
+            this.state.open[entity.entidad_nombre] !== undefined &&
+            this.state.open[entity.entidad_nombre]
+              ? " dr-utr-group collapse show"
+              : " dr-utr-group collapse"
+          }
+        >
           {entity.reportes_utrs.map((utr) => this._render_utr_report(utr))}
         </CardGroup>
       </Card>
@@ -138,15 +162,15 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
     this.setState({ show: true, utr: utr, filter_tags: utr.tag_details });
   };
 
-    _filter_tags = (e) => {
-        let to_filter = e.target.value.toLowerCase();
-        let filter_tags = [];
-        this.state.utr.tag_details.forEach((tag) => { 
-            if (tag.tag_name.toLowerCase().includes(to_filter)) { 
-                filter_tags.push(tag);
-            }
-        })
-        this.setState({filter_tags: filter_tags});
+  _filter_tags = (e) => {
+    let to_filter = e.target.value.toLowerCase();
+    let filter_tags = [];
+    this.state.utr.tag_details.forEach((tag) => {
+      if (tag.tag_name.toLowerCase().includes(to_filter)) {
+        filter_tags.push(tag);
+      }
+    });
+    this.setState({ filter_tags: filter_tags });
   };
 
   render() {

@@ -107,9 +107,12 @@
 }
 
 .lb-bck-version{
-  width: 100%;
+  width: 97%;
   margin-left: 15px;
+  margin-right: 15px;
   margin-bottom: 7px;
+  padding-right: 2%;
+  font-size: 10pt;
 }
 
 .sc-src-details{

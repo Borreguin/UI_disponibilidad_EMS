@@ -10,6 +10,7 @@ import SCManage from './Pages/sCentral/SCManage'
 import * as serviceWorker from './serviceWorker';
 import { Route,  BrowserRouter as Router} from 'react-router-dom'
 import './components/icons/fontawesome'
+import SRConsignaciones from './Pages/sRemoto/SRConsignaciones';
 
 //<Route exact path="/icons" component={IconLibrary} />
 const routing = (
@@ -20,7 +21,7 @@ const routing = (
     <Route exact path="/Pages/sCentral" component={SCManage} />
     <Route exact path="/Pages/sRemoto/cal/disponibilidad" component={SRCalDisponibilidad} />
     <Route exact path="/Pages/sRemotoBackups" component={SRBackupFiles} />
-    
+    <Route exact path="/Pages/sRemoto/consignaciones/nueva" component={SRConsignaciones}/>
     
   </Router>
 )

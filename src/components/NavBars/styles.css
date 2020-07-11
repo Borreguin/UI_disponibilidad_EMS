@@ -38,3 +38,17 @@
     font-weight: bolder;
     margin-left: 15px;
 }
+
+.nav-pinned{
+    color: rgba(245, 187, 61, 0.829);
+    font-size: 16pt;
+}
+
+.nav-btn-pinned{
+    background-color: rgba(143, 130, 130, 0.363);
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 40px;
+    margin-left: -12px;
+}

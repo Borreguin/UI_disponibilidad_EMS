@@ -129,6 +129,16 @@
   margin-left: 7px;
   padding-left: 10px;
 }
+
+.ir-summary{
+  display: flex;
+  flex-wrap: wrap;
+  float: left;
+  min-width: 130px;
+  margin-top: 0px;
+  margin-left: 7px;
+}
+
 .ir-process-label {
   width: 70%;
   float: left;
@@ -139,7 +149,6 @@
 }
 .ir-date {
   color: rgb(88, 84, 84);
-  margin-left: 12px;
   font-style: italic;
   font-size: 10pt;
 }
