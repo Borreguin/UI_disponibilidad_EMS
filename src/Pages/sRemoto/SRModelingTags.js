@@ -7,6 +7,9 @@ import menu from "./SideBar";
 import { Col, Button, Tabs, Tab, Alert } from "react-bootstrap";
 import { to_yyyy_mm_dd_hh_mm_ss } from "../../components/DatePicker/DateRangeTime";
 import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
+import FilterSTRNodes from "./FilterSTRNodes";
+import SRModelingRTU from "./SRModelingTags_RTUs";
+import SRModelingTag from "./SRModelingTags_Tags";
 
 // Pagina inicial de manejo de nodos:
 class SRModelingTags extends Component {
@@ -32,69 +35,12 @@ class SRModelingTags extends Component {
     this.setState({ pinned: btnPin });
   };
 
-  // permite obtener datos del componente:
-  handle_datos_mantenimiento = (forma) => {
+  // permite manejar cambios en el filtrado de nodos
+  _handle_filter_STRNodes = (selected, selected_id) => {
+    let forma = this.state.forma;
+    forma["selected"] = selected;
+    forma["selected_id"] = selected_id;
     this.setState({ forma: forma });
-    console.log(forma);
-    this.check_values();
-  };
-
-  // check values to let send the information
-  check_values = () => {
-    let valid = true;
-    // check no_consignacion
-    valid =
-      valid &&
-      this.state.forma["no_consignacion"] !== undefined &&
-      this.state.forma["no_consignacion"].length > 3;
-
-    // check selección UTR
-    valid =
-      valid &&
-      this.state.forma["selected_id"] !== undefined &&
-      this.state.forma.selected_id["utr"] !== undefined;
-    this.setState({ active: valid });
-  };
-
-  // enviar consignación:
-
-  _send_consignacion = () => {
-
-    let msg = "Desea ingresar la siguiente consignación? \n\n" +
-      this.state.forma.selected["utr_tipo"]  + ": \t\t\t" + this.state.forma.selected["utr_nombre"] + "\n" +
-      "No. consignación: \t" + this.state.forma.no_consignacion + "\n" +
-      "Inicio: \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_inicio"]) + "\n" +
-      "Fin:    \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_final"])
-    let r = window.confirm(msg);
-    if (r === false) return;
-
-    let path =
-      "/api/admin-consignacion/consignacion/" +
-      this.state.forma.selected_id.utr +
-      "/" +
-      to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_inicio) +
-      "/" +
-      to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_final);
-    let payload = {
-      no_consignacion: this.state.forma["no_consignacion"],
-      detalle: {},
-    };
-    payload.detalle["observaciones"] = this.state.forma["detalle"];
-    fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result, result.success);
-        if (result.success) {
-          this.setState({ log: result.msg, success: result.success });
-        } else {
-          this.setState({ log: result.errors, success: result.success });
-        }
-      })
-      .catch(console.log);
   };
 
   render() {
@@ -127,41 +73,54 @@ class SRModelingTags extends Component {
             <div className="cons-container">
               <Tabs
                 defaultActiveKey="dt-mte"
-                id="uncontrolled-tab-example"
+                id="uncontrolled-tab"
                 transition={false}
               >
-                <Tab eventKey="dt-mte" title="Datos Consignación">
-                  <DatosMantenimiento
-                    onChange={this.handle_datos_mantenimiento}
-                  ></DatosMantenimiento>
+                <Tab eventKey="dt-mte" title="Información de UTR y Tags">
+                  <FilterSTRNodes onChange={this._handle_filter_STRNodes} />
                 </Tab>
               </Tabs>
-              <Col>
-                <br></br>
-                {!this.state.active ? (
-                  <div>
-                    Los campos con (<span className="cons-mandatory">*</span>)
-                    son mandatorios
-                  </div>
+              <Tabs
+                defaultActiveKey="dt-entidad"
+                id="uncontrolled-tab-mod"
+                transition={false}
+                variant="pills"
+              >
+                {this.state.forma["selected"] === undefined ||
+                this.state.forma["selected"]["entidad_nombre"] === undefined ? (
+                  <></>
                 ) : (
-                  <div>
-                    <Button
-                      variant="primary"
-                      disabled={!this.state.active}
-                      onClick={this._send_consignacion}
-                    >
-                      Ingresar consignación
-                    </Button>
-                    {this.state.log.length === 0 ? (
-                      <></>
-                    ) : (
-                          <Alert className="cns-info"
-                            variant={this.state.success?"success":"warning"}
-                          >{this.state.log}</Alert>
-                    )}
-                  </div>
+                  <Tab
+                    eventKey="dt-entidad"
+                    title={
+                      "UTRs en " +
+                      this.state.forma.selected["entidad_tipo"] +
+                      ": " +
+                      this.state.forma.selected["entidad_nombre"]
+                    }
+                  >
+                    <SRModelingRTU
+                      selected={this.state.forma.selected}
+                      selected_id={this.state.forma.selected_id}
+                    />
+                  </Tab>
                 )}
-              </Col>
+                {this.state.forma["selected"] === undefined ||
+                this.state.forma["selected"]["utr_nombre"] === undefined ? (
+                  <></>
+                ) : (
+                  <Tab
+                    eventKey="dt-rtu"
+                    title={
+                      "Tags en " +
+                      this.state.forma.selected["utr_tipo"] +
+                      ": " +
+                      this.state.forma.selected["utr_nombre"]
+                    }
+                  ></Tab>
+                )}
+              </Tabs>
+              <Col></Col>
             </div>
           </div>
         </div>
