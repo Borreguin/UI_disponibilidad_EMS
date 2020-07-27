@@ -9,11 +9,11 @@ import { to_yyyy_mm_dd_hh_mm_ss } from "../../components/DatePicker/DateRangeTim
 import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
 
 // Pagina inicial de manejo de nodos:
-class SRConsignaciones extends Component {
+class SRConsignacionesConsultar extends Component {
   /* Configuración de la página: */
   state = {
     brand: {
-      route: "/Pages/sRemoto/consignaciones/nueva",
+      route: "/Pages/sRemoto/consignaciones/consultar",
       name: "Ingresar consignación",
     },
     navData: [],
@@ -171,4 +171,4 @@ class SRConsignaciones extends Component {
   }
 }
 
-export default SRConsignaciones;
+export default SRConsignacionesConsultar;

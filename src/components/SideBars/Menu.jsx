@@ -45,7 +45,7 @@ function toggled_menu(header, navData) {
           <a
             key={item.route}
             href={item.route}
-            className={check_path(item.route) ? "active" : ""}
+            className={check_path(item.route) ? "actived" : ""}
           >
             <FontAwesomeIcon
               icon={item.icon === undefined ? faPlayCircle : item.icon}

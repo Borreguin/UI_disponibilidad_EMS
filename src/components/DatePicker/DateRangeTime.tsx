@@ -17,6 +17,11 @@ export const to_yyyy_mm_dd = (date) => {
   return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 }
 
+export const to_yyyy_mm_dd_hh_mm_ss = (date: Date) => { 
+  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " 
+    + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+}
+
 export const get_last_month_dates = () => { 
   let now = new Date();
   let last_day_month = new Date(
@@ -37,7 +42,7 @@ export const get_last_month_dates = () => {
 
 }
 
-export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
+export class DateRangeTime extends React.Component<RangeDateProps, RangeDateState>{
   
   constructor(props) { 
     super(props);
@@ -63,39 +68,49 @@ export class DateRange extends React.Component<RangeDateProps, RangeDateState>{
   };
 
   setStartDate = (date) => { 
-    this.setState({ini_date:date})
+    if (date < this.state.end_date) { 
+      this.setState({ ini_date: date })
+      this.props.onPickerChange(date, this.state.end_date);
+    }
   }
 
   setEndDate = (date) => { 
-    this.setState({end_date:date})
+    if (date > this.state.ini_date) { 
+      this.setState({ end_date: date })
+      this.props.onPickerChange(this.state.ini_date, date);
+    }
   }
 
   render() { 
     return (
-      <div className="div-pick-container">
+      <div className="div-pick-timer-container">
         <div>
-          <div className="div_middle">
+          <div className="div_pick-timer-middle">
             <DatePicker
-              className="picker-div"
+              showTimeSelect
+              className="picker-timer-div"
               selected={this.state.ini_date}
               onChange={(date) => this.setStartDate(date)}
-              onBlur={this.handle_picker_change}
+              onBlur={(date) => this.setStartDate(date)}
               selectsStart
               startDate={this.state.ini_date}
               endDate={this.state.end_date}
+              dateFormat="yyyy/MMM/d h:mm a"
             />
           </div>
         </div>
         <div>
           <DatePicker
-            className="picker-div"
+            showTimeSelect
+            className="picker-timer-div"
             selected={this.state.end_date}
             onChange={(date) => this.setEndDate(date)}
+            onBlur={(date) => this.setEndDate(date)}
             selectsEnd
-            onBlur={this.handle_picker_change}
             startDate={this.state.ini_date}
             endDate={this.state.end_date}
             minDate={this.state.ini_date}
+            dateFormat="yyyy/MMM/d h:mm a"
           />
         </div>
       </div>

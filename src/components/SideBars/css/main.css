@@ -526,10 +526,11 @@ body {
 .page-wrapper.toggled .sidebar-wrapper {
   left: 0px;
 }
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 400px) {
   .page-wrapper.toggled .page-content {
     padding-left: 280px;
   }
+  
 }
 /*
 @media screen and (max-width: 768px) {
@@ -537,7 +538,8 @@ body {
     display: block;
   }
 }*/
-@media screen and (min-width: 768px) {
+
+@media screen and (min-width: 400px) {
   .page-wrapper.toggled.pinned .page-content {
     padding-left: 50px;
   }
@@ -682,7 +684,7 @@ body {
   border-bottom-right-radius: 4px;
 }
 
-.active {
+.actived {
   background-color: rgba(185, 130, 28, 0.308);
   border-radius: 4px;
   margin: -2px;

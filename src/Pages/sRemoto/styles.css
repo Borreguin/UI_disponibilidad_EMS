@@ -14,12 +14,11 @@
 
 .sc-search {
   position: fixed;
-  width: 80%;
+  width: 100%;
   margin-left: 5px;
-  margin-right: 5px;
   top: 60px;
   padding-top: 1% !important;
-  padding-right: 1% !important;
+  padding-right: 287px !important;
   z-index: 1000;
   background-color: white;
 }
@@ -119,4 +118,37 @@
  margin-top: 15px;
  border: 1px solid rgba(121, 121, 121, 0.884);
  border-radius: 4px;
+}
+
+.cons-container{
+  height: 95vh;
+  width: 100%;
+  padding-top: 70px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.tab-container{
+  padding:7px;
+}
+
+.cons-col{
+  margin-bottom: 6px !important;
+}
+
+.cons-label{
+  margin-bottom: 2px !important;
+}
+
+.cons-header{
+  padding: 7px;
+}
+
+.cons-mandatory{
+  color: red;
+}
+
+.cns-info{
+  float: right;
+  width: 78%;
 }

@@ -94,7 +94,6 @@ class SRManage extends Component {
       this.setState({ loading: true });
       let lcl_nodes = [new_node()];
       lcl_nodes = lcl_nodes.concat(this.state.nodes);
-      console.log(lcl_nodes);
       this.setState({ nodes: lcl_nodes, filter_nodes: lcl_nodes });
       this.setState({ loading: false });
   };

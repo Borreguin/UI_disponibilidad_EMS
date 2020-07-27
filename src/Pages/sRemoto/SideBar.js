@@ -4,6 +4,8 @@ import {
   faCalculator,
   faBook,
   faCodeBranch,
+  faTags,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { Route, BrowserRouter as Router } from "react-router-dom";
 import SRManage from "./SRModeling";
@@ -32,6 +34,11 @@ function menu() {
           icon: faTools,
         },
         {
+          route: "/Pages/sRemoto/Tags",
+          name: "Administración de UTR y Tags",
+          icon: faTags,
+        },
+        {
           route: "/Pages/sRemotoBackups",
           name: "Versionamiento",
           icon: faCodeBranch,
@@ -55,6 +62,11 @@ function menu() {
           route: "/Pages/sRemoto/consignaciones/nueva",
           name: "Añadir",
           icon: faBook,
+        },
+        {
+          route: "/Pages/sRemoto/consignaciones/consultar",
+          name: "Consultar",
+          icon: faSearch,
         }
       ],
     },

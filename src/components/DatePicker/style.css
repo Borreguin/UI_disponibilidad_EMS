@@ -1,5 +1,6 @@
 .div_middle{
     width: 45%;
+    min-width: 80px;
     margin-left: 1px;
     float: left;
 }
@@ -10,5 +11,16 @@
 
 .div-pick-container{
     width: auto;
-    
+}
+
+.div-pick-timer-container{
+    display: inline-flex;
+}
+.div_pick-timer-middle{
+    float: left;
+}
+
+.picker-timer-div{
+    min-width: 140px;
+    float: left;
 }

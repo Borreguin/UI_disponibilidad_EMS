@@ -45,7 +45,7 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "start": "set PORT=2020 && react-scripts start",
+    "start": "set PORT=2021 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
