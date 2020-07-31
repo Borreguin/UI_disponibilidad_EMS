@@ -3,6 +3,7 @@ import "./styles.css";
 import { SummaryReport } from "../../components/Reports/SRReport/Report";
 import IndividualReport from "../../components/Reports/SRReport/IndividualReport";
 import StatusCalcReport from "../../components/Reports/SRReport/StatusCalcReport";
+import ReactJson from "react-json-view";
 
 type NodeReportProps = {
   reports: Array<SummaryReport>;
@@ -10,20 +11,37 @@ type NodeReportProps = {
   end_date: Date;
   calculating: boolean;
   onChange: Function;
+  onFinish: Function;
 };
 
-class NodeReport extends Component<NodeReportProps> {
+type NodeReportState = {
+  finish: boolean
+  log: object| undefined;
+};
+
+class NodeReport extends Component<NodeReportProps, NodeReportState> {
+  constructor(props) { 
+    super(props);
+    this.state = { 
+      finish: false, log: undefined
+    }
+  }
+  _handle_finish_calculation = (log) => { 
+    this.setState({ finish: true, log: log});
+    this.props.onFinish();
+  }
+  
   render() {
     return (
       <div>
-        {this.props.calculating ?
+        {this.props.calculating && !this.state.finish ?
           <StatusCalcReport
             ini_date={this.props.ini_date}
             end_date={this.props.end_date}
-            onFinish={this.props.onChange}
+            onFinish={this._handle_finish_calculation}
           />
           :
-          <></>
+           <></> 
         }
         {this.props.reports === undefined || this.props.calculating ? (
           <></>

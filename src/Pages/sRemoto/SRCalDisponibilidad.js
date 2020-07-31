@@ -56,6 +56,14 @@ class SRCalDisponibilidad extends Component {
     this._search_report_now();
   };
 
+  // cuando finaliza el cálculo
+  handle_finish_calculation = () => {
+    if (this.state.calculating) { 
+      this.setState({ calculating: false });
+    }
+    console.log(this.state.report);
+  }
+
   _search_report_now = async () => {
     if (String(this.state.ini_date) === String(this.state.end_date)) {
       this.setState({
@@ -332,11 +340,12 @@ class SRCalDisponibilidad extends Component {
                 <div className="sc-src-details">
                   <div className="subtitle-details">DETALLES DE CÁLCULO </div>
                   <NodeReport
-                    reports={this.state.filtered_reports}
-                    ini_date={this.state.ini_date}
-                    end_date={this.state.end_date}
-                    calculating={this.state.calculating}
-                    onChange={this.handle_calculation_details}
+                      reports={this.state.filtered_reports}
+                      ini_date={this.state.ini_date}
+                      end_date={this.state.end_date}
+                      calculating={this.state.calculating}
+                      onChange={this.handle_calculation_details}
+                      onFinish={this.handle_finish_calculation}
                   />
                 </div>
               )}

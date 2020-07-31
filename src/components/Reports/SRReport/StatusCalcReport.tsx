@@ -44,7 +44,7 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 8000);
+    this.timer = setInterval(() => this._inform_status(), 10000);
     
   }
 
@@ -53,25 +53,29 @@ class StatusCalcReport extends Component<
     this.timer = null;
     try {
       this.abortController.abort();
-    } catch {}
+    } catch { }
+    this._handle_finish_report_status();
   }
 
   _handle_finish_report_status = () => { 
-    this.props.onFinish();
+    this.props.onFinish(this.state.log);
   }
   _inform_status = () => {
     this.setState({ isFetching: true });
-    if (this.state.percentage > 99) { 
+    this._processing_percentage();
+    if (this.state.percentage > 99.9) { 
       this.setState({ isFetching: false, percentage: 100 });
+      this._handle_finish_report_status();
       return;
     }
     let path = "/api/disp-sRemoto/estado/disponibilidad/" + this._range_time();
     fetch(path, { signal: this.abortController.signal })
-      .then((res) => res.json())
+      .then((res) => res.json()
+    )
       .then((json) => {
         if (json.status !== undefined) {
           json.status.sort(function (a, b) { return a.percentage - b.percentage})
-          this.setState({ status: json.status });
+          this.setState({ status: json.status, log:json });
         } else {
           this.setState({ log: json });
         }
@@ -82,12 +86,12 @@ class StatusCalcReport extends Component<
   };
 
   _processing_percentage = () => {
-    let p = this.state.percentage;
+    let p = 0;
     this.state.status.forEach((status_report) => {
       p += status_report.percentage;
     });
     if (this.state.status.length > 0) {
-      p = p / (this.state.status.length + 1);
+      p = p / (this.state.status.length);
     }
     this.setState({ percentage: p });
   };
