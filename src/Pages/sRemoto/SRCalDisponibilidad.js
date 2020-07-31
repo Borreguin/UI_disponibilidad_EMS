@@ -61,7 +61,9 @@ class SRCalDisponibilidad extends Component {
     if (this.state.calculating) { 
       this.setState({ calculating: false });
     }
-    console.log(this.state.report);
+    if (this.state.report === undefined) { 
+      this._search_report_now();
+    }
   }
 
   _search_report_now = async () => {
@@ -210,6 +212,7 @@ class SRCalDisponibilidad extends Component {
         if (json.errors !== undefined) {
           this.setState({ log: json.errors, edited: true, calculating: false });
         } else {
+          console.log("Reporte Finalizado");
           json["estado"] = "Finalizado";
           this.setState({
             log: json,
