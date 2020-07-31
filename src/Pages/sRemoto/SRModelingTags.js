@@ -4,9 +4,7 @@ import DefaultFooter from "../../components/NavBars/footer";
 import DefaultSideBar from "../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
 import menu from "./SideBar";
-import { Col, Button, Tabs, Tab, Alert } from "react-bootstrap";
-import { to_yyyy_mm_dd_hh_mm_ss } from "../../components/DatePicker/DateRangeTime";
-import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
+import { Col, Tabs, Tab } from "react-bootstrap";
 import FilterSTRNodes from "./FilterSTRNodes";
 import SRModelingRTU from "./SRModelingTags_RTUs";
 import SRModelingTag from "./SRModelingTags_Tags";
@@ -117,7 +115,13 @@ class SRModelingTags extends Component {
                       ": " +
                       this.state.forma.selected["utr_nombre"]
                     }
-                  ></Tab>
+                  >
+                    <SRModelingTag
+                      selected={this.state.forma.selected}
+                      selected_id={this.state.forma.selected_id}
+                    />
+                      
+                  </Tab>
                 )}
               </Tabs>
               <Col></Col>

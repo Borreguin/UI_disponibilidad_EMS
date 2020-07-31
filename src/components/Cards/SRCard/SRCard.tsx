@@ -12,6 +12,7 @@ import {
   faSave,
   faUndo,
   faTrash,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import "./SRCard.css";
 import { EntityCards } from "./EntityCards";
@@ -175,6 +176,26 @@ class SRCard extends Component<SRCardProps> {
     }
   };
 
+  _download_node = () => {
+    let url =
+      "/api/admin-sRemoto/nodo/" +
+      this.bck_node.tipo +
+      "/" +
+      this.bck_node.nombre +
+      "/from-excel";
+    let name = this.bck_node.tipo + this.bck_node.nombre + ".xlsx";
+    fetch(url).then((response) => {
+      if (!response.ok) return;
+      response.blob().then((blob) => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+      });
+    });
+  };
+
   render() {
     if (this.bck_node === null) return <></>;
     return (
@@ -245,6 +266,19 @@ class SRCard extends Component<SRCardProps> {
           >
             <FontAwesomeIcon icon={faUndo} inverse size="sm" />
           </Button>
+
+          <Button
+            variant="outline-light"
+            className={
+              !this.state.edited
+                ? "src-btn-right src-btn-active"
+                : "src-btn-right src-btn-disabled"
+            }
+            onClick={this._download_node}
+          >
+            <FontAwesomeIcon icon={faDownload} inverse size="sm" />
+          </Button>
+
           <Alert
             variant="light"
             show={this.state.visible}

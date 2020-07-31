@@ -9,6 +9,7 @@ import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
 type StatusCalcReportProps = {
   ini_date: Date;
   end_date: Date;
+  onFinish: Function;
 };
 
 type StatusCalcReportState = {
@@ -43,7 +44,8 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 7000);
+    this.timer = setInterval(() => this._inform_status(), 8000);
+    
   }
 
   componentWillUnmount() {
@@ -54,8 +56,15 @@ class StatusCalcReport extends Component<
     } catch {}
   }
 
+  _handle_finish_report_status = () => { 
+    this.props.onFinish();
+  }
   _inform_status = () => {
     this.setState({ isFetching: true });
+    if (this.state.percentage > 99) { 
+      this.setState({ isFetching: false, percentage: 100 });
+      return;
+    }
     let path = "/api/disp-sRemoto/estado/disponibilidad/" + this._range_time();
     fetch(path, { signal: this.abortController.signal })
       .then((res) => res.json())

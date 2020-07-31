@@ -20,6 +20,7 @@ class NodeReport extends Component<NodeReportProps> {
           <StatusCalcReport
             ini_date={this.props.ini_date}
             end_date={this.props.end_date}
+            onFinish={this.props.onChange}
           />
           :
           <></>

@@ -45,8 +45,8 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         node.nombre === this.selected["nodo_nombre"]
       ) {
         selected_id["nodo"] = node.id_node;
-        for (var idx in node.entidades) {
-          let entidad = node.entidades[idx];
+        for (var idy in node.entidades) {
+          let entidad = node.entidades[idy];
           if (
             entidad.entidad_nombre === this.selected["entidad_nombre"] &&
             entidad.entidad_tipo === this.selected["entidad_tipo"]
@@ -56,8 +56,8 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         }
       }
     }
-    for (var idx in this.utrs) {
-      let utr = this.utrs[idx];
+    for (var idz in this.utrs) {
+      let utr = this.utrs[idz];
       if (
         utr.utr_tipo === this.selected["utr_tipo"] &&
         utr.utr_nombre === this.selected["utr_nombre"]

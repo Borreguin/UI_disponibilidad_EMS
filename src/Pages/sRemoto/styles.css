@@ -152,3 +152,32 @@
   float: right;
   width: 78%;
 }
+
+.utr-block{
+  min-width: 32.7%;
+  margin: 2px;
+  border: 1px solid rgba(131, 127, 127, 0.774) !important;
+}
+
+.utr-label{
+  min-width: 50%;
+  float: left;
+}
+
+.table_input{
+  min-width: 300px;
+  border: 0px !important;
+}
+
+.btn-add-tag{
+  height: 30px;
+  width: 100%;
+  padding: 2px;
+  background-color: rgba(36, 39, 43, 0.534);
+  margin-top: 2px;
+  margin-bottom: 15px;
+}
+
+.btn-add-tag:hover {
+  background-color: rgb(59, 179, 29);
+}

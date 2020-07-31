@@ -67,8 +67,6 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
       open[entidad_nombre] = !open[entidad_nombre];
     }
     this.setState({ open: open });
-    console.log(open);
-    console.log("state", this.state.open)
   };
 
   _render_utr_report = (utr: reporte_utr) => {

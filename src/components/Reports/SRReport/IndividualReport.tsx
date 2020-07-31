@@ -243,7 +243,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
                 size="sm"
                 className="ir-toggle-btn"
                 onClick={() => {
-                  this.setState({ open: !this.state.open });
+                  this._open_close();
                 }}
               />
               <Badge className="ir-badge-general" variant="dark">
