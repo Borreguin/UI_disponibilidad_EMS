@@ -59,12 +59,20 @@ class SRConsignaciones extends Component {
   // enviar consignación:
 
   _send_consignacion = () => {
-
-    let msg = "Desea ingresar la siguiente consignación? \n\n" +
-      this.state.forma.selected["utr_tipo"]  + ": \t\t\t" + this.state.forma.selected["utr_nombre"] + "\n" +
-      "No. consignación: \t" + this.state.forma.no_consignacion + "\n" +
-      "Inicio: \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_inicio"]) + "\n" +
-      "Fin:    \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_final"])
+    let msg =
+      "Desea ingresar la siguiente consignación? \n\n" +
+      this.state.forma.selected["utr_tipo"] +
+      ": \t\t\t" +
+      this.state.forma.selected["utr_nombre"] +
+      "\n" +
+      "No. consignación: \t" +
+      this.state.forma.no_consignacion +
+      "\n" +
+      "Inicio: \t\t\t\t" +
+      to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_inicio"]) +
+      "\n" +
+      "Fin:    \t\t\t\t" +
+      to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_final"]);
     let r = window.confirm(msg);
     if (r === false) return;
 
@@ -87,12 +95,7 @@ class SRConsignaciones extends Component {
     })
       .then((response) => response.json())
       .then((result) => {
-        console.log(result, result.success);
-        if (result.success) {
-          this.setState({ log: result.msg, success: result.success });
-        } else {
-          this.setState({ log: result.errors, success: result.success });
-        }
+        this.setState({ log: result.msg, success: result.success });
       })
       .catch(console.log);
   };
@@ -155,9 +158,12 @@ class SRConsignaciones extends Component {
                     {this.state.log.length === 0 ? (
                       <></>
                     ) : (
-                          <Alert className="cns-info"
-                            variant={this.state.success?"success":"warning"}
-                          >{this.state.log}</Alert>
+                      <Alert
+                        className="cns-info"
+                        variant={this.state.success ? "success" : "warning"}
+                      >
+                        {this.state.log}
+                      </Alert>
                     )}
                   </div>
                 )}

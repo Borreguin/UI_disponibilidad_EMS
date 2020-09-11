@@ -181,3 +181,27 @@
 .btn-add-tag:hover {
   background-color: rgb(59, 179, 29);
 }
+
+.consignacion_block{
+  min-width: 330px;
+  margin: 2px;
+  border: 1px solid rgba(131, 127, 127, 0.774) !important;
+}
+.consignacion-title{
+  color: rgb(10, 10, 100);
+}
+.consignacion_label{
+  min-width: 120px;
+  font-size: 10pt;
+  font-style: oblique;
+}
+
+.consg_descrip{
+  min-width: 100px;
+  float: left;
+}
+
+.consignacion_buttons{
+  float: right;
+}
+

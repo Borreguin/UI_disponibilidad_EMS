@@ -32,15 +32,16 @@ class SRCalDisponibilidad extends Component {
       search: "", // filtrar reportes
       loading: true,
       calculating: false,
-      log: { estado: "Listo para realizar cálculo" },
+      log: { estado: "Cargando información ..." },
       edited: false,
+      msg: "",
     };
   }
 
   // permite manejar el sideBar pinned or toggle
-  handle_onClickBtnPin = (btnPin) => { 
-    this.setState({ pinned: btnPin })
-  }
+  handle_onClickBtnPin = (btnPin) => {
+    this.setState({ pinned: btnPin });
+  };
 
   async componentDidMount() {
     this._search_report_now();
@@ -58,21 +59,24 @@ class SRCalDisponibilidad extends Component {
 
   // cuando finaliza el cálculo
   handle_finish_calculation = () => {
-    if (this.state.calculating) { 
+    if (this.state.calculating) {
       this.setState({ calculating: false });
     }
-    if (this.state.report === undefined) { 
+    if (this.state.report === undefined) {
       this._search_report_now();
     }
-  }
+  };
 
   _search_report_now = async () => {
+    //" No hay resultados para la búsqueda, el cálculo en referencia no existe."
     if (String(this.state.ini_date) === String(this.state.end_date)) {
+      let msg = "Seleccione fechas distintas para el cálculo";
       this.setState({
         loading: false,
         edited: true,
         calculating: false,
-        log: { msg: "Seleccione fechas distintas para el cálculo" },
+        log: { msg: msg },
+        msg: msg,
       });
       return;
     }
@@ -80,21 +84,34 @@ class SRCalDisponibilidad extends Component {
       filtered_reports: undefined,
       loading: true,
       report: undefined,
+      calculating: false
     });
     await fetch("/api/disp-sRemoto/disponibilidad/" + this._range_time())
       .then((res) => res.json())
-      .then((report) => {
-        if (report.errors === undefined) {
+      .then((json) => {
+        if (json.success) {
           this.setState({
-            report: report,
+            report: json.report,
           });
           this._filter_reports(this.state.search);
+        } else {
+          this.setState({ msg: json.msg });
         }
-        if (report.novedades !== undefined) {
-          this.setState({ log: report.novedades.detalle });
+        // cargando novedades en caso existan:
+        if (
+          json.report !== undefined &&
+          json.report.novedades !== undefined &&
+          json.report.novedades.detalle !== undefined
+        ) {
+          this.setState({ log: json.report.novedades.detalle });
         }
       })
-      .catch(console.log);
+      .catch((error) => {
+        let msg =
+          "Ha fallado la conexión con la API de cálculo de disponibilidad";
+        this.setState({ log: { error: msg }, msg: msg });
+        console.log(error);
+      });
     this.setState({ loading: false });
   };
 
@@ -128,7 +145,7 @@ class SRCalDisponibilidad extends Component {
     }
 
     if (this.state.report === undefined) {
-      return this._not_found();
+      return this._show_message();
     }
   };
 
@@ -141,14 +158,10 @@ class SRCalDisponibilidad extends Component {
     );
   };
 
-  _not_found = () => {
+  _show_message = () => {
     return (
       <div>
-        <span>
-          {
-            " No hay resultados para la búsqueda, el cálculo en referencia no existe."
-          }
-        </span>
+        <span>{JSON.stringify(this.state.msg)}</span>
       </div>
     );
   };
@@ -170,6 +183,8 @@ class SRCalDisponibilidad extends Component {
     return node_names;
   };
 
+  // Realizar el cálculo de los nodos existentes en base de datos
+  // El estado calculating permite identificar el momento en que se realiza los cálculos
   _cal_all = async (method) => {
     let msg = "";
     let pcc =
@@ -187,6 +202,7 @@ class SRCalDisponibilidad extends Component {
       },
       edited: true,
       calculating: true,
+      msg: ""
     });
     let path = "";
     let payload = {
@@ -209,18 +225,32 @@ class SRCalDisponibilidad extends Component {
       .then((res) => res.json())
       .then((json) => {
         this.setState({ loading: true });
-        if (json.errors !== undefined) {
-          this.setState({ log: json.errors, edited: true, calculating: false });
-        } else {
-          console.log("Reporte Finalizado");
-          json["estado"] = "Finalizado";
+        if (!json.success) {
           this.setState({
-            log: json,
+            log: { error: json.msg },
+            edited: true,
+            calculating: false,
+            msg: json.msg,
+            report: undefined,
+            filtered_reports: undefined,
+            loading: false,
+          });
+        } else {
+          this.setState({
+            log: { msg: json.msg },
             edited: true,
             calculating: false,
             report: json.report,
+            msg: json.msg
           });
         }
+      })
+      .catch((error) => {
+        // Dado que el cálculo puede tomar mas tiempo y causar un time-out
+        /*let msg =
+          "Ha fallado la conexión con la API de cálculo de disponibilidad";
+        this.setState({ log: { error: msg }, msg: msg });*/
+        console.log(error);
       });
     this._filter_reports(this.state.search);
     this.setState({ loading: false });
@@ -244,12 +274,14 @@ class SRCalDisponibilidad extends Component {
           showpinned={true}
           onClickBtnPin={this.handle_onClickBtnPin}
         />
-        <div className=
-          {this.state.pinned ?
-          "page-wrapper default-theme sidebar-bg bg1 toggled pinned" :
-          "page-wrapper default-theme sidebar-bg bg1 toggled"}
+        <div
+          className={
+            this.state.pinned
+              ? "page-wrapper default-theme sidebar-bg bg1 toggled pinned"
+              : "page-wrapper default-theme sidebar-bg bg1 toggled"
+          }
         >
-        <DefaultSideBar menu={menu()} pinned={this.state.pinned} />
+          <DefaultSideBar menu={menu()} pinned={this.state.pinned} />
           <div className="page-content">
             <Form.Group as={Row} className="sc-search">
               <Form.Label column sm="3" className="sc-pick-menu">
@@ -343,12 +375,12 @@ class SRCalDisponibilidad extends Component {
                 <div className="sc-src-details">
                   <div className="subtitle-details">DETALLES DE CÁLCULO </div>
                   <NodeReport
-                      reports={this.state.filtered_reports}
-                      ini_date={this.state.ini_date}
-                      end_date={this.state.end_date}
-                      calculating={this.state.calculating}
-                      onChange={this.handle_calculation_details}
-                      onFinish={this.handle_finish_calculation}
+                    reports={this.state.filtered_reports}
+                    ini_date={this.state.ini_date}
+                    end_date={this.state.end_date}
+                    calculating={this.state.calculating}
+                    onChange={this.handle_calculation_details}
+                    onFinish={this.handle_finish_calculation}
                   />
                 </div>
               )}

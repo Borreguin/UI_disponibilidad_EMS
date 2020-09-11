@@ -175,7 +175,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
       .catch(console.log);
   };
 
-  _render_tag_edit = (columns) => {
+  _render_tag_edit = () => {
     return (
       <div>
         <Card className="tab-container">
@@ -190,7 +190,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           ) : (
             <DataTable
               pagination={true}
-              columns={columns}
+              columns={this.columns}
               data={this.state.filter_tags}
               fixedHeader
               noHeader={true}
@@ -231,7 +231,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
     );
   };
 
-  columns_delete = [
+  columns = [
     {
       name: "Nombre de tag",
       selector: "tag_name",
@@ -316,7 +316,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           ) : (
             <DataTable
               pagination={true}
-              columns={this.columns_delete}
+              columns={this.columns}
               data={this.state.filter_tags}
               fixedHeader
               noHeader={true}
@@ -618,7 +618,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           </Tab>
 
           <Tab eventKey="dt-editar-tags" title="Editar tags">
-            {this._render_tag_edit(columns)}
+            {this._render_tag_edit()}
           </Tab>
 
           <Tab eventKey="dt-delete-tags" title="Eliminar tags">

@@ -233,6 +233,7 @@ class SRModelingRTU extends Component<
     this._send_rtu_form();
   };
 
+  // forma para crear RTUs
   _render_create_rtu_form = () => {
     return (
       <Form className="tab-container">
@@ -306,6 +307,7 @@ class SRModelingRTU extends Component<
     );
   };
 
+  // forma para editar RTUs
   _render_edit_rtu_form = () => {
     return (
       <Form className="tab-container">
@@ -381,6 +383,7 @@ class SRModelingRTU extends Component<
     );
   };
 
+  // forma para eliminar RTUs
   _render_delete_rtu_form = () => {
     let utrs = [];
     if (this.state.utrs === undefined) {

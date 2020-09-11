@@ -14,7 +14,7 @@ import SRCalDisponibilidad from "./SRCalDisponibilidad";
 //<Route exact path="/icons" component={IconLibrary} />
 export const routing = (
   <Router>
-    <Route exact path="/Pages/sRemoto" component={SRManage} />
+    <Route exact path="/Pages/sRemoto/SRmodeling" component={SRManage} />
     <Route
       exact
       path="/Pages/sRemoto/cal/disponibilidad"
@@ -29,17 +29,17 @@ function menu() {
       header: "Modelamiento:",
       navData: [
         {
-          route: "/Pages/sRemoto",
+          route: "/Pages/sRemoto/SRmodeling",
           name: "Administración de Nodos",
           icon: faTools,
         },
         {
-          route: "/Pages/sRemoto/Tags",
+          route: "/Pages/sRemoto/SRmodelingTags",
           name: "Administración de UTR y Tags",
           icon: faTags,
         },
         {
-          route: "/Pages/sRemotoBackups",
+          route: "/Pages/sRemoto/SRBackupFiles",
           name: "Versionamiento",
           icon: faCodeBranch,
         },
@@ -49,7 +49,7 @@ function menu() {
       header: "Cálculo",
       navData: [
         {
-          route: "/Pages/sRemoto/cal/disponibilidad",
+          route: "/Pages/sRemoto/SRCalDisponibilidad",
           name: "Disponibilidad",
           icon: faCalculator,
         }
@@ -65,7 +65,7 @@ function menu() {
         },
         {
           route: "/Pages/sRemoto/consignaciones/consultar",
-          name: "Consultar",
+          name: "Administrar consignaciones",
           icon: faSearch,
         }
       ],

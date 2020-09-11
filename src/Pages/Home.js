@@ -10,7 +10,7 @@ class Home extends Component {
   state = {
     brand: { route: "./", name: "Inicio" },
     navData: [
-      { route: "/Pages/sRemoto", name: "Sistema Remoto" },
+      { route: "/Pages/sRemoto/SRmodeling", name: "Sistema de adquisición de datos" },
       { route: "/Pages/sCentral", name: "Sistema Central" },
       { route: "/about", name: "Info" },
     ]

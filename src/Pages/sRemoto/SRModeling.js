@@ -14,12 +14,14 @@ import { new_node } from "../../components/Cards/SRCard/SRCardModel";
 class SRManage extends Component {
   /* Configuración de la página: */
   state = {
-    brand: { route: "/Pages/sRemoto", name: "Sistema Remoto" },
+    brand: { route: "/Pages/sRemoto/SRmodeling", name: "Administración de nodos" },
     navData: [],
     nodes: [],
     search: "",
     loading: true,
     filter_nodes: [],
+    msg: "",
+    error: false
   };
 
   async componentDidMount() {
@@ -32,18 +34,23 @@ class SRManage extends Component {
   }
 
   _search_nodes_now = async () => {
-    this.setState({ nodes: [], loading: true });
+    this.setState({ nodes: [], loading: true, error: false });
     let path = "/api/admin-sRemoto/nodos/" + this.state.search;
     await fetch(path)
       .then((res) => res.json())
-      .then((nodes) => {
-        if (nodes.errors !== undefined) {
-          this.setState({ nodes: [], filter_nodes: [] });
+      .then((json) => {
+        if (!json.success) {
+          this.setState({ nodes: [], filter_nodes: [], msg: json.msg });
         } else {
-          this.setState({ nodes: nodes, filter_nodes: nodes });
+          let nodes = json.nodos;
+          nodes.sort((a, b) => (a.nombre > b.nombre) ? 1 : -1);
+          this.setState({ nodes: nodes, filter_nodes: nodes, msg: json.msg });
         }
       })
-      .catch(console.log);
+      .catch((error) => { 
+        this.setState({ error: true, msg: "Ha fallado la conexión con la API de cálculo de disponibilidad" });
+        console.log(error);
+      });
     this.setState({ loading: false });
   };
 
@@ -85,7 +92,7 @@ class SRManage extends Component {
   _not_found = () => {
     return (
       <div>
-        <span> No hay resultados para la búsqueda...</span>
+        <span> No hay resultados para la búsqueda... {this.state.msg}</span>
       </div>
     );
   };

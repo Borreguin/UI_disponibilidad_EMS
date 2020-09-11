@@ -6,6 +6,8 @@ import "./style.css";
 export interface RangeDateProps {
   last_month?: boolean,
   onPickerChange: Function,
+  ini_date?: Date|undefined,
+  end_date?: Date|undefined,
 }
 
 export type RangeDateState = {
@@ -57,6 +59,12 @@ export class DateRangeTime extends React.Component<RangeDateProps, RangeDateStat
         end_date: r.last_day_month
       }
     } 
+    if (this.props.ini_date !== undefined && this.props.end_date !== undefined) { 
+      this.state = {
+        ini_date: this.props.ini_date,
+        end_date: this.props.end_date
+      }
+    }
     this.handle_picker_change();
   }
   

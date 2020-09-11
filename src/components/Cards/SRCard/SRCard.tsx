@@ -112,9 +112,9 @@ class SRCard extends Component<SRCardProps> {
     })
       .then((res) => res.json())
       .then((json) => {
-        if (json.errors !== undefined) {
-          this.setState({ message: json.errors, edited: true });
-          if (json.errors === "No se encontró el nodo") {
+        if (!json.success) {
+          this.setState({ message: json.msg, edited: true });
+          if (json.msg === "No se encontró el nodo") {
             this._create_new_node();
           }
         } else {
@@ -138,14 +138,13 @@ class SRCard extends Component<SRCardProps> {
     })
       .then((res) => res.json())
       .then((json) => {
-        if (json.errors !== undefined) {
+        if (!json.success) {
           this.setState({
-            message: json.errors,
+            message: json.msg,
             edited: true,
             visible: true,
           });
         } else {
-          console.log("new node", json);
           this.bck_node = _.cloneDeep(json);
           this.is_edited();
           this.lcl_node = _.cloneDeep(json);

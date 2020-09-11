@@ -55,7 +55,6 @@ class DatosMantenimiento extends Component<SRConsigProps, SRConsigState> {
     forma["fecha_inicio"] = ini_date;
     forma["fecha_final"] = end_date;
     this.setState({ forma: forma });
-    console.log("Iam changing")
     this._handle_all_changes();
   };
 

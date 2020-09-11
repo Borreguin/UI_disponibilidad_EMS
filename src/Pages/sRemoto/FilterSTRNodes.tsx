@@ -73,10 +73,14 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     let path = "/api/admin-sRemoto/nodos/";
     fetch(path)
       .then((res) => res.json())
-      .then((nodes) => {
-        if (nodes.errors !== undefined) {
+      .then((json) => {
+        if (!json.success) {
+          // si existe errores:
           this.setState({ nodes: [], loading: false });
         } else {
+          // si los nodos están ok:
+          let nodes = json.nodos;
+          nodes.sort((a, b) => (a.nombre > b.nombre) ? 1 : -1);
           this.setState({ nodes: nodes });
           this.setState({ loading: false });
         }
@@ -277,6 +281,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
 
   _utr_names = () => {
     let options = this.state.options;
+    this.utrs.sort((a, b)=>(a.utr_nombre > b.utr_nombre)? 1 : -1)
     options["utr_nombre"] = this._filter_options(
       this.utrs,
       "utr_nombre",

@@ -148,7 +148,10 @@ class DetailReport extends Component<DetReportProps, DetReportState> {
   _format_percentage = (percentage: number, n: number) => {
     if (percentage === 100) {
       return "100";
-    } else {
+    } else if ( percentage < 0) { 
+      return "---";
+    }
+    else {
       return "" + percentage.toFixed(n);
     }
   };

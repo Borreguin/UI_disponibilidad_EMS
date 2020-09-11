@@ -7,6 +7,7 @@ import {
   faAngleDoubleDown,
   faTrash,
   faPenFancy,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
@@ -62,7 +63,10 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
   _format_percentage = (percentage: number, n: number) => {
     if (percentage === 100) {
       return "100";
-    } else {
+    } else if (percentage < 0) { 
+      return "----";
+    }
+    else {
       return "" + percentage.toFixed(n);
     }
   };
@@ -178,8 +182,8 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
     await fetch(path, payload)
       .then((res) => res.json())
       .then((json) => {
-        if (json.errors !== undefined) {
-          this.setState({ log: json.errors, calculating: false });
+        if (!json.success) {
+          this.setState({ log: json.msg, calculating: false });
         } else {
           delete json.report;
           json["estado"] = "Finalizado";
@@ -208,18 +212,37 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
       .then((resp) => resp.json())
       .then((report) => {
         let novedades = {};
-        if (report.entidades_fallidas.length > 0) {
+        console.log(report);
+        if (report.tags_fallidas_detalle !== undefined) {
+          novedades["tags_fallidas_detalle"] = report.tags_fallidas_detalle;
+        }
+        if (report.entidades_fallidas !== undefined && report.entidades_fallidas.length > 0) {
           novedades["entidades_fallidas"] = report.entidades_fallidas;
         }
-        if (report.utr_fallidas.length > 0) {
+        if (report.utr_fallidas !== undefined && report.utr_fallidas.length > 0) {
           novedades["utr_fallidas"] = report.utr_fallidas;
         }
-        if (report.tags_fallidas.length > 0) {
+        if (report.tags_fallidas !== undefined && report.tags_fallidas.length > 0) {
           novedades["tags_fallidas"] = report.tags_fallidas;
         }
         this.setState({ report: report, log: novedades });
       });
   };
+
+  _download_log = (node_name) => { 
+    let file_name = node_name + ".log";
+    let url =
+      "/api/files/file/output/" + file_name;
+      fetch(url).then((response) => {
+        response.blob().then((blob) => {
+          let url = window.URL.createObjectURL(blob);
+          let a = document.createElement("a");
+          a.href = url;
+          a.download = file_name;
+          a.click();
+        });
+      });
+  }
 
   render() {
     return (
@@ -268,15 +291,16 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
           </div>
           <div className="ir-summary">
             <span className="ir-date">
-            {this._format_date(this.props.report.actualizado)}
+              {this._format_date(this.props.report.actualizado)}
             </span>
-            
+
             <span>
               {this.props.report.novedades.tags_fallidas.length === 0 ? (
                 <Badge variant="success">Completo</Badge>
               ) : (
                 <Badge variant="warning">
-                  {this.props.report.novedades.tags_fallidas.length}{" tags sin calcular"}
+                  {this.props.report.novedades.tags_fallidas.length}
+                  {" tags sin calcular"}
                 </Badge>
               )}
             </span>
@@ -324,15 +348,30 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
           {this.state.report === undefined ? (
             <></>
           ) : (
-            <ReactJson
-              name="log"
-              displayObjectSize={true}
-              collapsed={true}
-              iconStyle="circle"
-              displayDataTypes={false}
-              theme="monokai"
-              src={this.state.log}
-            />
+              <div>
+              <Button
+            variant="outline-light"
+            data-tip="Descargar archivo Log"
+            className={
+              this.state.calculating || this.props.calculating
+                ? "btn-cal-disp-dis-small"
+                : "btn-cal-disp-small"
+            }
+               onClick={() => this._download_log(this.props.report.nombre)}
+          >
+            <FontAwesomeIcon icon={faDownload} inverse size="sm" />
+          </Button>
+              <ReactJson
+                  name="log"
+                  displayObjectSize={true}
+                  collapsed={true}
+                  iconStyle="circle"
+                  displayDataTypes={false}
+                  theme="monokai"
+                  src={this.state.log}
+                  style={{minWidth:"92%", float:"left", marginRight:"7px", marginTop:"7px"}}
+              />
+            </div>
           )}
         </Card.Body>
       </Card>

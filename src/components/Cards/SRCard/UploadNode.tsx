@@ -59,7 +59,7 @@ class UploadNode extends Upload<UploadNodeProps> {
               this.setState({ message: "Proceso exitoso" });
               this._handleOnNodeUpload(objResp);
             } else {
-              this.setState({ message: objResp.errors });
+              this.setState({ message: objResp.msg });
             }
             check = check && value[1].status === 200;
           });

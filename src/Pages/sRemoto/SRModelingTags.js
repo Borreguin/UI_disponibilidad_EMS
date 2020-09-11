@@ -15,7 +15,7 @@ class SRModelingTags extends Component {
   state = {
     brand: {
       route: "/Pages/sRemoto/consignaciones/nueva",
-      name: "Ingresar consignación",
+      name: "Administración de UTR y Tags",
     },
     navData: [],
     nodes: [],

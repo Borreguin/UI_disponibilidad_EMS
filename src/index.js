@@ -19,11 +19,11 @@ const routing = (
   <Router>
     <Route exact path="/" component={Home} />
     <Route exact path="/about" component={About} />
-    <Route exact path="/Pages/sRemoto" component={SRManage} />
-    <Route exact path="/Pages/sRemoto/Tags" component={SRModelingTags}/>
+    <Route exact path="/Pages/sRemoto/SRmodeling" component={SRManage} />
+    <Route exact path="/Pages/sRemoto/SRmodelingTags" component={SRModelingTags}/>
     <Route exact path="/Pages/sCentral" component={SCManage} />
-    <Route exact path="/Pages/sRemoto/cal/disponibilidad" component={SRCalDisponibilidad} />
-    <Route exact path="/Pages/sRemotoBackups" component={SRBackupFiles} />
+    <Route exact path="/Pages/sRemoto/SRCalDisponibilidad" component={SRCalDisponibilidad} />
+    <Route exact path="/Pages/sRemoto/SRBackupFiles" component={SRBackupFiles} />
     <Route exact path="/Pages/sRemoto/consignaciones/nueva" component={SRConsignaciones} />
     <Route exact path="/Pages/sRemoto/consignaciones/consultar" component={SRConsignacionesConsultar} />
     

@@ -3,7 +3,6 @@ import "./styles.css";
 import { SummaryReport } from "../../components/Reports/SRReport/Report";
 import IndividualReport from "../../components/Reports/SRReport/IndividualReport";
 import StatusCalcReport from "../../components/Reports/SRReport/StatusCalcReport";
-import ReactJson from "react-json-view";
 
 type NodeReportProps = {
   reports: Array<SummaryReport>;

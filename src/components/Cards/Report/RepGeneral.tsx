@@ -126,8 +126,8 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
     await fetch(path, payload)
       .then((res) => res.json())
       .then((json) => {
-        if (json.errors !== undefined) {
-          this.setState({ log: json.errors, edited: true, calculating: false });
+        if (!json.success) {
+          this.setState({ log: json.msg, edited: true, calculating: false });
         } else {
           let report = json["report"];
           delete json.report;

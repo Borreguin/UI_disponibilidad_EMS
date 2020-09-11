@@ -4,9 +4,8 @@ import DefaultFooter from "../../components/NavBars/footer";
 import DefaultSideBar from "../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
 import menu from "./SideBar";
-import { Col, Button, Tabs, Tab, Alert } from "react-bootstrap";
-import { to_yyyy_mm_dd_hh_mm_ss } from "../../components/DatePicker/DateRangeTime";
-import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
+import { Col, Tabs, Tab } from "react-bootstrap";
+import DatosConsultar from "./SRConsignacionesConsultar_Form";
 
 // Pagina inicial de manejo de nodos:
 class SRConsignacionesConsultar extends Component {
@@ -14,7 +13,7 @@ class SRConsignacionesConsultar extends Component {
   state = {
     brand: {
       route: "/Pages/sRemoto/consignaciones/consultar",
-      name: "Ingresar consignación",
+      name: "Consultar consignación",
     },
     navData: [],
     nodes: [],
@@ -35,7 +34,6 @@ class SRConsignacionesConsultar extends Component {
   // permite obtener datos del componente:
   handle_datos_mantenimiento = (forma) => {
     this.setState({ forma: forma });
-    console.log(forma);
     this.check_values();
   };
 
@@ -58,44 +56,7 @@ class SRConsignacionesConsultar extends Component {
 
   // enviar consignación:
 
-  _send_consignacion = () => {
-
-    let msg = "Desea ingresar la siguiente consignación? \n\n" +
-      this.state.forma.selected["utr_tipo"]  + ": \t\t\t" + this.state.forma.selected["utr_nombre"] + "\n" +
-      "No. consignación: \t" + this.state.forma.no_consignacion + "\n" +
-      "Inicio: \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_inicio"]) + "\n" +
-      "Fin:    \t\t\t\t" + to_yyyy_mm_dd_hh_mm_ss(this.state.forma["fecha_final"])
-    let r = window.confirm(msg);
-    if (r === false) return;
-
-    let path =
-      "/api/admin-consignacion/consignacion/" +
-      this.state.forma.selected_id.utr +
-      "/" +
-      to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_inicio) +
-      "/" +
-      to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_final);
-    let payload = {
-      no_consignacion: this.state.forma["no_consignacion"],
-      detalle: {},
-    };
-    payload.detalle["observaciones"] = this.state.forma["detalle"];
-    fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result, result.success);
-        if (result.success) {
-          this.setState({ log: result.msg, success: result.success });
-        } else {
-          this.setState({ log: result.errors, success: result.success });
-        }
-      })
-      .catch(console.log);
-  };
+  
 
   render() {
     window.onkeydown = function (e) {
@@ -130,37 +91,15 @@ class SRConsignacionesConsultar extends Component {
                 id="uncontrolled-tab-example"
                 transition={false}
               >
-                <Tab eventKey="dt-mte" title="Datos Consignación">
-                  <DatosMantenimiento
+                <Tab eventKey="dt-mte" title="Datos de consignación a consultar">
+                  <DatosConsultar
                     onChange={this.handle_datos_mantenimiento}
-                  ></DatosMantenimiento>
+                  ></DatosConsultar>
                 </Tab>
               </Tabs>
               <Col>
                 <br></br>
-                {!this.state.active ? (
-                  <div>
-                    Los campos con (<span className="cons-mandatory">*</span>)
-                    son mandatorios
-                  </div>
-                ) : (
-                  <div>
-                    <Button
-                      variant="primary"
-                      disabled={!this.state.active}
-                      onClick={this._send_consignacion}
-                    >
-                      Ingresar consignación
-                    </Button>
-                    {this.state.log.length === 0 ? (
-                      <></>
-                    ) : (
-                          <Alert className="cns-info"
-                            variant={this.state.success?"success":"warning"}
-                          >{this.state.log}</Alert>
-                    )}
-                  </div>
-                )}
+                
               </Col>
             </div>
           </div>

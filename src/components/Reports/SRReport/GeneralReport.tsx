@@ -22,6 +22,15 @@ class SRGeneralReport extends Component<GeneralReportProps> {
   _format_date = () => { 
     return this.props.report.actualizado.split(".")[0];
   }
+
+  _format_percentage = (percentage) => { 
+    if (percentage < 0) {
+      return "No definida";
+    } else { 
+      return percentage.toFixed(6);
+    }
+  }
+
   render() {
     return (
        this.props.report.procesamiento === undefined? <></>:
@@ -31,9 +40,9 @@ class SRGeneralReport extends Component<GeneralReportProps> {
             <Card.Body className="gr-sc-padding">
             <Card.Title>Resultado</Card.Title>
               <div className="gr-sc-subtitle">Disponibilidad Promedio:</div>
-              <div className="gr-sc-value">{(this.props.report.disponibilidad_promedio_porcentage).toFixed(6)}%</div>
+              <div className="gr-sc-value">{this._format_percentage(this.props.report.disponibilidad_promedio_porcentage)}%</div>
               <div className="gr-sc-subtitle">Disponibilidad Promedio Ponderada:</div>
-                <div className="gr-sc-value">{(this.props.report.disponibilidad_promedio_ponderada_porcentage).toFixed(6)}%</div>
+                <div className="gr-sc-value">{this._format_percentage(this.props.report.disponibilidad_promedio_ponderada_porcentage)}%</div>
                 <br></br>
                 <div className="gr-sc-subtitle">Fecha de cálculo</div>
                 <div className="gr-sc-date">{this._format_date()}</div>

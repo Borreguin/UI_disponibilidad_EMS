@@ -54,7 +54,6 @@ class StatusCalcReport extends Component<
     try {
       this.abortController.abort();
     } catch { }
-    this._handle_finish_report_status();
   }
 
   _handle_finish_report_status = () => { 
@@ -63,9 +62,9 @@ class StatusCalcReport extends Component<
   _inform_status = () => {
     this.setState({ isFetching: true });
     this._processing_percentage();
-    if (this.state.percentage > 99.9) { 
+    if (this.state.percentage > 99.99) { 
       this.setState({ isFetching: false, percentage: 100 });
-      this._handle_finish_report_status();
+      setTimeout(() => { this._handle_finish_report_status(); }, 5000);
       return;
     }
     let path = "/api/disp-sRemoto/estado/disponibilidad/" + this._range_time();
