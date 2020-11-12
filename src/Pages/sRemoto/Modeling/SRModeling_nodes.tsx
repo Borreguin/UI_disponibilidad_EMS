@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import SRCard from "../../components/Cards/SRCard/SRCard";
-import "./styles.css";
+import SRCard from "../../../components/Cards/SRCard/SRCard";
+import "../styles.css";
 // import * as _ from "lodash";
 //import { Accordion, Card, Button, Collapse, CardBody } from "react-bootstrap";
-import { Node } from "../../components/Cards/SRCard/SRCardModel";
+import { Node } from "../../../components/Cards/SRCard/SRCardModel";
 
 type NodePanelProps = {
   nodes: Array<Node>;

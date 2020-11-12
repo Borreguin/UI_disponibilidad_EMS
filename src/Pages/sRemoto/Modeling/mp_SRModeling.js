@@ -1,14 +1,14 @@
 import React, { Component } from "react";
-import DefaultNavBar from "../../components/NavBars/default";
-import DefaultFooter from "../../components/NavBars/footer";
-import DefaultSideBar from "../../components/SideBars/default";
+import DefaultNavBar from "../../../components/NavBars/default";
+import DefaultFooter from "../../../components/NavBars/footer";
+import DefaultSideBar from "../../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
 import NodePanel from "./SRModeling_nodes";
-import menu from "./SideBar";
+import menu from "../SideBar";
 import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { new_node } from "../../components/Cards/SRCard/SRCardModel";
+import { new_node } from "../../../components/Cards/SRCard/SRCardModel";
 
 // Pagina inicial de manejo de nodos:
 class SRManage extends Component {

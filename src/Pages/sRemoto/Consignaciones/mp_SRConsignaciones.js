@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import DefaultNavBar from "../../components/NavBars/default";
-import DefaultFooter from "../../components/NavBars/footer";
-import DefaultSideBar from "../../components/SideBars/default";
+import DefaultNavBar from "../../../components/NavBars/default";
+import DefaultFooter from "../../../components/NavBars/footer";
+import DefaultSideBar from "../../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
-import menu from "./SideBar";
+import menu from "../SideBar";
 import { Col, Button, Tabs, Tab, Alert } from "react-bootstrap";
-import { to_yyyy_mm_dd_hh_mm_ss } from "../../components/DatePicker/DateRangeTime";
+import { to_yyyy_mm_dd_hh_mm_ss } from "../../../components/DatePicker/DateRangeTime";
 import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
 
 // Pagina inicial de manejo de nodos:

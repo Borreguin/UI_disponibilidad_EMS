@@ -5,8 +5,8 @@ import {
   Card,
   Row,
 } from "react-bootstrap";
-import FilterSTRNodes from "./FilterSTRNodes";
-import { DateRangeTime } from "../../components/DatePicker/DateRangeTime";
+import FilterSTRNodes from "../FilterSTRNodes";
+import { DateRangeTime } from "../../../components/DatePicker/DateRangeTime";
 
 export type Forma = {
   no_consignacion: String;

@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import DefaultNavBar from "../../components/NavBars/default";
-import DefaultFooter from "../../components/NavBars/footer";
-import DefaultSideBar from "../../components/SideBars/default";
+import DefaultNavBar from "../../../components/NavBars/default";
+import DefaultFooter from "../../../components/NavBars/footer";
+import DefaultSideBar from "../../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
-import menu from "./SideBar";
+import menu from "../SideBar";
 import { Col, Tabs, Tab } from "react-bootstrap";
-import FilterSTRNodes from "./FilterSTRNodes";
-import SRModelingRTU from "./SRModelingTags_RTUs";
-import SRModelingTag from "./SRModelingTags_Tags";
+import FilterSTRNodes from "../FilterSTRNodes";
+import SRModelingRTU from "./SRModeling_Tags_RTUs";
+import SRModelingTag from "./SRModeling_Tags_Tags";
 
 // Pagina inicial de manejo de nodos:
 class SRModelingTags extends Component {

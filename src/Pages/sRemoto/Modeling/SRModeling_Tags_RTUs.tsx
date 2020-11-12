@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./styles.css";
+import "../styles.css";
 import {
   Tab,
   Form,
@@ -11,7 +11,7 @@ import {
   CardGroup,
 } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
-import { UTR } from "./SRNode";
+import { UTR } from "../SRNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 

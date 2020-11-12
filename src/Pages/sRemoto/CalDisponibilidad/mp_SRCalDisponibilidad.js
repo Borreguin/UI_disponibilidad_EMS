@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import DefaultNavBar from "../../components/NavBars/default";
-import DefaultFooter from "../../components/NavBars/footer";
-import DefaultSideBar from "../../components/SideBars/default";
+import DefaultNavBar from "../../../components/NavBars/default";
+import DefaultFooter from "../../../components/NavBars/footer";
+import DefaultSideBar from "../../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
-import menu from "./SideBar";
+import menu from "../SideBar";
 import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencilAlt, faPenFancy } from "@fortawesome/free-solid-svg-icons";
@@ -11,10 +11,10 @@ import {
   DateRange,
   to_yyyy_mm_dd,
   get_last_month_dates,
-} from "../../components/DatePicker/DateRange";
+} from "../../../components/DatePicker/DateRange";
 import ReactJson from "react-json-view";
 import NodeReport from "./SRCalDisponibilidad_nodes";
-import SRGeneralReport from "../../components/Reports/SRReport/GeneralReport";
+import SRGeneralReport from "../../../components/Reports/SRReport/GeneralReport";
 
 // Pagina inicial de manejo de nodos:
 class SRCalDisponibilidad extends Component {

@@ -8,8 +8,8 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { Route, BrowserRouter as Router } from "react-router-dom";
-import SRManage from "./SRModeling";
-import SRCalDisponibilidad from "./SRCalDisponibilidad";
+import SRManage from "./Modeling/mp_SRModeling";
+import SRCalDisponibilidad from "./CalDisponibilidad/mp_SRCalDisponibilidad";
 
 //<Route exact path="/icons" component={IconLibrary} />
 export const routing = (

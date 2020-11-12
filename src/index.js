@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom';
 import './components/css/index.css';
 import Home from './Pages/Home';
 import About from './Pages/About'
-import SRManage from './Pages/sRemoto/SRModeling'
-import SRCalDisponibilidad from './Pages/sRemoto/SRCalDisponibilidad'
-import SRBackupFiles from './Pages/sRemoto/SRBackupFiles'
-import SCManage from './Pages/sCentral/SCManage'
+import SRManage from './Pages/sRemoto/Modeling/mp_SRModeling'
+import SRCalDisponibilidad from './Pages/sRemoto/CalDisponibilidad/mp_SRCalDisponibilidad'
+import SRBackupFiles from './Pages/sRemoto/mp_SRBackupFiles'
+import SCManage from './Pages/sCentral/Modeling/mp_SCModeling'
 import * as serviceWorker from './serviceWorker';
 import { Route,  BrowserRouter as Router} from 'react-router-dom'
 import './components/icons/fontawesome'
-import SRConsignaciones from './Pages/sRemoto/SRConsignaciones';
-import SRModelingTags from './Pages/sRemoto/SRModelingTags';
-import SRConsignacionesConsultar from './Pages/sRemoto/SRConsignacionesConsultar';
+import SRConsignaciones from './Pages/sRemoto/Consignaciones/mp_SRConsignaciones';
+import SRModelingTags from './Pages/sRemoto/Modeling/mp_SRModelingTags';
+import SRConsignacionesConsultar from './Pages/sRemoto/Consignaciones/mp_SRConsignacionesConsultar';
 
 //<Route exact path="/icons" component={IconLibrary} />
 const routing = (

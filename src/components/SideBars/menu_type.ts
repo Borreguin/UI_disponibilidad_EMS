@@ -7,6 +7,18 @@ export type menuBlock = {
     navData: Array<navData>
 }
 
+export type fatherMenus = Array<fatherMenu>
+
+export type fatherMenu = {
+    header: string,
+    static_menu: static_menu
+}
+
+export type static_menu = {
+    name: string,
+    icon?: IconDefinition 
+}
+
 export type navData = {
     route: string,
     name: string,

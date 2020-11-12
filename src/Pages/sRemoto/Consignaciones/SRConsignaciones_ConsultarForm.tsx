@@ -9,11 +9,11 @@ import {
   Alert,
   Modal,
 } from "react-bootstrap";
-import FilterSTRNodes from "./FilterSTRNodes";
+import FilterSTRNodes from "../FilterSTRNodes";
 import {
   DateRangeTime,
   to_yyyy_mm_dd_hh_mm_ss,
-} from "../../components/DatePicker/DateRangeTime";
+} from "../../../components/DatePicker/DateRangeTime";
 
 // Datos de selección
 export type Forma = {

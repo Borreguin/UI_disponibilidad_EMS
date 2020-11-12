@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import DefaultNavBar from "../../components/NavBars/default";
-import DefaultFooter from "../../components/NavBars/footer";
-import DefaultSideBar from "../../components/SideBars/default";
+import DefaultNavBar from "../../../components/NavBars/default";
+import DefaultFooter from "../../../components/NavBars/footer";
+import DefaultSideBar from "../../../components/SideBars/default";
 import "bootstrap/dist/css/bootstrap.min.css";
-import menu from "./SideBar";
+import menu from "../SideBar";
 import { Col, Tabs, Tab } from "react-bootstrap";
-import DatosConsultar from "./SRConsignacionesConsultar_Form";
+import DatosConsultar from "./SRConsignaciones_ConsultarForm";
 
 // Pagina inicial de manejo de nodos:
 class SRConsignacionesConsultar extends Component {
