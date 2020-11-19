@@ -11,12 +11,19 @@ export type fatherMenus = Array<fatherMenu>
 
 export type fatherMenu = {
     header: string,
+    public_id: string,
     static_menu: static_menu
 }
 
 export type static_menu = {
     name: string,
-    icon?: IconDefinition 
+    icon?: IconDefinition,
+    blocks?: Array<block>
+}
+
+export type block = {
+    name: string,
+    public_id: string,
 }
 
 export type navData = {
