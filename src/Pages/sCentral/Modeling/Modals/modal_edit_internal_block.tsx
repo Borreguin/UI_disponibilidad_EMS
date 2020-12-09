@@ -9,7 +9,7 @@ export interface add_menu_state {
   show: boolean;
 }
 
-export class Modal_add_block extends Component<
+export class Modal_edit_internal_block extends Component<
   add_menu_props,
   add_menu_state
 > {
@@ -41,7 +41,7 @@ export class Modal_add_block extends Component<
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Creación de bloque interno</Modal.Title>
+            <Modal.Title>Edición de bloque interno</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>

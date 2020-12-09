@@ -1,22 +1,26 @@
 import React, { Component, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 
-export interface add_menu_props {
+export interface modal_props {
   handle_close?: Function;
 }
 
-export interface add_menu_state {
+export interface modal_state {
   show: boolean;
+  name: string;
 }
 
-export class Modal_edit_block extends Component<
-  add_menu_props,
-  add_menu_state
+let modal_id = "Modal_delete_block";
+
+export class Modal_delete_internal_block extends Component<
+  modal_props,
+  modal_state
 > {
   constructor(props) {
     super(props);
     this.state = {
       show: true,
+      name: "---"
     };
   }
   handleClose = () => {
@@ -24,12 +28,16 @@ export class Modal_edit_block extends Component<
     this.setState({ show: false });
     if (this.props.handle_close !== undefined) {
       // actualizo el estado del componente padre
-      this.props.handle_close("modal_add_submenu", false);
+      this.props.handle_close(modal_id, false);
     }
   };
   handleShow = () => {
     this.setState({ show: true });
   };
+
+  _set_status = (name) => { 
+    this.setState({ name: name });
+  }
 
   render() {
     return (
@@ -41,16 +49,14 @@ export class Modal_edit_block extends Component<
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edición de bloque interno</Modal.Title>
+            <Modal.Title>Eliminar bloque interno {this.state.name}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="BlockName">
                 <Form.Label>Nombre del bloque:</Form.Label>
                 <Form.Control type="text" placeholder="Ingrese nombre" />
-                <Form.Text className="text-muted">
-                  Se deben configurar aún más parámetros
-                </Form.Text>
+                
               </Form.Group>
             </Form>
           </Modal.Body>

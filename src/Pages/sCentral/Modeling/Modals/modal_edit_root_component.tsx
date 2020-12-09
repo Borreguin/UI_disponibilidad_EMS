@@ -1,19 +1,19 @@
 import React, { Component, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 
-export interface modal_props {
+export interface add_menu_props {
   handle_close?: Function;
 }
 
-export interface modal_state {
+export interface add_menu_state {
   show: boolean;
 }
 
-let modal_id = "Modal_delete_block";
+let modal_id = "Modal_edit_component";
 
-export class Modal_delete_block extends Component<
-  modal_props,
-  modal_state
+export class Modal_edit_root_component extends Component<
+  add_menu_props,
+  add_menu_state
 > {
   constructor(props) {
     super(props);
@@ -43,7 +43,7 @@ export class Modal_delete_block extends Component<
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Eliminar bloque interno</Modal.Title>
+            <Modal.Title>Edición de componente interno</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>

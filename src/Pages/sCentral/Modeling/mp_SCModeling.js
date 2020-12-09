@@ -2,17 +2,23 @@ import React, { Component } from "react";
 import DefaultNavBar from "../../../components/NavBars/default";
 import DefaultFooter from "../../../components/NavBars/footer";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
+import example_menu from "./SideBar";
+import { Modal_edit_root_block, modal_edit_root_block_function } from "./Modals/modal_edit_root_block";
+import { Modal_new_root_block } from "./Modals/modal_new_root_block";
+import { Modal_add_internal_block, modal_add_internal_block_function } from "./Modals/modal_add_internal_block";
+import { Modal_add_root_component } from "./Modals/modal_add_root_component";
+import { Modal_edit_internal_block } from "./Modals/modal_edit_internal_block";
+import { Modal_edit_root_component } from "./Modals/modal_edit_root_component";
+import { Modal_delete_internal_block } from "./Modals/modal_delete_internal_block";
+import { Modal_delete_root_component } from "./Modals/modal_delete_root_component";
 
-import static_menu from "./SideBar";
-import { Modal_add_block } from "./modal_add_block";
-import { Modal_add_component } from "./modal_add_component";
-import { Modal_edit_block } from "./modal_edit_block";
-import { Modal_edit_component } from "./modal_edit_component";
-import { Modal_delete_block } from "./modal_delete_block";
-import { Modal_delete_component } from "./modal_delete_component";
-
-import { faChalkboard, faCog, faTools } from "@fortawesome/free-solid-svg-icons";
-
+import {
+  faChalkboard,
+  faCog,
+  faTools,
+} from "@fortawesome/free-solid-svg-icons";
+import "../styles.css";
 
 import DynamicSideBar from "../../../components/SideBars/dynamicSidebar";
 
@@ -21,65 +27,100 @@ class SCManage extends Component {
   /* Configuración de la página: */
   state = {
     brand: { route: "/Pages/sCentral", name: "Sistema Central" },
+    root_public_id: "disponibilidad_ems",
     navData: [],
     loading: true,
     msg: "",
     error: false,
     pinned: false,
     modal_show: false,
-    sidebar_menu: static_menu()
+    new_root: false,
+    // sidebar_menu: example_menu(),
+    sidebar_menu: undefined,
   };
 
   async componentDidMount() {
     this._search_root_block();
   }
 
+  // HOOKS SECTION:
   // permite manejar el sideBar pinned or toggle
   handle_onClickBtnPin = (btnPin) => {
     this.setState({ pinned: btnPin });
   };
 
   // manejar el cierre de los modales:
-  handle_modal_close = (name, update) => {
+ handle_modal_close = (name, update) => {
     // let update_modal_show_state = this.state.modal_show;
     // update_modal_show_state[name] = update;
     // console.log(update_modal_show_state);
+    console.log("ya cerrado");
     this.setState({ modal_show: update });
   };
 
+  // convertir la estructura root block a sidebar_menu
+  handle_changes_in_root = (r_bloque) => {
+    let sidebar = this._root_block_to_sidebar_menu(r_bloque);
+    this.setState({ sidebar_menu: sidebar });
+  };
+
+  // INTERNAL FUNCTIONS:
+  _root_block_to_sidebar_menu = (r_bloque) => {
+    console.log("me", r_bloque);
+    let blocks = [];
+    if (
+      r_bloque["blockleafs"] !== undefined &&
+      r_bloque["blockleafs"].length > 0
+    ) {
+      r_bloque["blockleafs"].forEach((block) => {
+        console.log("me changing", block);
+        let new_block = { name: block["name"], public_id: block["public_id"] };
+        console.log(new_block);
+        blocks.push(new_block);
+      });
+    }
+    let sidebar = [
+      {
+        header: "Administración",
+        static_menu: {
+          name: r_bloque["name"],
+          public_id: r_bloque["public_id"],
+          icon: faChalkboard,
+          blocks: blocks,
+        },
+      },
+    ];
+    return sidebar;
+  };
+
   _search_root_block = async () => {
-    this.setState({ sidebar_menu: static_menu(), loading: true, error: false });
-    // TODO: retirar esta parte una vez realizado lo puesto /* */
-    /*
+    this.setState({
+      sidebar_menu: undefined,
+      loading: true,
+      error: false,
+    });
+    let path = "/api-sct/block-root/" + this.state.root_public_id;
+    let sidebar = undefined;
     await fetch(path)
       .then((res) => res.json())
       .then((json) => {
-        // TODO: realizar lo necesario 
+        if (json.success) {
+          sidebar = this._root_block_to_sidebar_menu(json.bloqueroot);
+        } else {
+          this.setState({
+            new_root: true,
+            msg: "Es necesario crear un bloque principal para esta página",
+          });
+        }
       })
-      .catch((error) => { 
-        this.setState({ error: true, msg: "Ha fallado la conexión con la API de modelamiento (api-sct)" });
+      .catch((error) => {
+        this.setState({
+          error: true,
+          msg: "Ha fallado la conexión con la API de modelamiento (api-sct)",
+        });
         console.log(error);
-      });*/
-    let sidebar_menu = [  {
-      header: "Admininistración:",
-      public_id: "modelamiento_ems",
-      static_menu: {
-        name: "Modelamiento EMS",
-        icon: faChalkboard,
-        blocks: [{ name: "Block 1", public_id:"block1_id"}, {name: "Block 2", public_id:"block2_id"}]
-      },
-    },
-    {
-      header: "Componentes:",
-      public_id: "dsdfdsfasd",
-      static_menu: {
-        name: "Block 1",
-        icon: faCog,
-        blocks: []
-      },
-      
-    }]
-    this.setState({ loading: false, sidebar_menu: sidebar_menu});
+      });
+    this.setState({ loading: false, sidebar_menu: sidebar });
   };
 
   render() {
@@ -110,24 +151,59 @@ class SCManage extends Component {
           <DynamicSideBar
             menu={this.state.sidebar_menu} // menú estático
             pinned={this.state.pinned} // minimizar menú
-            // permite manejar el modal de añadir en cada submenú
+            // ------ HOOCKS en cada modal
+            handle_close={this.handle_modal_close}
+            handle_edited_menu={this.handle_changes_in_root}
+            // ------ MENU PRINCIPAL
+            // Editar el menú superior de cada menú
+            edit_menu_modal={[
+              modal_edit_root_block_function,
+              modal_edit_root_block_function
+            ]}
+            // Añadir un nuevo bloque:
             add_submenu_modal={[
-              <Modal_add_block handle_close={this.handle_modal_close} />,
-              <Modal_add_component handle_close={this.handle_modal_close} />,
+              modal_add_internal_block_function,
+              modal_add_internal_block_function
             ]}
+            // ------ MENU SECUNDARIO
+            // Editar el submenú
             edit_submenu_modal={[
-              <Modal_edit_block handle_close={this.handle_modal_close} />,
-              <Modal_edit_component handle_close={this.handle_modal_close} />,
+              <Modal_edit_internal_block
+                handle_close={this.handle_modal_close}
+              />,
+              <Modal_edit_root_component
+                handle_close={this.handle_modal_close}
+              />,
             ]}
+            // eliminar el submenú
             delete_submenu_modal={[
-              <Modal_delete_block handle_close={this.handle_modal_close} />,
-              <Modal_delete_component handle_close={this.handle_modal_close} />,
+              <Modal_delete_internal_block
+                handle_close={this.handle_modal_close}
+              />,
+              <Modal_delete_root_component
+                handle_close={this.handle_modal_close}
+              />,
             ]}
-
-            modal_show={this.state.modal_show} // actualiza el estado del modal (cerrar/abrir)
+            // actualiza el estado del modal (cerrar/abrir)
+            modal_show={this.state.modal_show}
           />
-          <div className="page-content"></div>
+          {
+            // permite desplegar el model de inicio de modelación
+            this.state.new_root ? (
+              <Modal_new_root_block
+                public_id={this.state.root_public_id}
+                handle_close={this.handle_modal_close}
+                handle_new_root_block={this.handle_changes_in_root}
+              />
+            ) : (
+              <></>
+            )
+          }
+          <div className="page-content content-shift">
+            <div>Hello world</div>
+          </div>
         </div>
+
         <DefaultFooter />
       </React.Fragment>
     );

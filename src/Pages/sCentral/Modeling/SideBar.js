@@ -1,6 +1,6 @@
 import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 
-function static_menu() {
+function example_menu() {
   // Esta es la estructura base del menu
   return [
     {
@@ -9,7 +9,7 @@ function static_menu() {
       static_menu: {
         name: "Modelamiento EMS",
         icon: faChalkboard,
-        blocks: []
+        blocks: [{ name: "Block 1", public_id:"block1_id"}, {name: "Block 2", public_id:"block2_id"}]
       },
     },
     {
@@ -18,35 +18,14 @@ function static_menu() {
       static_menu: {
         name: undefined,
         icon: faCog,
-        blocks: []
+        blocks: [{name:"Componente 1", public_id:"212ab"}]
       },
       
     }
   ];
 }
-export default static_menu;
+export default example_menu;
 
 
-export function static_menu2() {
-  return [
-    {
-      header: "Admininistración:",
-      static_menu: {
-        name: "Modelamiento EMS",
-        icon: faChalkboard,
-        blocks: [{name:"Este es un nombre mucho mas largo1"}, {name:"Este es un nombre mucho mas largo2"}]
-      },
-      
-    },
-    {
-      header: "Componentes:",
-      static_menu: {
-        name: "block1",
-        icon: faChalkboard,
-        blocks: [{name:"Sistema Eléctrico principal"}, {name:"Component2"}]
-      },
-      
-    }
-  ];
-}
+
 

@@ -45,10 +45,19 @@
 
 .add_button {
   position: absolute;
-  right: 4px;
+  right: 7px;
   cursor: pointer;
 }
 .add_button:hover {
+    color: rgba(36, 209, 252, 0.911);
+}
+
+.edit_block_button {
+  position: absolute;
+  right: 26px;
+  cursor: pointer;
+}
+.edit_block_button:hover {
     color: rgba(36, 209, 252, 0.911);
 }
 
@@ -64,6 +73,7 @@
 .right-button-section {
   position: absolute;
   right: 4px;
+  padding: 2px;
 }
 
 .delete_button{

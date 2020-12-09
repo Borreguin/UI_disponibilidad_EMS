@@ -9,8 +9,7 @@ export interface add_menu_state {
   show: boolean;
 }
 
-let model_id = "Modal_add_component";
-export class Modal_add_component extends Component<
+export class Modal_delete_root_component extends Component<
   add_menu_props,
   add_menu_state
 > {
@@ -25,7 +24,7 @@ export class Modal_add_component extends Component<
     this.setState({ show: false });
     if (this.props.handle_close !== undefined) {
       // actualizo el estado del componente padre
-      this.props.handle_close(model_id, false);
+      this.props.handle_close("modal_add_submenu", false);
     }
   };
   handleShow = () => {
@@ -42,12 +41,12 @@ export class Modal_add_component extends Component<
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Creación de componente interno</Modal.Title>
+            <Modal.Title>Eliminar componente interno</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="BlockName">
-                <Form.Label>Nombre del componente interno:</Form.Label>
+                <Form.Label>Nombre del bloque:</Form.Label>
                 <Form.Control type="text" placeholder="Ingrese nombre" />
                 <Form.Text className="text-muted">
                   Se deben configurar aún más parámetros
