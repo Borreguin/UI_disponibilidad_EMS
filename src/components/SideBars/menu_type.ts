@@ -17,6 +17,7 @@ export type fatherMenu = {
 
 export type static_menu = {
     name: string,
+    public_id: string,
     icon?: IconDefinition,
     blocks?: Array<block>
 }

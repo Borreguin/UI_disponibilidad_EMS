@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Button, Card, ListGroup, Modal } from "react-bootstrap";
 import "./css/styles.css";
-import { fatherMenu } from "./menu_type";
+import { block, fatherMenu, static_menu } from "./menu_type";
 import ReactTooltip from "react-tooltip";
 
 export interface FatherPros {
@@ -25,17 +25,15 @@ export interface FatherPros {
   edit_menu_modal?: Function;
   add_submenu_modal?: Function;
   edit_submenu_modal?: Component;
-  delete_submenu_modal?: Component;
+  delete_submenu_modal?: Function;
   modal_show?: boolean;
 }
 
 export interface FatherState {
   show: object;
-  selected_static_menu: object;
-  selected_block: object;
+  selected_static_menu: static_menu | undefined;
+  selected_block: block | undefined;
 }
-
-
 
 class FatherMenu extends Component<FatherPros, FatherState> {
   constructor(props) {
@@ -44,8 +42,8 @@ class FatherMenu extends Component<FatherPros, FatherState> {
       show: {
         add_submenu_modal: false,
       },
-      selected_static_menu: {},
-      selected_block: {}
+      selected_static_menu: undefined,
+      selected_block: undefined,
     };
   }
 
@@ -55,14 +53,19 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     return { show: show };
   }
 
-  on_click_show = (name, father_id=undefined, block=undefined) => {
+  on_click_show = (name, static_menu = undefined, block = undefined) => {
     // permite renderizar el componente
     let show = this.state.show;
     show[name] = !show[name];
     this.setState({ show: show });
-    console.log("help", father_id, block);
-    
-    
+
+    // let share information with the modals:
+    if (static_menu !== undefined) {
+      this.setState({ selected_static_menu: static_menu });
+    }
+    if (block !== undefined) {
+      this.setState({ selected_block: block });
+    }
   };
 
   on_click_menu_button = (e, sub_menu = undefined) => {
@@ -195,15 +198,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                   />
                 </span>
               </Card.Header>
-              
+
               {/* MENU SECUNDARIO */}
               {this.props.fatherMenu.static_menu.blocks.length === 0 ? (
                 <></>
               ) : (
-                  
                 <Card.Body className="submenu-container">
-                    <ListGroup variant="flush">
-                    { /* Creando los sub-menus */}    
+                  <ListGroup variant="flush">
+                    {/* Creando los sub-menus */}
                     {this.props.fatherMenu.static_menu.blocks.map((block) => (
                       <ListGroup.Item
                         key={block.public_id}
@@ -211,7 +213,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                         onClick={(e) =>
                           this.on_click_menu_button(e, block.public_id)
                         }
-                      > 
+                      >
                         <span style={{ marginRight: "15px" }}>&middot;</span>
                         <span>
                           {block.name.length > 30
@@ -224,7 +226,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                             : block.name}
                         </span>
                         <span className="right-button-section">
-                          { /* Open edit modal */}
+                          {/* Open edit modal */}
                           <FontAwesomeIcon
                             icon={faPen}
                             size="1x"
@@ -233,13 +235,17 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                               this.on_click_show("edit_item_modal")
                             }
                           />
-                          { /* Open delete modal */}
+                          {/* Open delete modal */}
                           <FontAwesomeIcon
                             icon={faTrash}
                             size="1x"
                             className="delete_button"
                             onClick={() =>
-                              this.on_click_show("delete_item_modal", static_menu, block)
+                              this.on_click_show(
+                                "delete_item_modal",
+                                static_menu,
+                                block
+                              )
                             }
                           />
                         </span>
@@ -255,7 +261,11 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           // Llamando modal para editar cabecera del menú
           this.state.show["edit_menu_modal"] &&
           this.props.edit_menu_modal !== undefined ? (
-              this.props.edit_menu_modal(static_menu.public_id, this.props.handle_close, this.props.handle_edited_menu)
+            this.props.edit_menu_modal(
+              static_menu.public_id,
+              this.props.handle_close,
+              this.props.handle_edited_menu
+            )
           ) : (
             <></>
           )
@@ -265,7 +275,11 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           // Llamando modal para añadir elementos internos
           this.state.show["add_submenu_modal"] &&
           this.props.add_submenu_modal !== undefined ? (
-            this.props.add_submenu_modal(static_menu.public_id, this.props.handle_close, this.props.handle_edited_menu)
+            this.props.add_submenu_modal(
+              static_menu.public_id,
+              this.props.handle_close,
+              this.props.handle_edited_menu
+            )
           ) : (
             <></>
           )
@@ -275,7 +289,12 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           // Llamando modal para eliminar elementos internos
           this.state.show["delete_item_modal"] &&
           this.props.delete_submenu_modal !== undefined ? (
-            this.props.delete_submenu_modal
+            this.props.delete_submenu_modal(
+              this.state.selected_static_menu,
+              this.state.selected_block,
+              this.props.handle_close,
+              this.props.handle_edited_menu
+            )
           ) : (
             <></>
           )

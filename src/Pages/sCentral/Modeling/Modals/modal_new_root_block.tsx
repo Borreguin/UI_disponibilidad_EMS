@@ -120,7 +120,6 @@ export class Modal_new_root_block extends Component<
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title>Iniciando modelación</Modal.Title>

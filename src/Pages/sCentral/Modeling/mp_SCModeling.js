@@ -10,7 +10,7 @@ import { Modal_add_internal_block, modal_add_internal_block_function } from "./M
 import { Modal_add_root_component } from "./Modals/modal_add_root_component";
 import { Modal_edit_internal_block } from "./Modals/modal_edit_internal_block";
 import { Modal_edit_root_component } from "./Modals/modal_edit_root_component";
-import { Modal_delete_internal_block } from "./Modals/modal_delete_internal_block";
+import { Modal_delete_internal_block, modal_delete_internal_block_function } from "./Modals/modal_delete_internal_block";
 import { Modal_delete_root_component } from "./Modals/modal_delete_root_component";
 
 import {
@@ -149,8 +149,10 @@ class SCManage extends Component {
           }
         >
           <DynamicSideBar
-            menu={this.state.sidebar_menu} // menú estático
-            pinned={this.state.pinned} // minimizar menú
+            // estructura del menu
+            menu={this.state.sidebar_menu} 
+            // minimizar menú
+            pinned={this.state.pinned} 
             // ------ HOOCKS en cada modal
             handle_close={this.handle_modal_close}
             handle_edited_menu={this.handle_changes_in_root}
@@ -177,12 +179,8 @@ class SCManage extends Component {
             ]}
             // eliminar el submenú
             delete_submenu_modal={[
-              <Modal_delete_internal_block
-                handle_close={this.handle_modal_close}
-              />,
-              <Modal_delete_root_component
-                handle_close={this.handle_modal_close}
-              />,
+              modal_delete_internal_block_function,
+              modal_delete_internal_block_function
             ]}
             // actualiza el estado del modal (cerrar/abrir)
             modal_show={this.state.modal_show}

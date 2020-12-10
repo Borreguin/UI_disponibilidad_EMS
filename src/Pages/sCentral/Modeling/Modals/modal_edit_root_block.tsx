@@ -122,7 +122,6 @@ export class Modal_edit_root_block extends Component<
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title>

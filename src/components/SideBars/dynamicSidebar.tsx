@@ -15,7 +15,7 @@ export interface MenuProps {
   edit_menu_modal?: Array<Function>;
   add_submenu_modal?: Array<Function>;
   edit_submenu_modal?: Array<Component>;
-  delete_submenu_modal?: Array<Component>;
+  delete_submenu_modal?: Array<Function>;
   modal_show?: boolean;
 }
 

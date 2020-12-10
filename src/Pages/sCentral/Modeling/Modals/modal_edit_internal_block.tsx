@@ -38,7 +38,6 @@ export class Modal_edit_internal_block extends Component<
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title>Edición de bloque interno</Modal.Title>

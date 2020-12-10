@@ -39,7 +39,6 @@ export class Modal_add_root_component extends Component<
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title>Empezar modelamiento</Modal.Title>

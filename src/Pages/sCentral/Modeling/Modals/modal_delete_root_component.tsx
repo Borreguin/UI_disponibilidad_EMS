@@ -38,7 +38,6 @@ export class Modal_delete_root_component extends Component<
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
-          size="lg"
         >
           <Modal.Header closeButton>
             <Modal.Title>Eliminar componente interno</Modal.Title>
