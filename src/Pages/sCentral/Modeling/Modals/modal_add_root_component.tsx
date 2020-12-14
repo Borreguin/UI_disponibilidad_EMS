@@ -9,7 +9,7 @@ export interface add_menu_state {
   show: boolean;
 }
 
-let model_id = "Modal_add_component";
+let model_id = "Modal_add_root_component";
 export class Modal_add_root_component extends Component<
   add_menu_props,
   add_menu_state

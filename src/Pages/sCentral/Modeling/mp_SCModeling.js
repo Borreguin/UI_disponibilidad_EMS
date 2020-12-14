@@ -8,7 +8,7 @@ import { Modal_edit_root_block, modal_edit_root_block_function } from "./Modals/
 import { Modal_new_root_block } from "./Modals/modal_new_root_block";
 import { Modal_add_internal_block, modal_add_internal_block_function } from "./Modals/modal_add_internal_block";
 import { Modal_add_root_component } from "./Modals/modal_add_root_component";
-import { Modal_edit_internal_block } from "./Modals/modal_edit_internal_block";
+import { Modal_edit_internal_block, modal_edit_internal_block_function } from "./Modals/modal_edit_internal_block";
 import { Modal_edit_root_component } from "./Modals/modal_edit_root_component";
 import { Modal_delete_internal_block, modal_delete_internal_block_function } from "./Modals/modal_delete_internal_block";
 import { Modal_delete_root_component } from "./Modals/modal_delete_root_component";
@@ -16,6 +16,7 @@ import { Modal_delete_root_component } from "./Modals/modal_delete_root_componen
 import {
   faChalkboard,
   faCog,
+  faToolbox,
   faTools,
 } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
@@ -34,9 +35,14 @@ class SCManage extends Component {
     error: false,
     pinned: false,
     modal_show: false,
-    new_root: false,
+    // Detects whether a root structure is needed or not
+    new_root: false, 
     // sidebar_menu: example_menu(),
     sidebar_menu: undefined,
+    selected_static_menu: undefined,
+    selected_block: undefined,
+    // Estructura a convertir en el menu
+    root_block: undefined
   };
 
   async componentDidMount() {
@@ -52,44 +58,91 @@ class SCManage extends Component {
   // manejar el cierre de los modales:
  handle_modal_close = (name, update) => {
     // let update_modal_show_state = this.state.modal_show;
-    // update_modal_show_state[name] = update;
-    // console.log(update_modal_show_state);
-    console.log("ya cerrado");
     this.setState({ modal_show: update });
   };
 
   // convertir la estructura root block a sidebar_menu
   handle_changes_in_root = (r_bloque) => {
     let sidebar = this._root_block_to_sidebar_menu(r_bloque);
-    this.setState({ sidebar_menu: sidebar });
+    this.setState({ sidebar_menu: sidebar, root_block: r_bloque });
   };
 
+  // manejar cuando se selecciona un botón en el menú:
+  handle_click_menu_button = (selected_static_menu, selected_block) => { 
+      // obtener el sidebar usando los últimos cambios
+    let sidebar = this._root_block_to_sidebar_menu(this.state.root_block, selected_static_menu, selected_block);
+    console.log(sidebar);
+    this.setState({ selected_static_menu: selected_static_menu, selected_block: selected_block, sidebar_menu: sidebar });
+  }
+
   // INTERNAL FUNCTIONS:
-  _root_block_to_sidebar_menu = (r_bloque) => {
-    console.log("me", r_bloque);
-    let blocks = [];
+  _root_block_to_sidebar_menu = (r_bloque, selected_static_menu=undefined, selected_block=undefined ) => {
+    // Sidebar contiene la estructura del menú:
+    let sidebar = [];
+    // Construcción de menú superior (menú de bloques)
+    let first_blocks = [];
+    let second_blocks = [];
+    let click_inside = false;
     if (
-      r_bloque["blockleafs"] !== undefined &&
-      r_bloque["blockleafs"].length > 0
+      r_bloque["block_leafs"] !== undefined &&
+      r_bloque["block_leafs"].length > 0
     ) {
-      r_bloque["blockleafs"].forEach((block) => {
-        console.log("me changing", block);
+      r_bloque["block_leafs"].forEach((block) => {
         let new_block = { name: block["name"], public_id: block["public_id"] };
-        console.log(new_block);
-        blocks.push(new_block);
+        first_blocks.push(new_block);
+        if (selected_block !== undefined && block.public_id === selected_block.public_id) { 
+          second_blocks = block.comp_roots;
+        }
+        if (selected_static_menu !==undefined && selected_static_menu.public_id === block.public_id ) { 
+          second_blocks = block.comp_roots;
+          click_inside = true;
+        }
       });
     }
-    let sidebar = [
-      {
-        header: "Administración",
+    // Menú Superior:
+    let menu_1 = {
+      header: "Bloques",
         static_menu: {
           name: r_bloque["name"],
           public_id: r_bloque["public_id"],
           icon: faChalkboard,
-          blocks: blocks,
+          blocks: first_blocks,
         },
-      },
-    ];
+    }
+    sidebar.push(menu_1);
+    // Construcción de menú inferior (menú de componentes)
+    console.log("static menu", selected_static_menu);
+    console.log("block", selected_block);
+    console.log("second block", second_blocks);
+    console.log("click inside", click_inside);
+    
+    // caso en el que se da click sobre el bloque leaf
+    if (selected_static_menu !== undefined && selected_block !== undefined) { 
+      let menu_2 = {
+        header: "Componentes",
+        static_menu: {
+          name: selected_block.name,
+          public_id: selected_block.public_id,
+          icon: faCog,
+          blocks: [],
+        },
+      }
+      sidebar.push(menu_2);
+    }
+    // caso en el que se da click sobre el componente root
+    if (click_inside) { 
+      let menu_2 = {
+        header: "Componentes",
+        static_menu: {
+          name: selected_static_menu.name,
+          public_id: selected_static_menu.public_id,
+          icon: faCog,
+          blocks: [],
+        },
+      }
+      sidebar.push(menu_2);
+    }
+
     return sidebar;
   };
 
@@ -105,6 +158,7 @@ class SCManage extends Component {
       .then((res) => res.json())
       .then((json) => {
         if (json.success) {
+          this.setState({root_block: json.bloqueroot});
           sidebar = this._root_block_to_sidebar_menu(json.bloqueroot);
         } else {
           this.setState({
@@ -150,12 +204,13 @@ class SCManage extends Component {
         >
           <DynamicSideBar
             // estructura del menu
-            menu={this.state.sidebar_menu} 
+            menu={this.state.sidebar_menu}
             // minimizar menú
-            pinned={this.state.pinned} 
+            pinned={this.state.pinned}
             // ------ HOOCKS en cada modal
             handle_close={this.handle_modal_close}
             handle_edited_menu={this.handle_changes_in_root}
+            handle_click_menu_button={this.handle_click_menu_button}
             // ------ MENU PRINCIPAL
             // Editar el menú superior de cada menú
             edit_menu_modal={[
@@ -165,25 +220,24 @@ class SCManage extends Component {
             // Añadir un nuevo bloque:
             add_submenu_modal={[
               modal_add_internal_block_function,
-              modal_add_internal_block_function
+              Modal_add_root_component
             ]}
             // ------ MENU SECUNDARIO
             // Editar el submenú
             edit_submenu_modal={[
-              <Modal_edit_internal_block
-                handle_close={this.handle_modal_close}
-              />,
-              <Modal_edit_root_component
-                handle_close={this.handle_modal_close}
-              />,
+              modal_edit_internal_block_function,
+              modal_edit_internal_block_function
             ]}
-            // eliminar el submenú
+            // Eliminar el submenú
             delete_submenu_modal={[
               modal_delete_internal_block_function,
               modal_delete_internal_block_function
             ]}
             // actualiza el estado del modal (cerrar/abrir)
             modal_show={this.state.modal_show}
+            // keeps state od selected menu and block
+            selected_static_menu={ this.state.selected_static_menu}
+            selected_block={ this.state.selected_block}
           />
           {
             // permite desplegar el model de inicio de modelación

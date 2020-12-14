@@ -3,7 +3,7 @@ import FatherMenu from "./FatherMenu";
 import "./css/main.css";
 import "./css/sidebar-themes.css";
 import "./css/styles.css";
-import { fatherMenus } from "./menu_type";
+import { block, fatherMenus, static_menu } from "./menu_type";
 
 export interface MenuProps {
   menu: fatherMenus;
@@ -11,12 +11,16 @@ export interface MenuProps {
   // Hoocks:
   handle_close?: Function;
   handle_edited_menu?: Function;
+  handle_click_menu_button?: Function;
   // Modals:
   edit_menu_modal?: Array<Function>;
   add_submenu_modal?: Array<Function>;
-  edit_submenu_modal?: Array<Component>;
+  edit_submenu_modal?: Array<Function>;
   delete_submenu_modal?: Array<Function>;
+  // To keep the current state
   modal_show?: boolean;
+  selected_static_menu?: static_menu | undefined;
+  selected_block?: block | undefined;
 }
 
 class DynamicSideBar extends Component<MenuProps> {
@@ -45,12 +49,16 @@ class DynamicSideBar extends Component<MenuProps> {
                     //Hoocks
                     handle_close={this.props.handle_close}
                     handle_edited_menu={this.props.handle_edited_menu}
+                    handle_click_menu_button={this.props.handle_click_menu_button}
                     //Modals:
                     edit_menu_modal={this.props.edit_menu_modal[ix]}
                     add_submenu_modal={this.props.add_submenu_modal[ix]}
                     edit_submenu_modal={this.props.edit_submenu_modal[ix]}
                     delete_submenu_modal={this.props.delete_submenu_modal[ix]}
+                    // to keep track of changes
                     modal_show={this.props.modal_show}
+                    selected_static_menu={this.props.selected_static_menu}
+                    selected_block={ this.props.selected_block}
                   />
                 </div>
               ))

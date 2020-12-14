@@ -93,3 +93,8 @@
 .edit_button:hover{
   color: rgba(16, 13, 231, 0.719);
 }
+
+.active-menu{
+  background-color: rgba(113, 243, 243, 0.26) !important;
+  color: black;
+}

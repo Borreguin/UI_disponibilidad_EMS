@@ -21,12 +21,16 @@ export interface FatherPros {
   // Hoocks:
   handle_close?: Function;
   handle_edited_menu?: Function;
+  handle_click_menu_button?: Function;
   // Modals:
   edit_menu_modal?: Function;
   add_submenu_modal?: Function;
-  edit_submenu_modal?: Component;
+  edit_submenu_modal?: Function;
   delete_submenu_modal?: Function;
+  // to keep track of changes
   modal_show?: boolean;
+  selected_static_menu: static_menu | undefined;
+  selected_block: block | undefined;
 }
 
 export interface FatherState {
@@ -42,8 +46,8 @@ class FatherMenu extends Component<FatherPros, FatherState> {
       show: {
         add_submenu_modal: false,
       },
-      selected_static_menu: undefined,
-      selected_block: undefined,
+      selected_static_menu: this.props.selected_static_menu,
+      selected_block: this.props.selected_static_menu,
     };
   }
 
@@ -68,13 +72,45 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     }
   };
 
-  on_click_menu_button = (e, sub_menu = undefined) => {
-    console.log("click here", this.state);
-    let clicked_button = {
-      menu: this.props.fatherMenu.public_id,
-      submenu: sub_menu,
-    };
-    console.log(clicked_button);
+  check_if_is_active = (current_static_menu, current_block) => {
+    // let to highlight the selected buton in the menu
+    if (
+      this.props.selected_static_menu === undefined &&
+      this.props.selected_block === undefined
+    ) {
+      return "";
+    }
+    if (
+      this.props.selected_static_menu.public_id ===
+        current_static_menu.public_id &&
+      current_block === undefined &&
+      this.props.selected_block === undefined
+    ) {
+      return "active-menu";
+    }
+    if (
+      this.props.selected_static_menu.public_id ===
+        current_static_menu.public_id &&
+      (current_block === undefined || this.props.selected_block === undefined)
+    ) {
+      return "";
+    }
+    if (
+      this.props.selected_static_menu.public_id ===
+        current_static_menu.public_id &&
+      this.props.selected_block.public_id === current_block.public_id
+    ) {
+      return "active-menu";
+    }
+    return "";
+  };
+
+  on_click_menu_button = (e, static_menu, block = undefined) => {
+    if (e.target.tagName !== "DIV" && e.target.tagName !== "SPAN") return;
+    if (this.props.handle_click_menu_button !== undefined) {
+      this.props.handle_click_menu_button(static_menu, block);
+    }
+    this.setState({ selected_static_menu: static_menu, selected_block: block });
   };
 
   // menu minimizado
@@ -95,10 +131,15 @@ class FatherMenu extends Component<FatherPros, FatherState> {
             <Card className="container_menu">
               <Card.Header
                 key={_.uniqueId("id_pinned")}
-                className="static_menu"
+                className={
+                  "static_menu " +
+                  this.check_if_is_active(static_menu, undefined)
+                }
                 data-tip={"<div>" + static_menu.name + "</div>"}
                 data-html={true}
-                onClick={this.on_click_menu_button}
+                onClick={(e) =>
+                  this.on_click_menu_button(e, static_menu, undefined)
+                }
               >
                 <span style={{ marginLeft: "10px" }}>
                   <FontAwesomeIcon
@@ -119,11 +160,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     {this.props.fatherMenu.static_menu.blocks.map((block) => (
                       <ListGroup.Item
                         key={block.public_id}
-                        className="submenu-item"
+                        className={
+                          "submenu-item " +
+                          this.check_if_is_active(static_menu, block)
+                        }
                         data-tip={"<div>" + block.name + "</div>"}
                         data-html={true}
                         onClick={(e) =>
-                          this.on_click_menu_button(e, block.public_id)
+                          this.on_click_menu_button(e, static_menu, block)
                         }
                       >
                         <span>
@@ -166,8 +210,13 @@ class FatherMenu extends Component<FatherPros, FatherState> {
             <Card className="container_menu">
               <Card.Header
                 key={static_menu.public_id}
-                className="static_menu"
-                /*onClick={this.on_click_menu_button}*/
+                className={
+                  "static_menu " +
+                  this.check_if_is_active(static_menu, undefined)
+                }
+                onClick={(e) =>
+                  this.on_click_menu_button(e, static_menu, undefined)
+                }
               >
                 <span>
                   <FontAwesomeIcon
@@ -209,13 +258,17 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     {this.props.fatherMenu.static_menu.blocks.map((block) => (
                       <ListGroup.Item
                         key={block.public_id}
-                        className="submenu-item"
+                        className={
+                          "submenu-item " +
+                          this.check_if_is_active(static_menu, block)
+                        }
                         onClick={(e) =>
-                          this.on_click_menu_button(e, block.public_id)
+                          this.on_click_menu_button(e, static_menu, block)
                         }
                       >
                         <span style={{ marginRight: "15px" }}>&middot;</span>
                         <span>
+                          { console.log("wihh", block)}
                           {block.name.length > 30
                             ? block.name.substring(0, 20) +
                               "..." +
@@ -232,7 +285,11 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                             size="1x"
                             className="edit_button"
                             onClick={() =>
-                              this.on_click_show("edit_item_modal")
+                              this.on_click_show(
+                                "edit_item_modal",
+                                static_menu,
+                                block
+                              )
                             }
                           />
                           {/* Open delete modal */}
@@ -303,7 +360,12 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           // Llamando modal para editar elementos internos
           this.state.show["edit_item_modal"] &&
           this.props.edit_submenu_modal !== undefined ? (
-            this.props.edit_submenu_modal
+            this.props.edit_submenu_modal(
+              this.state.selected_static_menu,
+              this.state.selected_block,
+              this.props.handle_close,
+              this.props.handle_edited_menu
+            )
           ) : (
             <></>
           )
