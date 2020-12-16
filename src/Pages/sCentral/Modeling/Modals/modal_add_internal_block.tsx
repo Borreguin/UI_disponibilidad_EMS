@@ -1,15 +1,16 @@
 import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
+import { static_menu } from "../../../../components/SideBars/menu_type";
 import { leaf_block_form } from "../../types";
 
-export interface add_menu_props {
-  public_id: string;
+export interface menu_props {
+  static_menu: static_menu;
   handle_close?: Function;
   handle_message?: Function;
   handle_edited_root_block?: Function;
 }
 
-export interface add_menu_state {
+export interface menu_state {
   show: boolean;
   form: leaf_block_form;
   message: string;
@@ -18,8 +19,8 @@ export interface add_menu_state {
 let modal_id = "modal_add_internal_block";
 
 export class Modal_add_internal_block extends Component<
-  add_menu_props,
-  add_menu_state
+  menu_props,
+  menu_state
 > {
   constructor(props) {
     super(props);
@@ -55,13 +56,14 @@ export class Modal_add_internal_block extends Component<
   };
 
   // INTERNAL FUNCTIONS:
-  _onclick_create = async () => {
+  _onclick_create = () => {
+    
     if (this._check_form()) {
-      let path = "/api-sct/block-leaf/" + this.props.public_id + "/leaf";
+      let path = "/api-sct/block-leaf/" + this.props.static_menu.public_id + "/leaf";
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando bloque interno" });
       // Creando el nuevo root block mediante la API
-      await fetch(path, {
+      fetch(path, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,13 +165,13 @@ export class Modal_add_internal_block extends Component<
 }
 
 export const modal_add_internal_block_function = (
-  root_public_id: string,
+  static_menu: static_menu,
   handle_modal_close: Function,
   handle_changes_in_root: Function
 ) => {
   return (
     <Modal_add_internal_block
-      public_id={root_public_id}
+      static_menu={static_menu}
       handle_close={handle_modal_close}
       handle_edited_root_block={handle_changes_in_root}
     />

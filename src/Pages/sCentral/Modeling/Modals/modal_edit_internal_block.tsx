@@ -3,7 +3,7 @@ import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
 import { leaf_block_form } from "../../types";
 
-export interface add_menu_props {
+export interface menu_props {
   static_menu: static_menu;
   block: block;
   handle_close?: Function;
@@ -11,17 +11,17 @@ export interface add_menu_props {
   handle_message?: Function;
 }
 
-export interface add_menu_state {
+export interface menu_state {
   show: boolean;
   form: leaf_block_form;
   message: string;
 }
 
-let modal_id = "Modal_edit_internal_block";
+let modal_id = "modal_edit_internal_block";
 
 export class Modal_edit_internal_block extends Component<
-  add_menu_props,
-  add_menu_state
+  menu_props,
+  menu_state
 > {
   constructor(props) {
     super(props);
@@ -136,7 +136,7 @@ export class Modal_edit_internal_block extends Component<
           animation={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edición del bloque:</Modal.Title>
+            <Modal.Title>Edición del bloque interno:</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>

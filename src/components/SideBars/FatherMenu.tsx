@@ -70,6 +70,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     if (block !== undefined) {
       this.setState({ selected_block: block });
     }
+    
   };
 
   check_if_is_active = (current_static_menu, current_block) => {
@@ -236,14 +237,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     icon={faPlusCircle}
                     size="1x"
                     className="add_button"
-                    onClick={() => this.on_click_show("add_submenu_modal")}
+                    onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
                   />
                   {/* Botón de edición*/}
                   <FontAwesomeIcon
                     icon={faPen}
                     size="1x"
                     className="edit_block_button"
-                    onClick={() => this.on_click_show("edit_menu_modal")}
+                    onClick={() => this.on_click_show("edit_menu_modal", static_menu)}
                   />
                 </span>
               </Card.Header>
@@ -268,7 +269,6 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                       >
                         <span style={{ marginRight: "15px" }}>&middot;</span>
                         <span>
-                          { console.log("wihh", block)}
                           {block.name.length > 30
                             ? block.name.substring(0, 20) +
                               "..." +
@@ -333,7 +333,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           this.state.show["add_submenu_modal"] &&
           this.props.add_submenu_modal !== undefined ? (
             this.props.add_submenu_modal(
-              static_menu.public_id,
+              this.state.selected_static_menu,
               this.props.handle_close,
               this.props.handle_edited_menu
             )
