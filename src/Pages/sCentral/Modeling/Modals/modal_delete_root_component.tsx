@@ -1,37 +1,99 @@
-import React, { Component, useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
+import React, { Component } from "react";
+import { Alert, Button, Form, Modal } from "react-bootstrap";
+import { block, static_menu } from "../../../../components/SideBars/menu_type";
 
-export interface add_menu_props {
+export interface modal_props {
+  static_menu: static_menu;
+  block: block;
   handle_close?: Function;
+  handle_edited_root_block?: Function;
+  handle_message?: Function;
 }
 
-export interface add_menu_state {
+export interface modal_state {
   show: boolean;
+  message: string;
 }
+
+let modal_id = "Modal_delete_root_component";
 
 export class Modal_delete_root_component extends Component<
-  add_menu_props,
-  add_menu_state
+  modal_props,
+  modal_state
 > {
   constructor(props) {
     super(props);
     this.state = {
       show: true,
+      message: "",
     };
   }
+  // HOOKS SECTION:
   handleClose = () => {
     // actualizo el estado local
     this.setState({ show: false });
     if (this.props.handle_close !== undefined) {
       // actualizo el estado del componente padre
-      this.props.handle_close("modal_add_submenu", false);
+      this.props.handle_close(modal_id, false);
+    }
+  };
+  handleMessages = (message) => {
+    if (this.props.handle_message !== undefined) {
+      // actualizo el estado del componente padre
+      this.props.handle_message(modal_id, message);
     }
   };
   handleShow = () => {
     this.setState({ show: true });
   };
+  handleEditedRootBloack = (bloqueroot) => {
+    if (this.props.handle_edited_root_block !== undefined) {
+      // permite enviar el bloque root editado:
+      this.props.handle_edited_root_block(bloqueroot);
+    }
+  };
+
+  // INTERNAL FUNCTIONS:
+  _onclick_delete = () => {
+    console.log(this.props);
+    let path =
+      "/api-sct/component-root/" +
+      this.props.static_menu.parent_id + "/" + 
+      this.props.static_menu.public_id + "/" +
+      this.props.block.public_id;
+    this.setState({ message: "Eliminando componente root interno" });
+    // Creando el nuevo root block mediante la API
+    fetch(path, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          this.handleEditedRootBloack(json.bloqueroot);
+          // this.handleClose();
+        } else {
+          this.setState({ message: json.msg });
+          this.handleMessages(json.msg);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        let msg = "Ha fallado la conexión con la API de modelamiento (api-sct)";
+        this.setState({ message: msg });
+        this.handleMessages(msg);
+      });
+  };
 
   render() {
+    if (
+      this.props.static_menu === undefined ||
+      this.props.block === undefined
+    ) {
+      return <div>No hay configuraciones para este elemento</div>;
+    }
     return (
       <>
         <Modal
@@ -40,25 +102,35 @@ export class Modal_delete_root_component extends Component<
           animation={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Eliminar componente interno</Modal.Title>
+            <Modal.Title>Eliminación de componente</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="BlockName">
-                <Form.Label>Nombre del bloque:</Form.Label>
-                <Form.Control type="text" placeholder="Ingrese nombre" />
-                <Form.Text className="text-muted">
-                  Se deben configurar aún más parámetros
+                <Form.Label>
+                  Desea eliminar el componente: {this.props.block.name}?{" "}
+                </Form.Label>
+                <Form.Text>
+                  Esta acción es permanente y se eliminará todo el contenido
+                  interno de este componente, esto incluye todos los componentes
+                  internos modelados.
                 </Form.Text>
               </Form.Group>
+              {this.state.message.length === 0 ? (
+                <></>
+              ) : (
+                <Alert variant="secondary" style={{ padding: "7px" }}>
+                  {this.state.message}
+                </Alert>
+              )}
             </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleClose}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={this.handleClose}>
-              Crear y guardar cambios
+            <Button variant="outline-danger" onClick={this._onclick_delete}>
+              Eliminar {this.props.block.name}
             </Button>
           </Modal.Footer>
         </Modal>
@@ -66,3 +138,19 @@ export class Modal_delete_root_component extends Component<
     );
   }
 }
+
+export const modal_delete_root_component_function = (
+  static_menu: static_menu,
+  block: block,
+  handle_close: Function,
+  handle_changes_in_root: Function
+) => {
+  return (
+    <Modal_delete_root_component
+      static_menu={static_menu}
+      block={block}
+      handle_close={handle_close}
+      handle_edited_root_block={handle_changes_in_root}
+    />
+  );
+};

@@ -240,12 +240,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
                   />
                   {/* Botón de edición*/}
+                  {this.props.edit_menu_modal === undefined? <></>:
                   <FontAwesomeIcon
                     icon={faPen}
                     size="1x"
                     className="edit_block_button"
                     onClick={() => this.on_click_show("edit_menu_modal", static_menu)}
-                  />
+                    />
+                  }
                 </span>
               </Card.Header>
 

@@ -3,6 +3,7 @@ import DefaultNavBar from "../../../components/NavBars/default";
 import DefaultFooter from "../../../components/NavBars/footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { modal_edit_root_block_function } from "./Modals/modal_edit_root_block";
+import { modal_edit_root_component_function } from "./Modals/modal_edit_root_component";
 import { Modal_new_root_block } from "./Modals/modal_new_root_block";
 import { modal_add_internal_block_function } from "./Modals/modal_add_internal_block";
 import { modal_add_root_component_function } from "./Modals/modal_add_root_component";
@@ -13,6 +14,7 @@ import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
 
 import DynamicSideBar from "../../../components/SideBars/dynamicSidebar";
+import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
 
 // Pagina inicial de manejo de nodos:
 class SCManage extends Component {
@@ -244,7 +246,7 @@ class SCManage extends Component {
             // Editar el menú superior de cada menú
             edit_menu_modal={[
               modal_edit_root_block_function,
-              modal_edit_root_block_function,
+              undefined,
             ]}
             // Añadir un nuevo bloque:
             add_submenu_modal={[
@@ -255,12 +257,12 @@ class SCManage extends Component {
             // Editar el submenú
             edit_submenu_modal={[
               modal_edit_internal_block_function,
-              modal_edit_internal_block_function,
+              modal_edit_root_component_function,
             ]}
             // Eliminar el submenú
             delete_submenu_modal={[
               modal_delete_internal_block_function,
-              modal_delete_internal_block_function,
+              modal_delete_root_component_function,
             ]}
             // actualiza el estado del modal (cerrar/abrir)
             modal_show={this.state.modal_show}
