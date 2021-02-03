@@ -2,6 +2,7 @@ import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { static_menu } from "../../../../components/SideBars/menu_type";
 import { leaf_block_form } from "../../types";
+import ReactDOM from 'react-dom';
 
 export interface menu_props {
   static_menu: static_menu;
@@ -59,7 +60,7 @@ export class Modal_add_internal_block extends Component<
   _onclick_create = () => {
     
     if (this._check_form()) {
-      let path = "/api-sct/block-leaf/" + this.props.static_menu.public_id + "/leaf";
+      let path = "/api-sct/block-leaf/block-root/" + this.props.static_menu.public_id ;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando bloque interno" });
       // Creando el nuevo root block mediante la API
@@ -169,6 +170,8 @@ export const modal_add_internal_block_function = (
   handle_modal_close: Function,
   handle_changes_in_root: Function
 ) => {
+  console.log("me");
+  
   return (
     <Modal_add_internal_block
       static_menu={static_menu}

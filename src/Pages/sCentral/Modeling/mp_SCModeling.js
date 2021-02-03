@@ -13,7 +13,7 @@ import { modal_delete_internal_block_function } from "./Modals/modal_delete_inte
 import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
 
-import DynamicSideBar from "../../../components/SideBars/dynamicSidebar";
+import DynamicSideBar from "../../../components/SideBars/DynamicSideBar/dynamicSidebar";
 import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
 
 // Pagina inicial de manejo de nodos:
@@ -57,12 +57,12 @@ class SCManage extends Component {
   // convertir la estructura root block a sidebar_menu
   handle_changes_in_structure = (changed_root_block) => {
     // En caso de elemento tipo Bloque root
-
+    console.log("changed_root_block", changed_root_block);
     let sidebar = this._root_block_to_sidebar_menu(changed_root_block, this.state.selected_static_menu, this.state.selected_block);
     this.setState({ sidebar_menu: sidebar, root_block: changed_root_block });
   };
 
-  // manejar cuando se selecciona un botón en el menú:
+  // Manejar el botón en el menú cuando se selecciona:
   handle_click_menu_button = (selected_static_menu, selected_block) => {
     // obtener el sidebar usando los últimos cambios
     let sidebar = this._root_block_to_sidebar_menu(
@@ -70,6 +70,8 @@ class SCManage extends Component {
       selected_static_menu,
       selected_block
     );
+    console.log("selected_static_menu", selected_static_menu);
+    console.log("selected_block", selected_block);
     this.setState({
       selected_static_menu: selected_static_menu,
       selected_block: selected_block,
@@ -78,6 +80,7 @@ class SCManage extends Component {
   };
 
   // INTERNAL FUNCTIONS:
+  // Transformando la estructura de datos en menú:
   _root_block_to_sidebar_menu = (
     r_bloque,
     selected_static_menu = undefined,
@@ -89,13 +92,16 @@ class SCManage extends Component {
     let first_blocks = [];
     let comp_roots = [];
     let click_inside = false;
+    console.log("r_bloque", r_bloque);
+    console.log("selected_static_menu", selected_static_menu);
+    console.log("selected_block", selected_block);
     // creando la estructura del submenu superior e inferior:
     if (
       r_bloque["block_leafs"] !== undefined &&
       r_bloque["block_leafs"].length > 0
     ) {
       r_bloque["block_leafs"].forEach((block) => {
-        let new_block = { name: block["name"], public_id: block["public_id"] };
+        let new_block = { name: block["name"], public_id: block["public_id"], object: block};
         first_blocks.push(new_block);
         if (
           selected_block !== undefined &&
@@ -120,6 +126,7 @@ class SCManage extends Component {
         parent_id: r_bloque["public_id"],
         public_id: r_bloque["public_id"],
         icon: faChalkboard,
+        object: r_bloque,
         blocks: first_blocks,
       },
     };
@@ -128,7 +135,7 @@ class SCManage extends Component {
     // Construcción de menú inferior (menú de componentes)
     let second_blocks = [];
     comp_roots.forEach((comp) => {
-      let new_block = { name: comp["name"], public_id: comp["public_id"] };
+      let new_block = { name: comp["name"], public_id: comp["public_id"], object: comp };
       second_blocks.push(new_block);
     });
 
@@ -145,6 +152,7 @@ class SCManage extends Component {
           parent_id: r_bloque["public_id"],
           public_id: selected_block.public_id,
           icon: faCog,
+          object: selected_block,
           blocks: second_blocks,
         },
       };
@@ -159,6 +167,7 @@ class SCManage extends Component {
           parent_id: r_bloque["public_id"],
           public_id: selected_static_menu.public_id,
           icon: faCog,
+          object: selected_static_menu,
           blocks: second_blocks,
         },
       };
@@ -283,7 +292,8 @@ class SCManage extends Component {
             )
           }
           <div className="page-content content-shift">
-            <div>Hello world</div>
+            <div>Hello World</div>
+            
           </div>
         </div>
 

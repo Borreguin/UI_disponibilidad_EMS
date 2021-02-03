@@ -59,12 +59,13 @@ export class Modal_edit_internal_block extends Component<
   };
 
   // INTERNAL FUNCTIONS:
+  // Edita los atributos de un bloque interno
   _onclick_edit = () => {
     if (this._check_form()) {
       let path =
-        "/api-sct/block-leaf/" +
+        "/api-sct/block-leaf/block-root/" +
         this.props.static_menu.public_id +
-        "/leaf/" +
+        "/block-leaf/" +
         this.props.block.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Editando bloque interno..." });

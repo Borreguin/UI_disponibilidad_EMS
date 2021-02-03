@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import FatherMenu from "./FatherMenu";
-import "./css/main.css";
-import "./css/sidebar-themes.css";
-import "./css/styles.css";
-import { block, fatherMenus, static_menu } from "./menu_type";
+import "../css/main.css";
+import "../css/sidebar-themes.css";
+import "../css/styles.css";
+import { block, fatherMenus, static_menu } from "../menu_type";
 
 export interface MenuProps {
   menu: fatherMenus;

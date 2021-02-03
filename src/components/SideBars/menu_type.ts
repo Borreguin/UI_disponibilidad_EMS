@@ -26,6 +26,7 @@ export type static_menu = {
 export type block = {
     name: string,
     public_id: string,
+    // type: string,
 }
 
 export type navData = {

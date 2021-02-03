@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
-import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { block, static_menu } from "../menu_type";
 
 export interface modal_props {
   static_menu: static_menu;
@@ -17,7 +17,7 @@ export interface modal_state {
 
 let modal_id = "Modal_delete_root_component";
 
-export class Modal_delete_root_component extends Component<
+export class Modal_Menu extends Component<
   modal_props,
   modal_state
 > {
@@ -54,46 +54,17 @@ export class Modal_delete_root_component extends Component<
   };
 
   // INTERNAL FUNCTIONS:
-  // Elimina un componente root mediante: id del bloque root, id del bloque leaf e id del componente
-  _onclick_delete = () => {
-    console.log(this.props);
-    let path =
-      "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id +
-      "/block-leaf/" + this.props.static_menu.public_id +
-      "/comp-root/" + this.props.block.public_id;
-    this.setState({ message: "Eliminando componente root interno" });
-    // Creando el nuevo root block mediante la API
-    fetch(path, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) {
-          this.handleEditedRootBloack(json.bloqueroot);
-          // this.handleClose();
-        } else {
-          this.setState({ message: json.msg });
-          this.handleMessages(json.msg);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        let msg = "Ha fallado la conexión con la API de modelamiento (api-sct)";
-        this.setState({ message: msg });
-        this.handleMessages(msg);
-      });
+  _onclick_submit = () => {
+    console.log("Ready for doing things here");
   };
 
-  render() {
-    if (
-      this.props.static_menu === undefined ||
-      this.props.block === undefined
-    ) {
-      return <div>No hay configuraciones para este elemento</div>;
-    }
+  _handle_form_changes = (e, field) => {};
+
+  _check_form = () => {
+    return false;
+  };
+
+  _render_modal = () => {
     return (
       <>
         <Modal
@@ -129,24 +100,35 @@ export class Modal_delete_root_component extends Component<
             <Button variant="secondary" onClick={this.handleClose}>
               Cancelar
             </Button>
-            <Button variant="outline-danger" onClick={this._onclick_delete}>
+            <Button variant="outline-danger" onClick={this._onclick_submit}>
               Eliminar {this.props.block.name}
             </Button>
           </Modal.Footer>
         </Modal>
       </>
     );
+  };
+
+  render() {
+    if (
+      this.props.static_menu === undefined ||
+      this.props.block === undefined
+    ) {
+      return <div>No hay configuraciones para este elemento</div>;
+    } else {
+      this._render_modal();
+    }
   }
 }
 
-export const modal_delete_root_component_function = (
+export const modal_menu_function = (
   static_menu: static_menu,
   block: block,
   handle_close: Function,
   handle_changes_in_root: Function
 ) => {
   return (
-    <Modal_delete_root_component
+    <Modal_Menu
       static_menu={static_menu}
       block={block}
       handle_close={handle_close}

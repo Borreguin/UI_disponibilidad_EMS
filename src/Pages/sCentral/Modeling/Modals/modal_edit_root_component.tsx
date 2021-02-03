@@ -59,15 +59,13 @@ export class Modal_edit_root_component extends Component<
   };
 
   // INTERNAL FUNCTIONS:
+  // Edita un componente root mediante: id del bloque root, id del bloque leaf e id del componente
   _onclick_edit = () => {
     if (this._check_form()) {
       let path =
-        "/api-sct/component-root/" +
-        this.props.static_menu.parent_id +
-        "/" +
-        this.props.static_menu.public_id +
-        "/" +
-        this.props.block.public_id;
+        "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id +
+        "/block-leaf/" + this.props.static_menu.public_id +
+        "/comp-root/" + this.props.block.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Editando el componente" });
       // Creando el nuevo root block mediante la API

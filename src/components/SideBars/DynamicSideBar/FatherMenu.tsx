@@ -1,18 +1,15 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretRight,
-  faEdit,
-  faPaperclip,
   faPen,
   faPlayCircle,
-  faPlus,
   faPlusCircle,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button, Card, ListGroup, Modal } from "react-bootstrap";
-import "./css/styles.css";
-import { block, fatherMenu, static_menu } from "./menu_type";
+import { Card, ListGroup } from "react-bootstrap";
+import "../css/styles.css";
+import { block, fatherMenu, static_menu } from "../menu_type";
 import ReactTooltip from "react-tooltip";
 
 export interface FatherPros {
@@ -51,11 +48,11 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     };
   }
 
-  static getDerivedStateFromProps(props, state) {
+  /*static getDerivedStateFromProps(state) {
     // Permite manejar el cierre y apertura de la modal
     let show = state.show;
     return { show: show };
-  }
+  }*/
 
   on_click_show = (name, static_menu = undefined, block = undefined) => {
     // permite renderizar el componente
@@ -193,7 +190,6 @@ class FatherMenu extends Component<FatherPros, FatherState> {
 
   // menu extendido
   toggled_menu = (header, static_menu) => {
-    let _ = require("lodash");
 
     // si el submenú no esta definido totalmente, entonces no se presenta
     if (header === undefined || static_menu.name === undefined) {
@@ -237,7 +233,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     icon={faPlusCircle}
                     size="1x"
                     className="add_button"
-                    onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
+                    // onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
+                    
+                    onClick={() => this.props.add_submenu_modal(
+                      this.state.selected_static_menu,
+                      this.props.handle_close,
+                      this.props.handle_edited_menu
+                    )}
+
                   />
                   {/* Botón de edición*/}
                   {this.props.edit_menu_modal === undefined? <></>:
@@ -316,9 +319,11 @@ class FatherMenu extends Component<FatherPros, FatherState> {
             </Card>
           }
         </div>
+
         {
           // Llamando modal para editar cabecera del menú
-          this.state.show["edit_menu_modal"] &&
+          this.state.show["edit_menu_modal"] !== undefined &&
+            this.state.show["edit_menu_modal"] === true &&
           this.props.edit_menu_modal !== undefined ? (
             this.props.edit_menu_modal(
               static_menu.public_id,
@@ -332,7 +337,8 @@ class FatherMenu extends Component<FatherPros, FatherState> {
 
         {
           // Llamando modal para añadir elementos internos
-          this.state.show["add_submenu_modal"] &&
+          this.state.show["add_submenu_modal"] !== undefined &&
+          this.state.show["add_submenu_modal"] === true &&
           this.props.add_submenu_modal !== undefined ? (
             this.props.add_submenu_modal(
               this.state.selected_static_menu,
@@ -342,11 +348,13 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           ) : (
             <></>
           )
+
         }
 
         {
           // Llamando modal para eliminar elementos internos
-          this.state.show["delete_item_modal"] &&
+          this.state.show["delete_item_modal"] !== undefined &&
+          this.state.show["delete_item_modal"] === true &&
           this.props.delete_submenu_modal !== undefined ? (
             this.props.delete_submenu_modal(
               this.state.selected_static_menu,
@@ -360,7 +368,8 @@ class FatherMenu extends Component<FatherPros, FatherState> {
         }
         {
           // Llamando modal para editar elementos internos
-          this.state.show["edit_item_modal"] &&
+          this.state.show["edit_item_modal"] !== undefined &&
+          this.state.show["edit_item_modal"] === true &&
           this.props.edit_submenu_modal !== undefined ? (
             this.props.edit_submenu_modal(
               this.state.selected_static_menu,

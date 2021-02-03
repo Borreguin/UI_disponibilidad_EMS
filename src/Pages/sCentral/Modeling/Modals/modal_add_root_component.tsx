@@ -55,9 +55,11 @@ export class Modal_add_root_component extends Component<
   };
 
   // INTERNAL FUNCTIONS:
+  // crea un nuevo componente root dentro de un bloque:
   _onclick_create = () => {
     if (this._check_form()) {
-      let path = "/api-sct/component-root/" + this.props.static_menu.parent_id + "/" + this.props.static_menu.public_id;
+      let path = "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id
+        + "/block-leaf/" + this.props.static_menu.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando componente interno" });
       // Creando el nuevo root block mediante la API
