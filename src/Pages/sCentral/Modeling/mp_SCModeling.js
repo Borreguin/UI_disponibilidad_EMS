@@ -9,10 +9,10 @@ import { modal_add_internal_block_function } from "./Modals/modal_add_internal_b
 import { modal_add_root_component_function } from "./Modals/modal_add_root_component";
 import { modal_edit_internal_block_function } from "./Modals/modal_edit_internal_block";
 import { modal_delete_internal_block_function } from "./Modals/modal_delete_internal_block";
-
+import BlockRootGrid from "./ModelingGrids/BlockRootGrid";
 import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
-
+import ReactJson from "react-json-view";
 import DynamicSideBar from "../../../components/SideBars/DynamicSideBar/dynamicSidebar";
 import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
 
@@ -24,7 +24,7 @@ class SCManage extends Component {
     root_public_id: "disponibilidad_ems",
     navData: [],
     loading: true,
-    msg: "",
+    log: {msg: "Se ha cargado el modelamiento sin novedad"},
     error: false,
     pinned: false,
     modal_show: false,
@@ -56,9 +56,13 @@ class SCManage extends Component {
 
   // convertir la estructura root block a sidebar_menu
   handle_changes_in_structure = (changed_root_block) => {
-    // En caso de elemento tipo Bloque root
-    console.log("changed_root_block", changed_root_block);
-    let sidebar = this._root_block_to_sidebar_menu(changed_root_block, this.state.selected_static_menu, this.state.selected_block);
+    // Maneja los cambios realizados sobre la estructura general de datos
+    // changed_root_block contiene toda la estructura jerárquica
+    let sidebar = this._root_block_to_sidebar_menu(
+      changed_root_block,
+      this.state.selected_static_menu,
+      this.state.selected_block
+    );
     this.setState({ sidebar_menu: sidebar, root_block: changed_root_block });
   };
 
@@ -101,7 +105,11 @@ class SCManage extends Component {
       r_bloque["block_leafs"].length > 0
     ) {
       r_bloque["block_leafs"].forEach((block) => {
-        let new_block = { name: block["name"], public_id: block["public_id"], object: block};
+        let new_block = {
+          name: block["name"],
+          public_id: block["public_id"],
+          object: block,
+        };
         first_blocks.push(new_block);
         if (
           selected_block !== undefined &&
@@ -135,7 +143,11 @@ class SCManage extends Component {
     // Construcción de menú inferior (menú de componentes)
     let second_blocks = [];
     comp_roots.forEach((comp) => {
-      let new_block = { name: comp["name"], public_id: comp["public_id"], object: comp };
+      let new_block = {
+        name: comp["name"],
+        public_id: comp["public_id"],
+        object: comp,
+      };
       second_blocks.push(new_block);
     });
 
@@ -203,14 +215,17 @@ class SCManage extends Component {
         } else {
           this.setState({
             new_root: true,
-            msg: "Es necesario crear un bloque principal para esta página",
+            log:{
+            msg: "Es necesario crear un bloque principal para esta página"},
           });
         }
       })
       .catch((error) => {
         this.setState({
           error: true,
-          msg: "Ha fallado la conexión con la API de modelamiento (api-sct)",
+          log: {
+            msg: "Ha fallado la conexión con la API de modelamiento (api-sct)"
+          },
         });
         console.log(error);
       });
@@ -253,10 +268,7 @@ class SCManage extends Component {
             handle_click_menu_button={this.handle_click_menu_button}
             // ------ MENU PRINCIPAL
             // Editar el menú superior de cada menú
-            edit_menu_modal={[
-              modal_edit_root_block_function,
-              undefined,
-            ]}
+            edit_menu_modal={[modal_edit_root_block_function, undefined]}
             // Añadir un nuevo bloque:
             add_submenu_modal={[
               modal_add_internal_block_function,
@@ -280,7 +292,7 @@ class SCManage extends Component {
             selected_block={this.state.selected_block}
           />
           {
-            // permite desplegar el model de inicio de modelación
+            // permite desplegar la modal de inicio de modelación
             this.state.new_root ? (
               <Modal_new_root_block
                 public_id={this.state.root_public_id}
@@ -292,12 +304,24 @@ class SCManage extends Component {
             )
           }
           <div className="page-content content-shift">
-            <div>Hello World</div>
-            
+            { /* Grid de modelamiento*/ }
+            <div className="grid">
+              <BlockRootGrid></BlockRootGrid>
+            </div>
+            <div className="logger">
+            <ReactJson
+                name={ false}
+                displayObjectSize={true}
+                indentWidth={2}
+              collapsed={true}
+              iconStyle="circle"
+              displayDataTypes={false}
+              theme="monokai"
+              src={this.state.log}
+              />
+              </div>
           </div>
         </div>
-
-        <DefaultFooter />
       </React.Fragment>
     );
   }
