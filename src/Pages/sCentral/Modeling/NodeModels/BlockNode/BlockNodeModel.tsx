@@ -38,44 +38,44 @@ export interface BlockNodeParams {
 }
 
 export class BlockNodeModel extends NodeModel<BlockNodeParams & NodeModelGenerics>{
-    data: Node;
+    data: bloqueleaf;
     edited: boolean;
 
     constructor(params: { node: any; }) {
-        super({ type: 'BlockNode', id: (params.node.tipo + "$" + params.node.nombre) });
+        super({ type: 'BlockNode', id: params.node.name });
         this.data = params.node
-        this.data.entidades.map((entidad) => (
+        /*this.data.entidades.map((entidad) => (
             this.addPort(new SerialPort(entidad.entidad_nombre))
-        ))
+        ))*/
         this.edited = false;
 	}
 
     updateNombre = (e) => {
-        const in_text = e.target.value;
+       /* const in_text = e.target.value;
         if (this.data.nombre !== in_text && in_text.length > 1) { 
             this.data.nombre = in_text.trim();
             this.edited = true;
         }
-        this.setLocked(false)
+        this.setLocked(false)*/
     };
 
     updateTipo = (e) => {
-        const in_text = e.target.value;
+       /* const in_text = e.target.value;
         if (this.data.tipo !== in_text && in_text.length > 1) { 
             this.data.tipo = in_text.trim();
             this.edited = true;
         }
-        this.setLocked(false)
+        this.setLocked(false) */
     };
 
     updateActivo = () => { 
-        console.log("check", this.data.activado)
+      /*  console.log("check", this.data.activado)
         this.data.activado = !this.data.activado;
-        this.edited = true;
+        this.edited = true;*/
     }
 
 	setNodeInfo(_node: Node) { 
-		this.data = _node;
+		/* this.data = _node;*/
 	}
 
 	addNextPort(label: any) {

@@ -44,16 +44,16 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 	}
 
 	_update_entidad_activado = (p: string) => { 
-		this.node.data.entidades.forEach((entidad) => {
+		/*this.node.data.entidades.forEach((entidad) => {
 			if (entidad.entidad_nombre === p) { 
 				entidad.activado = !entidad.activado;
 			}
 		});
-		this.is_edited();
+		this.is_edited();*/
 	}
 	
 	_eliminar_entidad = async (p: string) => { 
-		console.log("inicio", this.node.data.entidades);
+		/*console.log("inicio", this.node.data.entidades);
 		const new_ents = []
 		const confirm = window.confirm('Seguro que desea eliminar este elemento?');
 		if (confirm) {
@@ -64,12 +64,12 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 			});
 			this.node.data.entidades = new_ents;
 		}
-		this.is_edited()
+		this.is_edited()*/
 	}
 
 	/*Generación de entidades */
 	_generateEntityPorts = () => {
-        return this.node.data.entidades.map((entidad)=> (
+        /*return this.node.data.entidades.map((entidad)=> (
 			<div key={entidad.entidad_nombre}>
 				<div className="sr-port-block">
 					<Button className="btn-delete" onClick={()=> this._eliminar_entidad(entidad.entidad_nombre)}>
@@ -89,7 +89,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 					</div>
 				</div>
             </div>
-        ));
+        ));*/
 	};
 	
 	generateNextPort = (port) => {
@@ -97,7 +97,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 	};
 	
 	_addElement = () => {
-        let newH = Object.assign([], this.props.node.data.entidades);
+       /* let newH = Object.assign([], this.props.node.data.entidades);
         let next_id = (newH.length>0)?newH.length as number+1:1;
 		newH.push({
 			entidad_nombre: "nueva entidad",
@@ -113,22 +113,22 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         });
 		console.log("ADD next port", newH, this.props.node.data.entidades);
 		this.props.node.addPort(new SerialPort(PortModelAlignment.TOP));
-        // this.props.node.addNextPort("Nxt");
+        // this.props.node.addNextPort("Nxt");*/
     };
 
 	_updateNombre = (e) =>{ 
-		this.node.data.nombre = e.target.value.trim();
+		/*this.node.data.nombre = e.target.value.trim();
 		this.is_edited();
-		this.props.node.setLocked(false);
+		this.props.node.setLocked(false);*/
 	}
 	_updateTipo = (e) => { 
-		this.node.data.tipo = e.target.value.trim();
+		/*this.node.data.tipo = e.target.value.trim();
 		this.is_edited();
-		this.props.node.setLocked(false);
+		this.props.node.setLocked(false);*/
 	}
 	_update_activo = () => { 
-		this.node.data.activado = !this.node.data.activado;
-		this.is_edited()
+		/*this.node.data.activado = !this.node.data.activado;
+		this.is_edited()*/
 	}
 
 	is_edited = () => { 
@@ -162,7 +162,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 					<div className="to-drag"/>
 					<div className="sr-node-title" >
 						<input
-							defaultValue={node.data.nombre}
+							defaultValue={node.data.name}
 							type="text"
 							onFocus={() => { this.props.node.setLocked(true) }}
 							onChange={this._updateNombre}
@@ -175,7 +175,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 						</Button>
 					</div>
 					<input
-						defaultValue={node.data.tipo}
+						defaultValue={node.data.name}
 						type="text"
 						onFocus={() => { this.props.node.setLocked(true) }}
 						onChange={this._updateTipo}
@@ -183,9 +183,9 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 						className="sr-node-subtitle"
 					/>
 					
-					<FontAwesomeIcon icon={this.node.data.activado ? faToggleOn : faToggleOff}
+					<FontAwesomeIcon icon={this.node.data.name ? faToggleOn : faToggleOff}
 						inverse size="2x"
-						className={this.node.data.activado ? "icon-on" : "icon-off"}
+						className={this.node.data.name ? "icon-on" : "icon-off"}
 						onClick={this._update_activo}
 					/> 
 				

@@ -6,10 +6,20 @@ import { StyledCanvasWidget } from '../../../../components/Diagrams/helpers/Styl
 import { SimplePortFactory } from '../../../../components/Diagrams/helpers/SimplePortFactory'
 import { SerialPort } from '../NodeModels/SerialPort';
 import { BlockFactory} from '../NodeModels/BlockNode/BlockFactory'
+import { static_menu } from '../../../../components/SideBars/menu_type';
+import { BlockNodeModel } from '../NodeModels/BlockNode/BlockNodeModel';
 
-class BlockRootGrid extends Component{ 
+type BlockRootGridProps = {
+    static_menu: static_menu
+}
+
+
+class BlockRootGrid extends Component<BlockRootGridProps>{ 
 
     render() { 
+        const { static_menu } = this.props;
+        console.log(static_menu); 
+        console.log(static_menu.name); 
          //1) setup the diagram engine
         // IMPORTANTE: No se registra la manera por defecto de eliminar elementos 
         const engine = createEngine({ registerDefaultDeleteItemsAction: false });
@@ -27,8 +37,12 @@ class BlockRootGrid extends Component{
             name: 'Node T1',
             color: 'rgb(0,192,255)'
         });
+
+        var node2 = new BlockNodeModel({ node: static_menu });
+        node2.setPosition(200, 200);
+
         node1.setPosition(100, 100);
-        model.addAll(node1);
+        model.addAll(node1, node2);
         engine.setModel(model);
         return(<StyledCanvasWidget className="grid">
             <CanvasWidget  engine={engine} />

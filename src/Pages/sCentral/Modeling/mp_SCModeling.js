@@ -306,7 +306,10 @@ class SCManage extends Component {
           <div className="page-content content-shift">
             { /* Grid de modelamiento*/ }
             <div className="grid">
-              <BlockRootGrid></BlockRootGrid>
+              {this.state.selected_static_menu !== undefined && this.state.selected_block === undefined ? 
+                <BlockRootGrid static_menu={this.state.selected_static_menu} /> : <></>
+              }
+              
             </div>
             <div className="logger">
             <ReactJson
