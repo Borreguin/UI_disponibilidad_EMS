@@ -233,14 +233,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     icon={faPlusCircle}
                     size="1x"
                     className="add_button"
-                    // onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
-                    
-                    onClick={() => this.props.add_submenu_modal(
-                      this.state.selected_static_menu,
-                      this.props.handle_close,
-                      this.props.handle_edited_menu
-                    )}
-
+                    onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
                   />
                   {/* Botón de edición*/}
                   {this.props.edit_menu_modal === undefined? <></>:

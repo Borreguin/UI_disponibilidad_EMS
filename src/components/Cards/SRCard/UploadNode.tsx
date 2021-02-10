@@ -56,8 +56,8 @@ class UploadNode extends Upload<UploadNodeProps> {
           values.forEach((value) => {
             let objResp = JSON.parse(value[1].response);
             if (value[1].status === 200) {
-              this.setState({ message: "Proceso exitoso" });
-              this._handleOnNodeUpload(objResp);
+              this.setState({ message: objResp.msg });
+              this._handleOnNodeUpload(objResp.nodo);
             } else {
               this.setState({ message: objResp.msg });
             }
@@ -116,8 +116,14 @@ class UploadNode extends Upload<UploadNodeProps> {
         const formData = new FormData();
         formData.append("excel_file", file, file.name);
         if (this.state.option === "Reemplazar") { 
-          formData.append("option", "REEMPLAZAR")
+          formData.append("option", "REEMPLAZAR");
+          const confirm = window.confirm(
+            "Esta opción eliminará el nodo antiguo y construirá uno nuevo, sustituyendo por completo el nodo antiguo. Desea continuar? " 
+          );
+          // Si no confirma el reemplazo, entonces no se continúa con la sustitución total
+          if (!confirm) reject([file.name, req]);
         }
+
         // sending a file each time
         const route = `/api/admin-sRemoto/nodo/${this.props.tipo}/${this.props.node_name}/from-excel`;
         req.open("PUT", route);

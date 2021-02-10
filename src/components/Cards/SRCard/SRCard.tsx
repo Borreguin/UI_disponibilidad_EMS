@@ -71,7 +71,6 @@ class SRCard extends Component<SRCardProps> {
     this.setState({ edited: true });
     this.lcl_node = _.cloneDeep(new_node);
     this.bck_node = _.cloneDeep(new_node);
-    console.log(this.lcl_node);
     this.setState({ edited: false });
   };
 
@@ -91,8 +90,24 @@ class SRCard extends Component<SRCardProps> {
     }
     this.is_edited();
   };
-  _update_activo = () => {
+  _update_activo = async () => {
     this.lcl_node.activado = !this.lcl_node.activado;
+    let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+    if (this.lcl_node.activado) {
+      path = path + "/activado";
+    } else { 
+      path = path + "/desactivado";
+    }
+    fetch(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({ message: json.msg});
+      })
+      .catch(console.log);
+    this.onShowAlert();
     this.is_edited();
   };
 
@@ -102,6 +117,7 @@ class SRCard extends Component<SRCardProps> {
   };
 
   _save_node = async () => {
+    console.log("me again");
     this.setState({ message: "Guardando en base de datos...", edited: false });
     this.onShowAlert();
     let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
@@ -117,11 +133,15 @@ class SRCard extends Component<SRCardProps> {
           if (json.msg === "No se encontró el nodo") {
             this._create_new_node();
           }
-        } else {
-          this.bck_node = _.cloneDeep(json);
+        }
+        else {
+        // si es exitoso entonces se ha guardado en la base de datos
+        // por lo que local es igual a backup
+          console.log("me", json);
+          this.bck_node = _.cloneDeep(json.nodo);
+          this.lcl_node = _.cloneDeep(json.nodo);
           this.is_edited();
-          this.lcl_node = _.cloneDeep(json);
-          this.setState({ message: "Guardado exitoso" });
+          this.setState({ message: json.msg});
         }
       })
       .catch(console.log);
@@ -145,9 +165,9 @@ class SRCard extends Component<SRCardProps> {
             visible: true,
           });
         } else {
-          this.bck_node = _.cloneDeep(json);
+          this.bck_node = _.cloneDeep(json.nodo);
+          this.lcl_node = _.cloneDeep(json.nodo);
           this.is_edited();
-          this.lcl_node = _.cloneDeep(json);
           this.setState({ message: "Guardado exitoso" });
         }
       })
@@ -163,13 +183,15 @@ class SRCard extends Component<SRCardProps> {
     );
     if (confirm) {
       let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+      console.log("going to delete me");
       await fetch(path, { method: "DELETE" })
         .then((res) => res.json())
         .then((json) => {
-          if (json === null) {
+          console.log("delete me", json);
+          if (json.success) {
+            this.bck_node = null;
+            this.setState({ edited: true });
           }
-          this.bck_node = null;
-          this.setState({ edited: true });
         })
         .catch(console.log);
     }
