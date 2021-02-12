@@ -61,7 +61,7 @@ class SRGeneralReport extends Component<GeneralReportProps> {
               <div className="gr-sc-process-description">Entidades calculadas:</div>
               <div className="gr-sc-process-value">{this.props.report.procesamiento.numero_entidades_procesadas}</div>
               <div className="gr-sc-process-description">Nodos calculados:</div>
-              <div className="gr-sc-process-value">{this.props.report.procesamiento.numero_entidades_procesadas}</div>
+              <div className="gr-sc-process-value">{this.props.report.procesamiento.numero_nodos_procesados}</div>
               <div className="gr-sc-footer">Tiempo de procesamiento: {Math.floor(this.props.report.tiempo_calculo_segundos/60)} min {Math.floor(this.props.report.tiempo_calculo_segundos % 60)} seg. </div>
             </Card.Body>
           </Card>

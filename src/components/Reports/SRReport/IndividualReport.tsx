@@ -14,6 +14,7 @@ import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
 import ReactTooltip from "react-tooltip";
 import DetailReport from "./DetailReport";
 import ReactJson from "react-json-view";
+import * as _ from "lodash"
 
 type IndReportProps = {
   report: SummaryReport;
@@ -232,7 +233,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
   _download_log = (node_name) => { 
     let file_name = node_name + ".log";
     let url =
-      "/api/files/file/output/" + file_name;
+      "/api/files/file/output/" + file_name + "/" + _.uniqueId("sdfsadf");
       fetch(url).then((response) => {
         response.blob().then((blob) => {
           let url = window.URL.createObjectURL(blob);

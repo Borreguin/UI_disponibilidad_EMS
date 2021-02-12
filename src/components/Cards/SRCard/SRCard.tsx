@@ -4,6 +4,7 @@ import { Node, Entity } from "./SRCardModel";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import UploadNode from "./UploadNode";
+
 import {
   faToggleOn,
   faToggleOff,
@@ -203,7 +204,7 @@ class SRCard extends Component<SRCardProps> {
       this.bck_node.tipo +
       "/" +
       this.bck_node.nombre +
-      "/from-excel";
+      "/from-excel/" + _.uniqueId("sdfsadf");
     let name = this.bck_node.tipo + this.bck_node.nombre + ".xlsx";
     fetch(url).then((response) => {
       if (!response.ok) return;
