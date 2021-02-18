@@ -12,7 +12,7 @@ import { BlockWidget } from './BlockWidget'
 */
 export class BlockFactory extends AbstractReactFactory<BlockNodeModel, DiagramEngine> {
 	constructor() {
-		super('srnode');
+		super('BlockNode');
 	}
 	// genera el widget
 	generateReactWidget(event: { model: BlockNodeModel; }): JSX.Element {

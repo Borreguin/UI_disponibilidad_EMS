@@ -1,9 +1,18 @@
-import { NodeModel, NodeModelGenerics, PortModelAlignment } from '@projectstorm/react-diagrams';
-import { bloqueleaf } from '../../../types';
-import { SerialPort } from '../SerialPort';
+import {
+  NodeModel,
+  NodeModelGenerics,
+  PortModelAlignment,
+} from "@projectstorm/react-diagrams";
+import { SRPortModel } from "../../../../../components/Diagrams/Nodes/SRNode/SRPortModel";
+import { static_menu } from "../../../../../components/SideBars/menu_type";
+import { bloqueleaf } from "../../../types";
+import { SerialOutPortModel } from "./SerialOutputPort";
+import { DefaultPortModel } from "@projectstorm/react-diagrams";
 //import { NextPortModel } from '../../helpers/NextPortModel'
 //import { NextPortLabel } from '../../helpers/NextPortLabelWidget'
-
+import * as _ from "lodash";
+import { InPortModel } from "./InPort";
+import { ParallelOutPortModel } from "./ParallelOutputPort";
 /*
     ---- Define el modelo del nodo (Leaf Block) ----
     Tipo de puertos a colocar en el nodo: 
@@ -13,77 +22,89 @@ import { SerialPort } from '../SerialPort';
     Especifica la acciones dentro del nodo:
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
-
-export type Entity = {
-    entidad_nombre: string,
-    entidad_tipo: string,
-    n_tags: number,
-    utrs: number,
-    activado: boolean
-}
+export type Parallel = {
+  nombre: string;
+  public_id: string;
+};
 
 export type Node = {
-    nombre: string,
-    tipo: string,
-    n_tags: number,
-    actualizado: string,
-    activado: boolean,
-    entidades: Array<Entity>
-}
-
+  nombre: string;
+  activado: boolean;
+  public_id: string;
+  parallel_connections: Array<Parallel>;
+};
 
 export interface BlockNodeParams {
-    PORT: SerialPort;
-	node: bloqueleaf;
+  PORT: SerialOutPortModel;
+  node: Node;
 }
 
-export class BlockNodeModel extends NodeModel<BlockNodeParams & NodeModelGenerics>{
-    data: bloqueleaf;
-    edited: boolean;
+// Aquí se definen las funciones del nodo
 
-    constructor(params: { node: any; }) {
-        super({ type: 'BlockNode', id: params.node.name });
-        this.data = params.node
-        /*this.data.entidades.map((entidad) => (
-            this.addPort(new SerialPort(entidad.entidad_nombre))
-        ))*/
-        this.edited = false;
-	}
+export class BlockNodeModel extends NodeModel<
+  BlockNodeParams & NodeModelGenerics
+> {
+  data: Node;
+  edited: boolean;
 
-    updateNombre = (e) => {
-       /* const in_text = e.target.value;
-        if (this.data.nombre !== in_text && in_text.length > 1) { 
-            this.data.nombre = in_text.trim();
-            this.edited = true;
-        }
-        this.setLocked(false)*/
-    };
+  constructor(params: { node: any }) {
+    super({ type: "BlockNode", id: params.node.public_id });
+    this.data = params.node;
+    this.addPort(new SerialOutPortModel("SerialOutPut"));
+    this.addPort(new InPortModel("InPut"));
 
-    updateTipo = (e) => {
-       /* const in_text = e.target.value;
-        if (this.data.tipo !== in_text && in_text.length > 1) { 
-            this.data.tipo = in_text.trim();
-            this.edited = true;
-        }
-        this.setLocked(false) */
-    };
+    this.data.parallel_connections.forEach((parallel) => {
+      this.addPort(new ParallelOutPortModel(parallel.public_id));
+    });
 
-    updateActivo = () => { 
-      /*  console.log("check", this.data.activado)
-        this.data.activado = !this.data.activado;
-        this.edited = true;*/
+    this.edited = false;
+  }
+
+  updateNombre = (e) => {
+    const in_text = e.target.value;
+    if (this.data.nombre !== in_text && in_text.length > 1) {
+      this.data.nombre = in_text.trim();
+      this.edited = true;
     }
+    this.setLocked(false);
+  };
 
-	setNodeInfo(_node: Node) { 
-		/* this.data = _node;*/
-	}
+  updateActivo = () => {
+    console.log("check", this.data.activado);
+    this.data.activado = !this.data.activado;
+    this.edited = true;
+  };
 
-	addNextPort(label: any) {
-        this.addPort(new SerialPort(PortModelAlignment.RIGHT));
-    }
+  setNodeInfo(_node: Node) {
+    this.data = _node;
+  }
 
-    generateNextPort = (port) => {
-        this.addPort(new SerialPort(PortModelAlignment.RIGHT));
-    }
-    
+  addNextPort(label: any) {
+    this.addPort(new SRPortModel(PortModelAlignment.RIGHT));
+  }
+
+  generateNextPort = (port) => {
+    this.addPort(new SRPortModel(PortModelAlignment.RIGHT));
+  };
+
+  addInPort(label) {
+    return this.addPort(
+      new DefaultPortModel(true, _.uniqueId("InPort"), label)
+    );
+  }
+  addOutPort(label) {
+    return this.addPort(
+      new DefaultPortModel(false, _.uniqueId("OutPort"), label)
+    );
+  }
+  getInPorts() {
+    return _.filter(this.ports, (portModel) => {
+      return portModel.in;
+    });
+  }
+  getOutPorts() {
+    return _.filter(this.ports, (portModel) => {
+      return !portModel.in;
+    });
+  }
 }

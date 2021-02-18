@@ -4,7 +4,7 @@ import createEngine, { DiagramModel, DefaultNodeModel, DefaultLinkModel, PortMod
 import { CanvasWidget, Action, ActionEvent, InputType } from '@projectstorm/react-canvas-core';
 import { StyledCanvasWidget } from '../../../../components/Diagrams/helpers/StyledCanvasWidget'
 import { SimplePortFactory } from '../../../../components/Diagrams/helpers/SimplePortFactory'
-import { SerialPort } from '../NodeModels/SerialPort';
+import { SerialOutPortModel } from '../NodeModels/BlockNode/SerialOutputPort';
 import { BlockFactory} from '../NodeModels/BlockNode/BlockFactory'
 import { static_menu } from '../../../../components/SideBars/menu_type';
 import { BlockNodeModel } from '../NodeModels/BlockNode/BlockNodeModel';
@@ -27,22 +27,48 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
         
         // 1.a) Register factories: Puertos y Nodos 
         engine.getPortFactories()
-            .registerFactory(new SimplePortFactory('SrNodePort', config => new SerialPort(PortModelAlignment.RIGHT)));
+            .registerFactory(new SimplePortFactory('SerialOutputPort', config => new SerialOutPortModel(PortModelAlignment.RIGHT)));
 
         engine.getNodeFactories()
             .registerFactory(new BlockFactory());
         
         
-        var node1 = new DefaultNodeModel({
-            name: 'Node T1',
-            color: 'rgb(0,192,255)'
-        });
+        
+        //node2.setPosition(200, 200);
 
-        var node2 = new BlockNodeModel({ node: static_menu });
-        node2.setPosition(200, 200);
+        var paralel = {
+            nombre: "test1",
+            public_id: "public3",
+        }
+        var paralel2 = {
+            nombre: "test2",
+            public_id: "public4",
+        }
+        
+        var Node = {
+            nombre: "Esta es una descripción larga muy larga",
+            public_id: "public_id",
+            activado: true,
+            parallel_connections: [paralel, paralel2]
+        }
+        var myNode = {
+            nombre: "Soy otro nodo",
+            public_id: "public_id2",
+            activado: true,
+            parallel_connections: [paralel, paralel2]
+        }
+        
+        var node1 = new BlockNodeModel({ node: Node });
+        node1.addOutPort("Out");
+        node1.addInPort("In");
 
-        node1.setPosition(100, 100);
-        model.addAll(node1, node2);
+        var node2 = new BlockNodeModel({ node: myNode });
+        node2.addOutPort("Out");
+        node2.addInPort("In");
+        
+        //model.addAll(node1, node2);
+        model.addNode(node1);
+        model.addNode(node2);
         engine.setModel(model);
         return(<StyledCanvasWidget className="grid">
             <CanvasWidget  engine={engine} />

@@ -68,6 +68,7 @@ class NodeCanvas extends Component<NodeCanvasProps> {
                 const _node = new SRNodeModel({ node: node });
                 _node.setPosition(5, y);
                 model.addNode(_node);
+                //_node.addPort(new SRPortModel("test"));
                 y += (100 + node.entidades.length * 22);
                 //console.log(_node.serialize());
             })
