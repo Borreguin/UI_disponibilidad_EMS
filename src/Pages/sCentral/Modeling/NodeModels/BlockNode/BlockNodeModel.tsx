@@ -22,16 +22,16 @@ import { ParallelOutPortModel } from "./ParallelOutputPort";
     Especifica la acciones dentro del nodo:
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
-export type Parallel = {
-  nombre: string;
-  public_id: string;
-};
 
 export type Node = {
   nombre: string;
-  activado: boolean;
+  editado: boolean;
   public_id: string;
-  parallel_connections: Array<Parallel>;
+  parent_id?: string;
+  posx: number;
+  posy: number;
+  parallel_connections: Array<Node>;
+  serial_connection: Node | undefined;
 };
 
 export interface BlockNodeParams {
@@ -56,7 +56,7 @@ export class BlockNodeModel extends NodeModel<
     this.data.parallel_connections.forEach((parallel) => {
       this.addPort(new ParallelOutPortModel(parallel.public_id));
     });
-
+      this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
   }
 
@@ -70,8 +70,8 @@ export class BlockNodeModel extends NodeModel<
   };
 
   updateActivo = () => {
-    console.log("check", this.data.activado);
-    this.data.activado = !this.data.activado;
+    console.log("check", this.data.editado);
+    this.data.editado = !this.data.editado;
     this.edited = true;
   };
 

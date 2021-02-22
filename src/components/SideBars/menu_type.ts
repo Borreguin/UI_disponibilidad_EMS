@@ -20,13 +20,14 @@ export type static_menu = {
     name: string,
     public_id: string,
     icon?: IconDefinition,
-    blocks?: Array<block>
+    blocks?: Array<block>,
+    object?: Object
 }
 
 export type block = {
     name: string,
     public_id: string,
-    // type: string,
+    object?: Object
 }
 
 export type navData = {

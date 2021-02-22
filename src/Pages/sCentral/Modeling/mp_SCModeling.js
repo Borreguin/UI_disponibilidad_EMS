@@ -24,7 +24,7 @@ class SCManage extends Component {
     root_public_id: "disponibilidad_ems",
     navData: [],
     loading: true,
-    log: {msg: "Se ha cargado el modelamiento sin novedad"},
+    log: { msg: "Se ha cargado el modelamiento sin novedad" },
     error: false,
     pinned: false,
     modal_show: false,
@@ -215,8 +215,9 @@ class SCManage extends Component {
         } else {
           this.setState({
             new_root: true,
-            log:{
-            msg: "Es necesario crear un bloque principal para esta página"},
+            log: {
+              msg: "Es necesario crear un bloque principal para esta página",
+            },
           });
         }
       })
@@ -224,7 +225,7 @@ class SCManage extends Component {
         this.setState({
           error: true,
           log: {
-            msg: "Ha fallado la conexión con la API de modelamiento (api-sct)"
+            msg: "Ha fallado la conexión con la API de modelamiento (api-sct)",
           },
         });
         console.log(error);
@@ -304,25 +305,27 @@ class SCManage extends Component {
             )
           }
           <div className="page-content content-shift">
-            { /* Grid de modelamiento*/ }
+            {/* Grid de modelamiento*/}
             <div className="grid">
-              {this.state.selected_static_menu !== undefined && this.state.selected_block === undefined ? 
-                <BlockRootGrid static_menu={this.state.selected_static_menu} /> : <></>
-              }
-              
+              {this.state.selected_static_menu !== undefined &&
+              this.state.selected_block === undefined ? (
+                <BlockRootGrid static_menu={this.state.selected_static_menu} />
+              ) : (
+                <></>
+              )}
             </div>
             <div className="logger">
-            <ReactJson
-                name={ false}
+              <ReactJson
+                name={false}
                 displayObjectSize={true}
                 indentWidth={2}
-              collapsed={true}
-              iconStyle="circle"
-              displayDataTypes={false}
-              theme="monokai"
-              src={this.state.log}
+                collapsed={false}
+                iconStyle="circle"
+                displayDataTypes={false}
+                theme="monokai"
+                src={this.state.log}
               />
-              </div>
+            </div>
           </div>
         </div>
       </React.Fragment>

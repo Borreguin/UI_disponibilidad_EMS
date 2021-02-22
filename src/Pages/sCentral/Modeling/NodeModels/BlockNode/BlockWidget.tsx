@@ -18,11 +18,14 @@ import {
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "react-bootstrap";
+import ReactTooltip from "react-tooltip";
+import { ParallelOutPortModel } from "./ParallelOutputPort";
 
 export interface BlockWidgetProps {
   node: BlockNodeModel;
   engine: DiagramEngine;
-  size?: number;
+	size?: number;
+	handle_messages?: Function;
 }
 
 /**
@@ -47,14 +50,20 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     };
     this.node = _.cloneDeep(props.node);
     this.bck_node = _.cloneDeep(props.node);
-  }
+	}
+	
+	_handle_message(msg: Object) { 
+		if (this.props.handle_messages !== undefined) {
+			this.props.handle_messages(msg);
+		} 
+	}
 
   _entityCallback = () => {};
 
-  /*_update_entidad_activado = (p: string) => {
+  /*_update_entidad_editado = (p: string) => {
     this.node.data.entidades.forEach((entidad) => {
       if (entidad.entidad_nombre === p) {
-        entidad.activado = !entidad.activado;
+        entidad.editado = !entidad.editado;
       }
     });
     this.is_edited();
@@ -79,25 +88,21 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     return <div model={port} key={port.id} />;
   };
 
-  /* _addElement = () => {
-    let newH = Object.assign([], this.props.node.data.entidades);
+  _addParallelPort = () => {
+    let newH = Object.assign([], this.node.data.parallel_connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
-    newH.push({
-      entidad_nombre: "nueva entidad",
-      entidad_tipo: "no definido",
-      id: next_id,
-      n_tags: 0,
-      utrs: 0,
-      activado: false,
-    });
-    console.log(newH, next_id);
-    this.setState({
-      entidades: newH,
-    });
-    // console.log("ADD next port", newH, this.props.node.data.entidades);
-    this.props.node.addPort(new SerialOutPortModel(PortModelAlignment.TOP));
-    // this.props.node.addNextPort("Nxt");
-  };*/
+    let p_port = {
+      nombre: "Sin conexión",
+      public_id: "publicid" + next_id,
+    };
+    newH.push(p_port);
+    // making a backup of the last node:
+    this.bck_node = _.cloneDeep(this.node);
+    // edititing the node:
+    this.node.data.parallel_connections = newH;
+    this.props.node.addPort(new ParallelOutPortModel(p_port.public_id));
+    this.is_edited();
+  };
 
   _updateNombre = (e) => {
     this.node.data.nombre = e.target.value.trim();
@@ -106,7 +111,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   };
 
   _update_activo = () => {
-    this.node.data.activado = !this.node.data.activado;
+    this.node.data.editado = !this.node.data.editado;
     this.is_edited();
   };
 
@@ -140,12 +145,15 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   generateTitle(node) {
     return (
       <div>
-        <div className="sr-node-title">{node.data.nombre}</div>
+        <div data-tip={node.data.nombre} className="sr-node-title">
+          {node.data.nombre}
+        </div>
+        <ReactTooltip />
         <div className="BtnContainer">
           <FontAwesomeIcon
-            icon={this.node.data.activado ? faCheck : faSave}
+            icon={this.node.data.editado ? faCheck : faSave}
             size="2x"
-            className={this.node.data.activado ? "icon-on" : "icon-off"}
+            className={this.node.data.editado ? "icon-on" : "icon-off"}
             onClick={this._update_activo}
           />
         </div>
@@ -178,11 +186,14 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   };
 
   /* Generando puerto en paralelo */
-  generateParallelPort = () => {
+	generateParallelPort = () => {
     return this.node.data.parallel_connections.map((parallelPort) => (
       <div key={_.uniqueId("ParallelPort")} className="Port-Container">
-        <button className="widget-delete">-</button>
-			<div className="ParallelLabel">{parallelPort.nombre}</div>
+        <button data-tip="Remover este puerto" className="widget-delete">
+          -
+        </button>
+        <ReactTooltip />
+        <div className="ParallelLabel">{parallelPort.nombre}</div>
         <PortWidget
           className="ParallelPort"
           port={this.props.node.getPort(parallelPort.public_id)}
@@ -207,11 +218,11 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         <div className="sr-node">
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
-          
-            <button className="widget-add" /*onClick={this._addElement}*/>
-              +
-            </button>
-          
+
+          <button className="widget-add" onClick={this._addParallelPort}>
+            +
+          </button>
+
           {this.generateParallelPort()}
         </div>
       </div>
