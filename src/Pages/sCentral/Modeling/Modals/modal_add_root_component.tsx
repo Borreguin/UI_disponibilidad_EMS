@@ -1,6 +1,7 @@
 import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { SCT_API_URL } from "../../Constantes";
 import { leaf_block_form, root_component_form } from "../../types";
 
 export interface menu_props {
@@ -58,7 +59,7 @@ export class Modal_add_root_component extends Component<
   // crea un nuevo componente root dentro de un bloque:
   _onclick_create = () => {
     if (this._check_form()) {
-      let path = "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id
+      let path = SCT_API_URL + "/component-root/block-root/" + this.props.static_menu.parent_id
         + "/block-leaf/" + this.props.static_menu.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando componente interno" });

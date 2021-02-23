@@ -17,11 +17,11 @@ export class ParallelOutPortModel extends PortModel {
   }
 
   canLinkToPort(port: PortModel) {
-    const connect =
-      Object.keys(port.links).length === 0 &&
-      Object.keys(this.links).length == 1 &&
-      port.getType() === "InPort";
-    console.log("paralell port", port, this, connect);
+    // Esta función comprueba si se puede realizar las conexiones:
+    // 1. ParallelOutputPort -> InPort
+    const isInPort = port.getType() === "InPort";
+    const isFreeConnect = Object.keys(port.links).length === 0;
+    const connect = isFreeConnect && isInPort;
     return connect;
   }
 

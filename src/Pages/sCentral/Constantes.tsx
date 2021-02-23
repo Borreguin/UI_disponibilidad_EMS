@@ -1,0 +1,1 @@
+export const SCT_API_URL = "/api-sct";

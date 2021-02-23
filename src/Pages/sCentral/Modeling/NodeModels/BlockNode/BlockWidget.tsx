@@ -58,36 +58,6 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
 		} 
 	}
 
-  _entityCallback = () => {};
-
-  /*_update_entidad_editado = (p: string) => {
-    this.node.data.entidades.forEach((entidad) => {
-      if (entidad.entidad_nombre === p) {
-        entidad.editado = !entidad.editado;
-      }
-    });
-    this.is_edited();
-  };*/
-
-  /* _eliminar_entidad = async (p: string) => {
-    console.log("inicio", this.node.data.entidades);
-    const new_ents = [];
-    const confirm = window.confirm("Seguro que desea eliminar este elemento?");
-    if (confirm) {
-      this.node.data.entidades.forEach((entidad) => {
-        if (entidad.entidad_nombre !== p) {
-          new_ents.push(entidad);
-        }
-      });
-      this.node.data.entidades = new_ents;
-    }
-    this.is_edited();
-  };*/
-
-  generateNextPort = (port) => {
-    return <div model={port} key={port.id} />;
-  };
-
   _addParallelPort = () => {
     let newH = Object.assign([], this.node.data.parallel_connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
@@ -104,15 +74,12 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     this.is_edited();
   };
 
-  _updateNombre = (e) => {
-    this.node.data.nombre = e.target.value.trim();
-    this.is_edited();
-    this.props.node.setLocked(false);
-  };
 
-  _update_activo = () => {
+  _update_node = () => {
     this.node.data.editado = !this.node.data.editado;
-    this.is_edited();
+    //this.is_edited();
+    // actualizar posición del nodo
+    this.node.updatePosition();
   };
 
   is_edited = () => {
@@ -145,16 +112,17 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   generateTitle(node) {
     return (
       <div>
-        <div data-tip={node.data.nombre} className="sr-node-title">
-          {node.data.nombre}
+        <div data-tip={node.data.name} className="sr-node-title">
+          {node.data.name}
         </div>
         <ReactTooltip />
         <div className="BtnContainer">
+          {/* Permite guardar en base de datos la posición del elemento */}
           <FontAwesomeIcon
             icon={this.node.data.editado ? faCheck : faSave}
             size="2x"
             className={this.node.data.editado ? "icon-on" : "icon-off"}
-            onClick={this._update_activo}
+            onClick={this._update_node}
           />
         </div>
       </div>
@@ -193,7 +161,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
           -
         </button>
         <ReactTooltip />
-        <div className="ParallelLabel">{parallelPort.nombre}</div>
+        <div className="ParallelLabel">{parallelPort.name}</div>
         <PortWidget
           className="ParallelPort"
           port={this.props.node.getPort(parallelPort.public_id)}

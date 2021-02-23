@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
+import { SCT_API_URL } from "../../Constantes";
 import { root_block_form } from "../../types";
 export interface add_menu_props {
   public_id: string;
@@ -28,7 +29,7 @@ export class Modal_new_root_block extends Component<
       message: "",
     };
   }
-  // HOOKS SECTION: 
+  // HOOKS SECTION:
   handleClose = () => {
     // actualizo el estado local
     this.setState({ show: false });
@@ -45,12 +46,12 @@ export class Modal_new_root_block extends Component<
     }
   };
 
-  handleNewRootBlock = (bloqueroot) => { 
-    if (this.props.handle_new_root_block !== undefined) { 
+  handleNewRootBlock = (bloqueroot) => {
+    if (this.props.handle_new_root_block !== undefined) {
       // permite enviar el nuevo bloque root creado:
       this.props.handle_new_root_block(bloqueroot);
     }
-  }
+  };
 
   // INTERNAL FUNCTIONS:
   _handleShow = () => {
@@ -59,12 +60,14 @@ export class Modal_new_root_block extends Component<
 
   _handle_form_changes = (e, field) => {
     this.setState({ message: "" });
-  
+
     let form = this.state.form;
     form[field] = e.target.value;
     this.setState({ form: form });
-    if (!this._check_form()) { 
-      this.setState({ message: "Se debe ingresar valores con mínimo 4 caracteres" });
+    if (!this._check_form()) {
+      this.setState({
+        message: "Se debe ingresar valores con mínimo 4 caracteres",
+      });
     }
   };
 
@@ -81,12 +84,11 @@ export class Modal_new_root_block extends Component<
   };
 
   _create_new_root_block = async () => {
-    
     if (this._check_form()) {
-      let path = "/api-sct/block-root/" + this.props.public_id;
+      let path = SCT_API_URL + "/block-root/" + this.props.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando el contenedor de modelamiento" });
-      // Creando el nuevo root block mediante la API 
+      // Creando el nuevo root block mediante la API
       await fetch(path, {
         method: "POST",
         headers: {
@@ -106,7 +108,8 @@ export class Modal_new_root_block extends Component<
         })
         .catch((error) => {
           console.log(error);
-          let msg = "Ha fallado la conexión con la API de modelamiento (api-sct)"
+          let msg =
+            "Ha fallado la conexión con la API de modelamiento (api-sct)";
           this.setState({ message: msg });
           this.handleMessages(msg);
         });
@@ -130,7 +133,8 @@ export class Modal_new_root_block extends Component<
                 <Form.Label>Ingrese el nombre del modelamiento:</Form.Label>
                 <Form.Control
                   onChange={(e) => this._handle_form_changes(e, "name")}
-                  type="text" placeholder="Ingrese nombre"
+                  type="text"
+                  placeholder="Ingrese nombre"
                 />
                 <Form.Text className="text">
                   Para realizar la modelación de los bloques y componentes, es
@@ -139,11 +143,20 @@ export class Modal_new_root_block extends Component<
                 </Form.Text>
               </Form.Group>
             </Form>
-            {this.state.message.length === 0 ? <></> : <Alert variant="secondary" style={{padding: "7px"}}>{ this.state.message}</Alert>}
-     
+            {this.state.message.length === 0 ? (
+              <></>
+            ) : (
+              <Alert variant="secondary" style={{ padding: "7px" }}>
+                {this.state.message}
+              </Alert>
+            )}
           </Modal.Body>
-              <Modal.Footer>
-            <Button variant="primary" disabled={ !this._check_form()} onClick={this._create_new_root_block}>
+          <Modal.Footer>
+            <Button
+              variant="primary"
+              disabled={!this._check_form()}
+              onClick={this._create_new_root_block}
+            >
               Crear modelamiento
             </Button>
           </Modal.Footer>

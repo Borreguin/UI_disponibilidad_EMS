@@ -24,30 +24,17 @@ export class CreateLinkState extends State<DiagramEngine> {
 						event: { clientX, clientY }
 					} = actionEvent;
 
-					let el_x = clientX; // recoje la posición actual del mouse en X
-					let el_y = clientY; // recoje la posición actual del mouse en Y
-
-					// en caso de que elemento a conectar este indefinido o sea nulo:
-					// la conexión del link no se realiza y es posible cancelar con 
-					// la tecla Escape
-					if (element === undefined || element === null) { 
-						// Se cancela la conexión del link
-						return
-					}
-					// Si el elemento conectar existe: actualizando el offset del elemento a conectar:
+					let el_x = clientX;
+					let el_y = clientY;
 					if(element["position"] !== undefined && element["width"] !== undefined){
 						el_x = element["position"].x + element["width"]/2;
 						el_y = element["position"].y + element["height"] / 2;
 						this.offsetX = clientX - el_x;
 						this.offsetY = clientY - el_y;
 					} 
-					// Si el elemento es correcto se procede con la conexión de acuerdo a las condiciones de cada puerto:
-					if (element instanceof PortModel && !this.sourcePort && Object.keys(element.links).length === 0) {
-						// verificando que el elemento a conectar se un puerto, y evitando una conexión hacia sí mismo.
-						// Se permite una conexión por cada puerto
+
+					if (element instanceof PortModel && !this.sourcePort && Object.keys(element.links).length===0) {
 						this.sourcePort = element;
-						// Colocando los valores corresponientes para este nodo:
-						console.log("Conexión inicial");
 						const link = this.sourcePort.createLinkModel();
 						link.setSourcePort(this.sourcePort);
 						link.getFirstPoint().setPosition(el_x, el_y);
@@ -58,7 +45,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 					}
 					if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
 						// observar restricciones de conexión
-						console.log("Conexión final", this.sourcePort, this.sourcePort.canLinkToPort(element));
 						if (this.sourcePort.canLinkToPort(element)) {
 							this.link.setTargetPort(element);
 							element.reportPosition();

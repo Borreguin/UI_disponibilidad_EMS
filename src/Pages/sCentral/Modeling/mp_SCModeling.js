@@ -15,6 +15,7 @@ import "../styles.css";
 import ReactJson from "react-json-view";
 import DynamicSideBar from "../../../components/SideBars/DynamicSideBar/dynamicSidebar";
 import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
+import { SCT_API_URL } from "../Constantes";
 
 // Pagina inicial de manejo de nodos:
 class SCManage extends Component {
@@ -74,8 +75,6 @@ class SCManage extends Component {
       selected_static_menu,
       selected_block
     );
-    console.log("selected_static_menu", selected_static_menu);
-    console.log("selected_block", selected_block);
     this.setState({
       selected_static_menu: selected_static_menu,
       selected_block: selected_block,
@@ -204,7 +203,7 @@ class SCManage extends Component {
       loading: true,
       error: false,
     });
-    let path = "/api-sct/block-root/" + this.state.root_public_id;
+    let path = SCT_API_URL + "/block-root/" + this.state.root_public_id;
     let sidebar = undefined;
     await fetch(path)
       .then((res) => res.json())

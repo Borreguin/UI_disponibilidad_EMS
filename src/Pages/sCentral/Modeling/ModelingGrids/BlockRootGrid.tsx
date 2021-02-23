@@ -8,6 +8,7 @@ import { SerialOutPortModel } from '../NodeModels/BlockNode/SerialOutputPort';
 import { BlockFactory} from '../NodeModels/BlockNode/BlockFactory'
 import { static_menu } from '../../../../components/SideBars/menu_type';
 import { BlockNodeModel } from '../NodeModels/BlockNode/BlockNodeModel';
+import { DefaultState } from '../../DefaultState';
 
 type BlockRootGridProps = {
     static_menu: static_menu
@@ -49,7 +50,8 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
             
         To:
         type Node = {
-            nombre: string;
+            nanme: string;
+            type: string;
             editado: boolean;
             public_id: string;
             parent_id?: string;
@@ -62,7 +64,7 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
         
         blocks.forEach((block) => { 
             let Node = {
-                nombre: block.name,
+                name: block.name,
                 editado: false,
                 public_id: block.public_id,
                 parent_id: static_menu.public_id,
@@ -76,6 +78,8 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
 
       
         engine.setModel(model);
+        // Use this custom "DefaultState" instead of the actual default state we get with the engine
+	    engine.getStateMachine().pushState(new DefaultState());
         return(<StyledCanvasWidget className="grid">
             <CanvasWidget  engine={engine} />
         </StyledCanvasWidget>)

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { SCT_API_URL } from "../../Constantes";
 import { leaf_block_form } from "../../types";
 
 export interface menu_props {
@@ -63,7 +64,8 @@ export class Modal_edit_internal_block extends Component<
   _onclick_edit = () => {
     if (this._check_form()) {
       let path =
-        "/api-sct/block-leaf/block-root/" +
+        SCT_API_URL +
+        "/block-leaf/block-root/" +
         this.props.static_menu.public_id +
         "/block-leaf/" +
         this.props.block.public_id;

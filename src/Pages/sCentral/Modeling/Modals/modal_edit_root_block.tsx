@@ -1,5 +1,6 @@
 import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
+import { SCT_API_URL } from "../../Constantes";
 import { root_block_form } from "../../types";
 export interface add_menu_props {
   public_id: string;
@@ -59,7 +60,7 @@ export class Modal_edit_root_block extends Component<
   // INTERNAL FUNCTIONS:
   _onclick_edit = () => {
     if (this._check_form()) {
-      let path = "/api-sct/block-root/" + this.props.public_id;
+      let path = SCT_API_URL + "/block-root/" + this.props.public_id;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Editando el contenedor de modelamiento" });
       // Creando el nuevo root block mediante la API

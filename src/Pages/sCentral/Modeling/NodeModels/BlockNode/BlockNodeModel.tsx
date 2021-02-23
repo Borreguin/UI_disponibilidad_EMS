@@ -24,14 +24,15 @@ import { ParallelOutPortModel } from "./ParallelOutputPort";
 */
 
 export type Node = {
-  nombre: string;
-  editado: boolean;
-  public_id: string;
-  parent_id?: string;
-  posx: number;
-  posy: number;
-  parallel_connections: Array<Node>;
-  serial_connection: Node | undefined;
+  name: string,
+  type: string,
+  editado: boolean,
+  public_id: string,
+  parent_id?: string,
+  posx: number,
+  posy: number,
+  parallel_connections: Array<Node>,
+  serial_connection: Node | undefined,
 };
 
 export interface BlockNodeParams {
@@ -59,21 +60,16 @@ export class BlockNodeModel extends NodeModel<
       this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
   }
-
-  updateNombre = (e) => {
-    const in_text = e.target.value;
-    if (this.data.nombre !== in_text && in_text.length > 1) {
-      this.data.nombre = in_text.trim();
-      this.edited = true;
-    }
-    this.setLocked(false);
-  };
-
-  updateActivo = () => {
+  
+  
+  updatePosition = () => {
     console.log("check", this.data.editado);
     this.data.editado = !this.data.editado;
     this.edited = true;
   };
+
+
+
 
   setNodeInfo(_node: Node) {
     this.data = _node;

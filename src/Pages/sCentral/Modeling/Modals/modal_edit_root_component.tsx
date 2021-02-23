@@ -1,6 +1,7 @@
 import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { SCT_API_URL } from "../../Constantes";
 import { root_block_form, root_component_form } from "../../types";
 export interface add_menu_props {
   static_menu: static_menu;
@@ -63,7 +64,7 @@ export class Modal_edit_root_component extends Component<
   _onclick_edit = () => {
     if (this._check_form()) {
       let path =
-        "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id +
+        SCT_API_URL + "/component-root/block-root/" + this.props.static_menu.parent_id +
         "/block-leaf/" + this.props.static_menu.public_id +
         "/comp-root/" + this.props.block.public_id;
       let payload = JSON.stringify(this.state.form);

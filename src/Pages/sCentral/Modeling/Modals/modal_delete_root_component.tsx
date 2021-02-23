@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { SCT_API_URL } from "../../Constantes";
 
 export interface modal_props {
   static_menu: static_menu;
@@ -58,7 +59,7 @@ export class Modal_delete_root_component extends Component<
   _onclick_delete = () => {
     console.log(this.props);
     let path =
-      "/api-sct/component-root/block-root/" + this.props.static_menu.parent_id +
+      SCT_API_URL + "/component-root/block-root/" + this.props.static_menu.parent_id +
       "/block-leaf/" + this.props.static_menu.public_id +
       "/comp-root/" + this.props.block.public_id;
     this.setState({ message: "Eliminando componente root interno" });

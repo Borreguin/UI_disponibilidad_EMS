@@ -11,6 +11,14 @@ import {
 import { PortModel, DiagramEngine, DragDiagramItemsState } from '@projectstorm/react-diagrams-core';
 import { CreateLinkState } from './CreateLinkState';
 import * as _ from "lodash";
+/*
+	Default State:
+	Esta clase permite definir la manera en como:
+	- Se conectan los elementos
+	- Se eliminan los elementos
+*/
+
+
 
 export class DefaultState extends State<DiagramEngine> {
 	dragCanvas: DragCanvasState;
@@ -104,14 +112,22 @@ class CustomDeleteItemsAction extends Action {
                 
                 if (options.keyCodes.indexOf(event.event.keyCode) !== -1) {
                     const selectedEntities = this.engine.getModel().getSelectedEntities();
-                    console.log("Antes IF selectedEntities", selectedEntities)
-                    if (selectedEntities.length > 0) {
-                        const confirm = window.confirm('Seguro que desea eliminar este elemento?');
+					console.log("Antes IF selectedEntities", selectedEntities)
+					
+					if (selectedEntities.length > 0) {
+						// Enridades protegidas, que no permiten eliminación:
+						let protected_entities = ["BlockNode"];
+						const confirm = window.confirm('Seguro que desea eliminar este elemento?');
+						// No se debe permitir eliminar nodos
+						
 
                         if (confirm) {
                             _.forEach(selectedEntities, model => {
-                                // only delete items which are not locked
-                                if (!model.isLocked()) {
+                                // only delete items which are not protected
+								// elementos que no están en protected_entities pueden ser borrados:
+								let isIn = protected_entities.indexOf(model.getType()) >= 0;
+								console.log(isIn, model.getType());
+								if (!model.isLocked() || !isIn) {
                                     model.remove();
                                 }
                             });

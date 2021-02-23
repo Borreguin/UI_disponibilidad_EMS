@@ -13,7 +13,11 @@ export class SerialOutPortModel extends PortModel {
 	}
 	
 	canLinkToPort(port: PortModel) { 
-		const connect = (Object.keys(port.links).length === 0) && (port.getType() === "InPort")
+		// Esta función comprueba si se puede realizar las conexiones: 
+		// 1. SerialOutputPort -> InPut 
+		const isInPort = (port.getType() === "InPort");  
+		const isFreeConnect = (Object.keys(port.links).length === 0);
+		const connect = isFreeConnect && isInPort; 
 		return connect;
 	}
 	
