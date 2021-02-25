@@ -17,6 +17,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import "./SRCard.css";
 import { EntityCards } from "./EntityCards";
+import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 export interface SRCardProps {
   node: Node;
@@ -93,7 +94,7 @@ class SRCard extends Component<SRCardProps> {
   };
   _update_activo = async () => {
     this.lcl_node.activado = !this.lcl_node.activado;
-    let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+    let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
     if (this.lcl_node.activado) {
       path = path + "/activado";
     } else { 
@@ -121,7 +122,7 @@ class SRCard extends Component<SRCardProps> {
     console.log("me again");
     this.setState({ message: "Guardando en base de datos...", edited: false });
     this.onShowAlert();
-    let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+    let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
     await fetch(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -151,7 +152,7 @@ class SRCard extends Component<SRCardProps> {
 
   _create_new_node = async () => {
     this.setState({ message: "Creando nuevo nodo...", edited: false });
-    let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+    let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
     await fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -183,7 +184,7 @@ class SRCard extends Component<SRCardProps> {
         this.bck_node.nombre
     );
     if (confirm) {
-      let path = "/api/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+      let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
       console.log("going to delete me");
       await fetch(path, { method: "DELETE" })
         .then((res) => res.json())
@@ -200,7 +201,7 @@ class SRCard extends Component<SRCardProps> {
 
   _download_node = () => {
     let url =
-      "/api/admin-sRemoto/nodo/" +
+      SRM_API_URL + "/admin-sRemoto/nodo/" +
       this.bck_node.tipo +
       "/" +
       this.bck_node.nombre +

@@ -7,6 +7,7 @@ import ReactTooltip from "react-tooltip";
 import { CSVLink } from "react-csv";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { SRM_API_URL } from "../Constantes";
 
 type Selected = {
   entidad_tipo: string;
@@ -83,7 +84,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
       filter_tags: [],
     });
     let path =
-      "/api/admin-sRemoto/rtu/" +
+      SRM_API_URL + "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad +
@@ -133,7 +134,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
   _edit_tags = () => {
     this.setState({ msg: "Guardando en base de datos", success: false });
     let path =
-      "/api/admin-sRemoto/tags/" +
+      SRM_API_URL + "/admin-sRemoto/tags/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad +
@@ -254,7 +255,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
 
   _delete_tags = () => {
     let path =
-      "/api/admin-sRemoto/tags/" +
+      SRM_API_URL + "/admin-sRemoto/tags/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad +
@@ -393,7 +394,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
 
   _add_tags = () => {
     let path =
-      "/api/admin-sRemoto/tags/" +
+      SRM_API_URL + "/admin-sRemoto/tags/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad +

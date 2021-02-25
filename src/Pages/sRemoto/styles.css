@@ -7,32 +7,29 @@
 .div-cards {
   height: 95vh;
   width: 100%;
-  padding-top: 170px;
+  padding-top: 10px;
   padding-left: 10px;
   padding-right: 10px;
 }
 
 .sc-search {
-  position: fixed;
   width: 100%;
-  margin-left: 5px;
-  top: 60px;
-  padding-top: 1% !important;
-  padding-right: 287px !important;
-  z-index: 1000;
-  background-color: white;
+  margin: 5px;
+  padding-top: 70px;
 }
 .sc-btn-search {
   margin-top: -9px;
   min-width: 125px;
+  padding-left: 0px;
 }
 
 .sc-pick-menu {
-  margin-top: -9px;
+  margin-top: -2px;
   padding-left:  0px;
   padding-right: 0px;
-  margin-right: 0px;
-  margin-left: 15px;
+  margin-right: 2px;
+  margin-left: 2px;
+  min-width: 270px;
 }
 
 .sc-search-input{
@@ -62,16 +59,12 @@
 .btn-cal-disp{
   float: left;
   height: 30px;
-  width: 50%;
+  width: 33%;
   padding: 1px;
   background-color: rgba(20, 57, 110, 0.685);
 }
 
-.btn-cal-disp-dis{
-  float: left;
-  height: 30px;
-  width: 50%;
-  padding: 1px;
+.btn-dis{
   background-color: rgba(88, 89, 92, 0.836);
   pointer-events: none;
   cursor: progress;
@@ -79,6 +72,23 @@
 
 .btn-cal-disp:hover {
   background-color: rgb(59, 179, 29);
+}
+
+.btn-download-report{
+  float: left;
+  padding: 1px;
+  min-width: 80%;
+}
+.btn-download-report:hover {
+  background-color: rgb(59, 179, 29);
+}
+.input-report{
+  float: left;
+  margin-top: 1px;
+  margin-left: 3px;
+  max-width: 18%;
+  background-color: transparent;
+  color: white;
 }
 
 .sc-body-cal{

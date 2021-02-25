@@ -68,14 +68,14 @@
   color: white;
   border-radius: 1px;
   border: black solid 1px;
-  min-width: 200px;
+  min-width: 120px;
 }
 
 .sr-node-title {
   background: rgba(2, 2, 2, 0.671);
   text-align: left;
-  min-width: 150px;
-  max-width: 160px;
+  min-width: 100px;
+  max-width: 120px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -172,7 +172,7 @@
 
 .widget-add {
   background-color: rgba(69, 163, 50, 0.678);
-  min-width: 210px;
+  min-width: 165px;
   margin-top: 4px;
   border-color: rgba(83, 83, 85, 0.781);
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
@@ -235,7 +235,7 @@
 
 .ParallelLabel{
   float: left;
-  width: 160px;
+  width: 115px;
   overflow: hidden;
   height: 20px;
 }

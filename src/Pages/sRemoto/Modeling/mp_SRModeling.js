@@ -9,6 +9,7 @@ import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { new_node } from "../../../components/Cards/SRCard/SRCardModel";
+import { SRM_API_URL } from "../Constantes";
 
 // Pagina inicial de manejo de nodos:
 class SRManage extends Component {
@@ -35,7 +36,7 @@ class SRManage extends Component {
 
   _search_nodes_now = async () => {
     this.setState({ nodes: [], loading: true, error: false });
-    let path = "/api/admin-sRemoto/nodos/" + this.state.search;
+    let path = SRM_API_URL + "/admin-sRemoto/nodos/" + this.state.search;
     await fetch(path)
       .then((res) => res.json())
       .then((json) => {

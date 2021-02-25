@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Form, Col, Spinner } from "react-bootstrap";
 import { Node } from "../../components/Cards/SRCard/SRCardModel";
+import { SRM_API_URL } from "./Constantes";
 
 export interface SRConsigProps {
   onChange: Function;
@@ -70,7 +71,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
 
   componentDidMount = () => {
     this.setState({ loading: true });
-    let path = "/api/admin-sRemoto/nodos/";
+    let path = SRM_API_URL + "/admin-sRemoto/nodos/";
     fetch(path)
       .then((res) => res.json())
       .then((json) => {
@@ -299,7 +300,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
 
   _update_node = async () => {
     let path =
-      "/api/admin-sRemoto/nodo/" +
+      SRM_API_URL + "/admin-sRemoto/nodo/" +
       this.selected["nodo_tipo"] +
       "/" +
       this.selected["nodo_nombre"];

@@ -6,7 +6,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import menu from "../SideBar";
 import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilAlt, faPenFancy } from "@fortawesome/free-solid-svg-icons";
+import {
+  faPencilAlt,
+  faPenFancy,
+  faTag,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   DateRange,
   to_yyyy_mm_dd,
@@ -15,6 +19,9 @@ import {
 import ReactJson from "react-json-view";
 import NodeReport from "./SRCalDisponibilidad_nodes";
 import SRGeneralReport from "../../../components/Reports/SRReport/GeneralReport";
+import { SRM_API_URL } from "../Constantes";
+import ReactTooltip from "react-tooltip";
+import * as _ from "lodash";
 
 // Pagina inicial de manejo de nodos:
 class SRCalDisponibilidad extends Component {
@@ -32,6 +39,7 @@ class SRCalDisponibilidad extends Component {
       search: "", // filtrar reportes
       loading: true,
       calculating: false,
+      umbral: 0,
       log: { estado: "Cargando información ..." },
       edited: false,
       msg: "",
@@ -67,6 +75,14 @@ class SRCalDisponibilidad extends Component {
     }
   };
 
+  // actualiza el valor del umbral a reportar:
+  _updateUmbral = (e) => {
+    let umbral = parseFloat(e.target.value.trim());
+    if (!isNaN(umbral)) {
+      this.setState({ umbral: umbral });
+    }
+  };
+
   _search_report_now = async () => {
     //" No hay resultados para la búsqueda, el cálculo en referencia no existe."
     if (String(this.state.ini_date) === String(this.state.end_date)) {
@@ -77,6 +93,7 @@ class SRCalDisponibilidad extends Component {
         calculating: false,
         log: { msg: msg },
         msg: msg,
+        umbral: 0,
       });
       return;
     }
@@ -84,9 +101,11 @@ class SRCalDisponibilidad extends Component {
       filtered_reports: undefined,
       loading: true,
       report: undefined,
-      calculating: false
+      calculating: false,
     });
-    await fetch("/api/disp-sRemoto/disponibilidad/" + this._range_time())
+    await fetch(
+      SRM_API_URL + "/disp-sRemoto/disponibilidad/" + this._range_time()
+    )
       .then((res) => res.json())
       .then((json) => {
         if (json.success) {
@@ -183,6 +202,38 @@ class SRCalDisponibilidad extends Component {
     return node_names;
   };
 
+  // descargar reporte de tags:
+  _download_tag_report = async () => {
+    let url =
+      SRM_API_URL +
+      "/sRemoto/indisponibilidad/tags/excel/" +
+      this._range_time() +
+      "/" +
+      this.state.umbral +
+      "/" +
+      _.uniqueId(Math.random());
+    this.setState({
+      log: { estado: "Iniciando descarga de reporte, espere por favor" },
+      loading: true,
+    });
+    let filename = "IndispTag_" + to_yyyy_mm_dd(this.state.ini_date) + "@" + to_yyyy_mm_dd(this.state.end_date) + ".xlsx"
+    await fetch(url).then((response) => {
+      response.blob().then((blob) => {
+        console.log("blob:", blob);
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+      });
+    });
+    this.setState({
+      log: { estado: "Descarga de reporte finalizado" },
+      loading: false,
+    });
+
+  };
+
   // Realizar el cálculo de los nodos existentes en base de datos
   // El estado calculating permite identificar el momento en que se realiza los cálculos
   _cal_all = async (method) => {
@@ -202,7 +253,7 @@ class SRCalDisponibilidad extends Component {
       },
       edited: true,
       calculating: true,
-      msg: ""
+      msg: "",
     });
     let path = "";
     let payload = {
@@ -211,13 +262,16 @@ class SRCalDisponibilidad extends Component {
     };
 
     if (this.state.search === "") {
-      path = "/api/disp-sRemoto/disponibilidad/" + this._range_time();
+      path = SRM_API_URL + "/disp-sRemoto/disponibilidad/" + this._range_time();
     } else if (
       this.state.search !== "" &&
       this.state.report !== undefined &&
       this.state.report.reportes_nodos.length > 0
     ) {
-      path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+      path =
+        SRM_API_URL +
+        "/disp-sRemoto/disponibilidad/nodos/" +
+        this._range_time();
       payload["body"] = JSON.stringify({ nodos: this._nodes_names() });
     }
 
@@ -241,7 +295,7 @@ class SRCalDisponibilidad extends Component {
             edited: true,
             calculating: false,
             report: json.report,
-            msg: json.msg
+            msg: json.msg,
           });
         }
       })
@@ -315,7 +369,7 @@ class SRCalDisponibilidad extends Component {
                   variant="outline-light"
                   className={
                     this.state.loading || this.state.calculating
-                      ? "btn-cal-disp-dis"
+                      ? "btn-cal-disp btn-dis"
                       : "btn-cal-disp"
                   }
                   onClick={() => this._cal_all("POST")}
@@ -327,7 +381,7 @@ class SRCalDisponibilidad extends Component {
                   variant="outline-light"
                   className={
                     this.state.loading || this.state.calculating
-                      ? "btn-cal-disp-dis"
+                      ? "btn-cal-disp btn-dis"
                       : "btn-cal-disp"
                   }
                   onClick={() => this._cal_all("PUT")}
@@ -335,6 +389,33 @@ class SRCalDisponibilidad extends Component {
                   <FontAwesomeIcon inverse icon={faPenFancy} size="lg" />{" "}
                   RE-ESCRIBIR CÁLCULO
                 </Button>
+                <div
+                  className={
+                    this.state.loading || this.state.calculating
+                      ? "btn-cal-disp btn-dis"
+                      : "btn-cal-disp"
+                  }
+                >
+                  <Button
+                    className={
+                      this.state.loading || this.state.calculating
+                        ? "btn-download-report btn-dis"
+                        : "btn-download-report"
+                    }
+                    variant="outline-light"
+                    onClick={this._download_tag_report}
+                  >
+                    <FontAwesomeIcon inverse icon={faTag} size="lg" />{" "}
+                    REPORTE TAGS
+                  </Button>
+                  <input
+                    type="text"
+                    onChange={this._updateUmbral}
+                    className="input-report"
+                    data-tip="Ingrese el umbral de indisponibilidad mínima a reportar"
+                  ></input>
+                </div>
+                <ReactTooltip />
               </div>
             </Form.Group>
             <div className="div-cards">

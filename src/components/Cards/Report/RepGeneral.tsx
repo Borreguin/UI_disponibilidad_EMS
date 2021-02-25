@@ -19,6 +19,7 @@ import {
 import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
 import "./Report.css";
 import ReactJson from "react-json-view";
+import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 export interface RepGeneralProps {
   node: Node;
@@ -116,7 +117,7 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
       },
       calculating: true,
     });
-    let path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+    let path = SRM_API_URL + "/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
     let payload = {
       method: method,
       headers: { "Content-Type": "application/json" },
@@ -152,7 +153,7 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
     );
     if (confirm) {
       this.setState({calculating: true });
-      let path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+      let path = SRM_API_URL + "/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
       await fetch(path, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },

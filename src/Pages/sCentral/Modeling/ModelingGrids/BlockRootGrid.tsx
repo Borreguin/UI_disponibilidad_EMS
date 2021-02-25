@@ -17,6 +17,10 @@ type BlockRootGridProps = {
 
 class BlockRootGrid extends Component<BlockRootGridProps>{ 
 
+    shouldComponentUpdate(nexProps, nextState) { 
+        return false;
+    }
+
     render() { 
         const { static_menu } = this.props;
         let blocks = static_menu.blocks;
@@ -28,7 +32,7 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
         // 1.a) Register factories: Puertos y Nodos 
         engine.getNodeFactories()
             .registerFactory(new BlockFactory());
-        
+        console.log("loading");
         
         /* 
             Esta grid permite el manejo de bloques leafs.

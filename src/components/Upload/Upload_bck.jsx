@@ -4,6 +4,7 @@ import "./Upload.css";
 import { Button } from "react-bootstrap";
 import Dropzone from "./DropZone";
 import Progress from "./Progress";
+import { SRM_API_URL } from "../../Pages/sRemoto/Constantes";
 
 
 class Upload extends Component {
@@ -97,7 +98,7 @@ class Upload extends Component {
       formData.append("file", file, file.name);
 
       // sending a file each time
-      req.open("POST", "/api/admin-sRemoto/upload");
+      req.open("POST", SRM_API_URL + "/admin-sRemoto/upload");
       req.send(formData);
     });
   }

@@ -5,6 +5,7 @@ import ReactJson from "react-json-view";
 import "./style.css";
 import { StatusReport } from "./Report";
 import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
+import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 type StatusCalcReportProps = {
   ini_date: Date;
@@ -67,7 +68,7 @@ class StatusCalcReport extends Component<
       setTimeout(() => { this._handle_finish_report_status(); }, 5000);
       return;
     }
-    let path = "/api/disp-sRemoto/estado/disponibilidad/" + this._range_time();
+    let path = SRM_API_URL + "/disp-sRemoto/estado/disponibilidad/" + this._range_time();
     fetch(path, { signal: this.abortController.signal })
       .then((res) => res.json()
     )

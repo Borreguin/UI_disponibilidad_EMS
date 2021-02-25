@@ -15,6 +15,7 @@ import ReactTooltip from "react-tooltip";
 import DetailReport from "./DetailReport";
 import ReactJson from "react-json-view";
 import * as _ from "lodash"
+import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 type IndReportProps = {
   report: SummaryReport;
@@ -137,7 +138,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
     if (confirm) {
       this.setState({ calculating: true, disponibilidad: "---" });
       let path =
-        "/api/disp-sRemoto/disponibilidad/" +
+        SRM_API_URL + "/disp-sRemoto/disponibilidad/" +
         this.props.report.tipo +
         "/" +
         this.props.report.nombre +
@@ -173,7 +174,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
       calculating: true,
       disponibilidad: "---",
     });
-    let path = "/api/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+    let path = SRM_API_URL + "/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
     let payload = {
       method: method,
       headers: { "Content-Type": "application/json" },
@@ -202,7 +203,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
 
   _get_details_for_this_report = () => {
     let path =
-      "/api/disp-sRemoto/disponibilidad/" +
+      SRM_API_URL + "/disp-sRemoto/disponibilidad/" +
       this.props.report.tipo +
       "/" +
       this.props.report.nombre +
@@ -233,7 +234,7 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
   _download_log = (node_name) => { 
     let file_name = node_name + ".log";
     let url =
-      "/api/files/file/output/" + file_name + "/" + _.uniqueId("sdfsadf");
+      SRM_API_URL + "/files/file/output/" + file_name + "/" + _.uniqueId("sdfsadf");
       fetch(url).then((response) => {
         response.blob().then((blob) => {
           let url = window.URL.createObjectURL(blob);

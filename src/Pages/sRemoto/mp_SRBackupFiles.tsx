@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import menu from "./SideBar";
 import { Spinner, Form, Row, Col, Button } from "react-bootstrap";
 import FileManager from "../../components/FileManagement/FileManager";
+import { SRM_API_URL } from "./Constantes";
 
 // Pagina inicial de manejo de archivos backup de configuraciones de nodos:
 class SRBackupFiles extends Component {
@@ -32,7 +33,7 @@ class SRBackupFiles extends Component {
 
   _search_files_now = async () => {
     this.setState({ files: undefined, loading: true, error: false });
-    await fetch("/api/files/s_remoto_excel/agrupado/" + this.state.search)
+    await fetch(SRM_API_URL + "/files/s_remoto_excel/agrupado/" + this.state.search)
       .then((res) => res.json())
       .then((json) => {
         if (json.result !== undefined) {

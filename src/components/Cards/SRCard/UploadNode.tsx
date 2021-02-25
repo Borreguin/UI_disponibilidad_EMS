@@ -1,6 +1,7 @@
 import Upload, { UploadProps } from "../../Upload/Upload";
 import React from "react";
 import { Form } from "react-bootstrap";
+import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 export interface UploadNodeProps extends UploadProps {
   tipo: String;
@@ -125,7 +126,7 @@ class UploadNode extends Upload<UploadNodeProps> {
         }
 
         // sending a file each time
-        const route = `/api/admin-sRemoto/nodo/${this.props.tipo}/${this.props.node_name}/from-excel`;
+        const route = `${SRM_API_URL}/admin-sRemoto/nodo/${this.props.tipo}/${this.props.node_name}/from-excel`;
         req.open("PUT", route);
         req.send(formData);
         req.onload = () => {

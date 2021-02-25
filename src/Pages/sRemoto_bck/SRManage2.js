@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import NodeCanvas from './SRManage_nodes'
 import menu from './SideBar'
 import {Spinner} from 'react-bootstrap'
+import { SRM_API_URL } from '../sRemoto/Constantes';
 
 class SRManage2 extends Component {
   /* Configuración de la página: */
@@ -17,7 +18,7 @@ class SRManage2 extends Component {
 
   async componentDidMount() {
     //super(props);
-    fetch('/api/admin-sRemoto/nodos/')
+    fetch(SRM_API_URL + '/admin-sRemoto/nodos/')
       .then(res => res.json())
       .then((data) => {
         this.setState({ nodes: data })

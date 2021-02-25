@@ -14,6 +14,7 @@ import ReactTooltip from "react-tooltip";
 import { UTR } from "../SRNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { SRM_API_URL } from "../Constantes";
 
 type Selected = {
   entidad_tipo: string;
@@ -100,7 +101,7 @@ class SRModelingRTU extends Component<
 
   _get_utrs = async () => {
     let path =
-      "/api/admin-sRemoto/rtu/" +
+      SRM_API_URL + "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad;
@@ -170,7 +171,7 @@ class SRModelingRTU extends Component<
   _delete_rtu = (id_utr) => {
     this.setState({ loading: true, msg: "Procesando..." });
     let path =
-      "/api/admin-sRemoto/rtu/" +
+      SRM_API_URL + "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad;
@@ -197,7 +198,7 @@ class SRModelingRTU extends Component<
     this.setState({ success: false, msg: "" });
     console.log(this.state.utr_form);
     let path =
-      "/api/admin-sRemoto/rtu/" +
+      SRM_API_URL + "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad;

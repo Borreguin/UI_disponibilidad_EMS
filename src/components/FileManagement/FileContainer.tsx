@@ -9,6 +9,7 @@ import {
 import { Card } from "react-bootstrap";
 import { File } from "./File";
 import "./style.css";
+import { SRM_API_URL } from "../../Pages/sRemoto/Constantes";
 
 type FileProps = {
   files: Array<File>;
@@ -23,7 +24,7 @@ class FileContainer extends Component<FileProps> {
   };
 
   _download_file = (name) => {
-    let url = "/api/files/file/s_remoto_excel/" + name;
+    let url = SRM_API_URL + "/files/file/s_remoto_excel/" + name;
     fetch(url).then((response) => {
       response.blob().then((blob) => {
         let url = window.URL.createObjectURL(blob);

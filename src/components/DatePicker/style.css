@@ -1,12 +1,12 @@
 .div_middle{
-    width: 45%;
-    min-width: 80px;
+    width: 50%;
+    min-width: 8px;
     margin-left: 1px;
     float: left;
 }
 
 .picker-div{
-    max-width: 120px;
+    max-width: 125px;
 }
 
 .div-pick-container{

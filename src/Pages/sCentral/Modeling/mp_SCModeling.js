@@ -37,7 +37,9 @@ class SCManage extends Component {
     selected_block: undefined,
     // Estructura a convertir en el menu
     root_block: undefined,
+    a_evaluar: true,
   };
+  a_evaluar = true;
 
   async componentDidMount() {
     this._search_root_block();
@@ -232,6 +234,12 @@ class SCManage extends Component {
     this.setState({ loading: false, sidebar_menu: sidebar });
   };
 
+  evaluate = () =>{ 
+    var check = this.state.selected_static_menu !== undefined && this.state.selected_block === undefined;
+    console.log("evaluando", check);
+    return check;
+  }
+
   render() {
     window.onkeydown = function (e) {
       if (e.keyCode === 8)
@@ -306,8 +314,7 @@ class SCManage extends Component {
           <div className="page-content content-shift">
             {/* Grid de modelamiento*/}
             <div className="grid">
-              {this.state.selected_static_menu !== undefined &&
-              this.state.selected_block === undefined ? (
+              {this.evaluate() ? (
                 <BlockRootGrid static_menu={this.state.selected_static_menu} />
               ) : (
                 <></>

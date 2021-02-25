@@ -7,6 +7,7 @@ import menu from "../SideBar";
 import { Col, Button, Tabs, Tab, Alert } from "react-bootstrap";
 import { to_yyyy_mm_dd_hh_mm_ss } from "../../../components/DatePicker/DateRangeTime";
 import DatosMantenimiento from "./SRConsignaciones_DatosMantenimiento";
+import { SRM_API_URL } from "../Constantes";
 
 // Pagina inicial de manejo de nodos:
 class SRConsignaciones extends Component {
@@ -77,7 +78,7 @@ class SRConsignaciones extends Component {
     if (r === false) return;
 
     let path =
-      "/api/admin-consignacion/consignacion/" +
+      SRM_API_URL + "/admin-consignacion/consignacion/" +
       this.state.forma.selected_id.utr +
       "/" +
       to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_inicio) +

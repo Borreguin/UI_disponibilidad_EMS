@@ -14,6 +14,7 @@ import {
   DateRangeTime,
   to_yyyy_mm_dd_hh_mm_ss,
 } from "../../../components/DatePicker/DateRangeTime";
+import { SRM_API_URL } from "../Constantes";
 
 // Datos de selección
 export type Forma = {
@@ -101,7 +102,7 @@ class DatosConsultar extends Component<SRConsigProps, SRConsigState> {
   // consulta las consignaciones en el periodo deseado:
   _consulta_consignaciones = (silent=false) => {
     let path =
-      "/api/admin-consignacion/consignacion/" +
+      SRM_API_URL + "/admin-consignacion/consignacion/" +
       this.state.forma.selected_id["utr"] +
       "/" +
       to_yyyy_mm_dd_hh_mm_ss(this.state.ini_date) +
@@ -136,7 +137,7 @@ class DatosConsultar extends Component<SRConsigProps, SRConsigState> {
   // eliminar consignación:
   _delete_consignacion = (id_elemento, consignacion: Consignacion) => {
     let path =
-      "/api/admin-consignacion/consignacion/" +
+      SRM_API_URL + "/admin-consignacion/consignacion/" +
       id_elemento +
       "/" +
       consignacion.id_consignacion;
@@ -304,7 +305,7 @@ class DatosConsultar extends Component<SRConsigProps, SRConsigState> {
   // enviar consignación editada:
   _send_consignacion_editada = () => {
     let path =
-      "/api/admin-consignacion/consignacion/" +
+      SRM_API_URL + "/admin-consignacion/consignacion/" +
       this.state.forma.selected_id["utr"] +
       "/" +
       this.state.consignacion_to_edit.id_consignacion;
