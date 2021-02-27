@@ -214,7 +214,6 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
       .then((resp) => resp.json())
       .then((report) => {
         let novedades = {};
-        console.log(report);
         if (report.tags_fallidas_detalle !== undefined) {
           novedades["tags_fallidas_detalle"] = report.tags_fallidas_detalle;
         }

@@ -45,8 +45,7 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 10000);
-    
+    this.timer = setInterval(() => this._inform_status(), 12000);
   }
 
   componentWillUnmount() {
@@ -54,35 +53,37 @@ class StatusCalcReport extends Component<
     this.timer = null;
     try {
       this.abortController.abort();
-    } catch { }
+    } catch {}
   }
 
-  _handle_finish_report_status = () => { 
+  _handle_finish_report_status = async() => {
     this.props.onFinish(this.state.log);
-  }
-  _inform_status = () => {
+  };
+  _inform_status = async () => {
     this.setState({ isFetching: true });
-    this._processing_percentage();
-    if (this.state.percentage > 99.99) { 
-      this.setState({ isFetching: false, percentage: 100 });
-      setTimeout(() => { this._handle_finish_report_status(); }, 5000);
-      return;
-    }
-    let path = SRM_API_URL + "/disp-sRemoto/estado/disponibilidad/" + this._range_time();
-    fetch(path, { signal: this.abortController.signal })
-      .then((res) => res.json()
-    )
+    let path =
+      SRM_API_URL + "/disp-sRemoto/estado/disponibilidad/" + this._range_time();
+    await fetch(path, { signal: this.abortController.signal })
+      .then((res) => res.json())
       .then((json) => {
-        if (json.status !== undefined) {
-          json.status.sort(function (a, b) { return a.percentage - b.percentage})
-          this.setState({ status: json.status, log:json });
-        } else {
-          this.setState({ log: json });
+        if (json.success) {
+          json.status.sort(function (a, b) {
+            return a.percentage - b.percentage;
+          });
+          this.setState({ status: json.status });
         }
         this._processing_percentage();
-        this.setState({ isFetching: false });
+        this.setState({ isFetching: false, log: json });
       })
       .catch(console.log);
+    this._processing_percentage();
+    if (this.state.percentage >= 99.99) {
+      this.setState({ isFetching: false, percentage: 100 });
+      setTimeout(() => {
+        this._handle_finish_report_status();
+      }, 500);
+      return;
+    }
   };
 
   _processing_percentage = () => {
@@ -91,7 +92,7 @@ class StatusCalcReport extends Component<
       p += status_report.percentage;
     });
     if (this.state.status.length > 0) {
-      p = p / (this.state.status.length);
+      p = p / this.state.status.length;
     }
     this.setState({ percentage: p });
   };

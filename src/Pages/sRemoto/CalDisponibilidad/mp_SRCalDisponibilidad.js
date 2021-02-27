@@ -178,9 +178,13 @@ class SRCalDisponibilidad extends Component {
   };
 
   _show_message = () => {
+    let msg = this.state.msg;
+    if (typeof(this.state.msg) !== "string") { 
+      msg = "Observar novedades para más detalles"
+    }
     return (
       <div>
-        <span>{JSON.stringify(this.state.msg)}</span>
+        <span>{msg}</span>
       </div>
     );
   };
@@ -285,8 +289,6 @@ class SRCalDisponibilidad extends Component {
             edited: true,
             calculating: false,
             msg: json.msg,
-            report: undefined,
-            filtered_reports: undefined,
             loading: false,
           });
         } else {
@@ -294,6 +296,7 @@ class SRCalDisponibilidad extends Component {
             log: { msg: json.msg },
             edited: true,
             calculating: false,
+            loading: false,
             report: json.report,
             msg: json.msg,
           });
