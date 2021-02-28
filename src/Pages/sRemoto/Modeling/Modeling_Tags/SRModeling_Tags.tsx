@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import "../styles.css";
+import "../../styles.css";
 import { Tab, Tabs, Alert, Form, Card, Col, Button } from "react-bootstrap";
-import { UTR, TAG } from "../SRNode";
+import { UTR, TAG } from "../../SRNode";
 import DataTable from "react-data-table-component";
 import ReactTooltip from "react-tooltip";
 import { CSVLink } from "react-csv";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
-import { SRM_API_URL } from "../Constantes";
+import { SRM_API_URL } from "../../Constantes";
 
 type Selected = {
   entidad_tipo: string;
@@ -42,7 +42,7 @@ const new_tag = {
   filter_expression: "TE # ME",
   activado: true,
 };
-
+/* Este componente permite el manejo de tags */
 class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
   selected_utr: string;
   constructor(props) {
@@ -176,7 +176,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
       .catch(console.log);
   };
 
-  _render_tag_edit = () => {
+  _render_tag_edit = (edit_columns) => {
     return (
       <div>
         <Card className="tab-container">
@@ -191,7 +191,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           ) : (
             <DataTable
               pagination={true}
-              columns={this.columns}
+              columns={edit_columns}
               data={this.state.filter_tags}
               fixedHeader
               noHeader={true}
@@ -232,16 +232,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
     );
   };
 
-  columns = [
-    {
-      name: "Nombre de tag",
-      selector: "tag_name",
-    },
-    {
-      name: "Condición de indisponibilidad",
-      selector: "filter_expression",
-    },
-  ];
+  
 
   _handleRowSelected = (selectedRowState) => {
     const { selectedCount, selectedRows } = selectedRowState;
@@ -302,7 +293,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
     }
   };
 
-  _render_tag_delete = () => {
+  _render_tag_delete = (delete_columns) => {
     return (
       <div>
         <Card className="tab-container">
@@ -317,7 +308,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           ) : (
             <DataTable
               pagination={true}
-              columns={this.columns}
+              columns={delete_columns}
               data={this.state.filter_tags}
               fixedHeader
               noHeader={true}
@@ -528,25 +519,7 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
   };
 
   render() {
-    /// Manejo de la Tabla
-    // Definicion de headers
-    const columns = [
-      {
-        name: "Activado",
-        width: "80px",
-        //selector: "activado",
-        cell: (row) => _input_checkbox(row, "activado"),
-      },
-      {
-        name: "Nombre de tag",
-        cell: (row) => _input_in_table(row, "tag_name"),
-      },
-      {
-        name: "Condición de indisponibilidad",
-        //selector: "filter_expression",
-        cell: (row) => _input_in_table(row, "filter_expression"),
-      },
-    ];
+    
 
     // Permite edición de boleano:
     let _input_checkbox = (row, field) => {
@@ -605,6 +578,38 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
       }
     };
 
+    /// Manejo de la Tabla
+    // Definicion de headers para edición:
+    const edit_columns = [
+      {
+        name: "Activado",
+        width: "80px",
+        //selector: "activado",
+        cell: (row) => _input_checkbox(row, "activado"),
+      },
+      {
+        name: "Nombre de tag",
+        cell: (row) => _input_in_table(row, "tag_name"),
+      },
+      {
+        name: "Condición de indisponibilidad",
+        //selector: "filter_expression",
+        cell: (row) => _input_in_table(row, "filter_expression"),
+      },
+    ];
+    // Definición de headers para eliminación:
+    const normal_columns = [
+      {
+        name: "Nombre de tag",
+        selector: "tag_name",
+      },
+      {
+        name: "Condición de indisponibilidad",
+        selector: "filter_expression",
+      },
+    ];
+
+
     /// Fin de Manejo de Tabla
 
     return (
@@ -619,11 +624,11 @@ class SRModelingTag extends Component<SRModelingTagsProps, SRModelingTAGState> {
           </Tab>
 
           <Tab eventKey="dt-editar-tags" title="Editar tags">
-            {this._render_tag_edit()}
+            {this._render_tag_edit(edit_columns)}
           </Tab>
 
           <Tab eventKey="dt-delete-tags" title="Eliminar tags">
-            {this._render_tag_delete()}
+            {this._render_tag_delete(normal_columns)}
           </Tab>
         </Tabs>
 

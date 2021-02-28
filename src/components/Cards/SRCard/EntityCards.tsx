@@ -116,7 +116,7 @@ export class EntityCards extends React.Component<SREntityCardProps> {
                 onMouseLeave={this.is_edited}
               ></input>
               <div className="src-port-connect">
-                <span className="badge badge-warning">{entidad.utrs} utrs</span>
+                <span className="badge badge-warning">{entidad.n_utrs} utrs</span>
                 <span className="badge badge-info">{entidad.n_tags} tags</span>
                 <input
                   type="checkbox"

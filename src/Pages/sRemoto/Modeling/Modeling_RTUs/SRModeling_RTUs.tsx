@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "../styles.css";
+import "../../styles.css";
 import {
   Tab,
   Form,
@@ -11,10 +11,11 @@ import {
   CardGroup,
 } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
-import { UTR } from "../SRNode";
+import { UTR } from "../../SRNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { SRM_API_URL } from "../Constantes";
+import { SRM_API_URL } from "../../Constantes";
+import { SREliminarUTR } from "./SREliminarUTR";
 
 type Selected = {
   entidad_tipo: string;
@@ -26,7 +27,7 @@ type SelectedID = {
   entidad: string;
 };
 
-type SRModelingTagsRTUProps = {
+type SRModelingRTUProps = {
   selected: Selected;
   selected_id: SelectedID;
 };
@@ -44,7 +45,7 @@ type SRModelingRTUState = {
 };
 
 class SRModelingRTU extends Component<
-  SRModelingTagsRTUProps,
+  SRModelingRTUProps,
   SRModelingRTUState
 > {
   selected_entity: string;
@@ -91,6 +92,11 @@ class SRModelingRTU extends Component<
     }
   }
 
+  handle_RTUs_changes = (utrs) => { 
+    this.setState({ utrs: utrs });
+  }
+
+  // Convierte la lista de RTUs en un ComboBox
   _rtu_options = () => {
     let options = [];
     this.state.utrs.forEach((utr, ix) => {
@@ -99,6 +105,7 @@ class SRModelingRTU extends Component<
     this.setState({ options: options });
   };
 
+  // Trae la lista de RTUs de este nodo e identidad
   _get_utrs = async () => {
     let path =
       SRM_API_URL + "/admin-sRemoto/rtu/" +
@@ -116,6 +123,7 @@ class SRModelingRTU extends Component<
       .catch(console.log);
   };
 
+  // Identifica la RTU seleccionada:
   _handle_rtu_select = (e) => {
     let id_utr = e.target.value;
     let selected_utr = this.state.edited_utr;
@@ -130,6 +138,7 @@ class SRModelingRTU extends Component<
     });
   };
 
+  // chequea la forma para la creación de una UTR
   _check_rtu_form = () => {
     let fields = ["id_utr", "tipo", "nombre"];
     let valid = true;
@@ -142,6 +151,7 @@ class SRModelingRTU extends Component<
     this.setState({ utr_valid: valid });
   };
 
+  // Chequea la forma de edición de una UTR
   _check_edited_rtu_form = () => {
     let fields = ["utr_tipo", "utr_nombre"];
     let valid = true;
@@ -154,6 +164,7 @@ class SRModelingRTU extends Component<
     this.setState({ edited_utr_valid: valid });
   };
 
+  // Maneja cambios en la forma de rtu
   _handle_rtu_form_changes = (e, field) => {
     let rtu_form = this.state.utr_form;
     rtu_form[field] = e.target.value;
@@ -161,6 +172,7 @@ class SRModelingRTU extends Component<
     this._check_rtu_form();
   };
 
+  //  maneja la edición de una RTU
   _edit_rtu_form_changes = (e, field) => {
     let rtu_form = this.state.edited_utr;
     rtu_form[field] = e.target.value;
@@ -168,31 +180,6 @@ class SRModelingRTU extends Component<
     this._check_edited_rtu_form();
   };
 
-  _delete_rtu = (id_utr) => {
-    this.setState({ loading: true, msg: "Procesando..." });
-    let path =
-      SRM_API_URL + "/admin-sRemoto/rtu/" +
-      this.props.selected_id.nodo +
-      "/" +
-      this.props.selected_id.entidad;
-
-    fetch(path, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id_utr: id_utr }),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) {
-          this.setState({ utrs: json.utrs });
-        }
-        this._rtu_options();
-        this.setState({ loading: false, success: json.success, msg: json.msg });
-      })
-      .catch(console.log);
-  };
 
   _send_rtu_form = () => {
     this.setState({ success: false, msg: "" });
@@ -384,35 +371,6 @@ class SRModelingRTU extends Component<
     );
   };
 
-  // forma para eliminar RTUs
-  _render_delete_rtu_form = () => {
-    let utrs = [];
-    if (this.state.utrs === undefined) {
-      return;
-    }
-    this.state.utrs.forEach((utr, ix) => {
-      utrs.push(
-        <Card.Header key={ix} className="utr-block">
-          <Button
-            variant="outline-light"
-            className={
-              this.state.loading
-                ? "src-btn-right src-btn-disabled"
-                : "src-btn-right scr-btn-trash"
-            }
-            onClick={() => this._delete_rtu(utr.id_utr)}
-          >
-            <FontAwesomeIcon icon={faTrash} inverse size="sm" />
-          </Button>
-          <div className="utr-label">{utr.utr_tipo}</div>
-          <div className="utr-label">
-            <b>{utr.utr_nombre}</b>
-          </div>
-        </Card.Header>
-      );
-    });
-    return <CardGroup className="tab-container">{utrs}</CardGroup>;
-  };
 
   render() {
     return (
@@ -429,7 +387,9 @@ class SRModelingRTU extends Component<
             {this._render_edit_rtu_form()}
           </Tab>
           <Tab eventKey="dt-eliminar-utr" title="Eliminar UTR">
-            {this._render_delete_rtu_form()}
+            <SREliminarUTR selected_nodo_id={this.props.selected_id.nodo} selected_entidad_id={this.props.selected_id.entidad}
+              utrs={this.state.utrs} handle_RTUs_changes={this.handle_RTUs_changes}
+            > </SREliminarUTR>
           </Tab>
         </Tabs>
         {this.state.msg.length === 0 ? (

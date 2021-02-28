@@ -6,8 +6,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import menu from "../SideBar";
 import { Col, Tabs, Tab } from "react-bootstrap";
 import FilterSTRNodes from "../FilterSTRNodes";
-import SRModelingRTU from "./SRModeling_Tags_RTUs";
-import SRModelingTag from "./SRModeling_Tags_Tags";
+import SRModelingRTU from "./Modeling_RTUs/SRModeling_RTUs";
+import SRModelingTag from "./Modeling_Tags/SRModeling_Tags";
 
 // Pagina inicial de manejo de nodos:
 class SRModelingTags extends Component {

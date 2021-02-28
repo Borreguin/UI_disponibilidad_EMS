@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Form, Col, Spinner } from "react-bootstrap";
-import { Node } from "../../components/Cards/SRCard/SRCardModel";
+import { Entity, Node } from "../../components/Cards/SRCard/SRCardModel";
 import { SRM_API_URL } from "./Constantes";
 
 export interface SRConsigProps {
@@ -19,6 +19,8 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
   utrs: any[];
   url: string;
   entidades: any[];
+  selected_node: Node | undefined;
+  selected_entity: Entity | undefined;
 
   constructor(props) {
     super(props);
@@ -31,6 +33,8 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     this.entidades = [];
     this.utrs = [];
     this.url = "";
+    this.selected_node = undefined;
+    this.selected_entity = undefined;
   }
 
   _handle_filter_change = () => {
@@ -81,22 +85,21 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         } else {
           // si los nodos están ok:
           let nodes = json.nodos;
-          nodes.sort((a, b) => (a.nombre > b.nombre) ? 1 : -1);
-          this.setState({ nodes: nodes });
-          this.setState({ loading: false });
+          nodes.sort((a, b) => (a.nombre > b.nombre ? 1 : -1));
+          this.setState({ nodes: nodes, loading: false });
         }
         this._node_types();
-        this._update_node();
+        //this._update_node();
         this._handle_filter_change();
       })
       .catch(console.log);
   };
 
   _filter_options = (
-    array: any[],
-    field: string,
-    if_field = undefined,
-    if_value = undefined
+    array: any[], // lista a filtrar
+    field: string, // atributo por el cual se realizará la lista
+    if_field = undefined, // filtrado condicional (campo a filtrar)
+    if_value = undefined // filtrado condicional (valor a filtrar)
   ) => {
     let options = [];
     let check = [];
@@ -114,63 +117,83 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     return options;
   };
 
+  // Define las opciones posibles de tipos de nodos:
   _node_types = () => {
     let options = this.state.options;
     let selected = this.selected;
+    // Si existen nodos a presentar; seleccionar el primer tipo de nodo:
+    // Selección por defecto:
     if (this.state.nodes.length > 0) {
       if (selected["nodo_tipo"] === undefined) {
         selected["nodo_tipo"] = this.state.nodes[0].tipo;
         this.selected = selected;
       }
+      // crear las opciones para el ComboBox
       options["nodo_tipo"] = this._filter_options(this.state.nodes, "tipo");
     } else {
+      // Si no existen nodos a mostrar:
       selected["nodo_tipo"] = undefined;
       options["nodo_tipo"] = [<option>No existen nodos a seleccionar</option>];
       options["entidad_tipo"] = [
         <option>No existen entidades a seleccionar</option>,
       ];
       options["utr_tipo"] = [<option>No existen utrs a seleccionar</option>];
-      this._utr_names();
+      this._utr_type();
+      // Se finaliza la exploración de datos:
       return;
     }
+    // Actualizar las opciones de nodo tipo si existen nodos a desplegar
     this.setState({ options: options });
+    // se prosigue con las opciones de nodos de nombre:
     this._node_names();
   };
 
+  // Define las opciones de nombres de los nodos:
   _node_names = () => {
     if (this.state.nodes.length === 0) {
       this._utr_names();
+      // Finaliza la exploración
       return;
     }
+    // Crear las opciones de nombres de Nodos:
     let options = this.state.options;
     options["nodo_nombre"] = this._filter_options(
-      this.state.nodes,
-      "nombre",
-      "tipo",
-      this.selected["nodo_tipo"]
+      this.state.nodes, // lista a filtrar
+      "nombre", // campo para formar la lista
+      "tipo", // Si el campo "tipo"
+      this.selected["nodo_tipo"] // es igual a "selected['nodo_tipo']"
     );
+    // Actualizar el estado de las opciones nombres de nodos:
     this.setState({ options: options });
 
     if (options["nodo_nombre"].length > 0) {
+      // Existe algo que seleccionar:
+      // Selección por defecto primer miembro de la lista
       this.selected["nodo_nombre"] = options["nodo_nombre"][0].props.children;
-      this._update_node();
+      //this._update_node();
     } else {
+      // No hay algo que seleccionar
       this.selected["nodo_nombre"] = undefined;
+      return;
     }
+    // Si hay algo por seleccionar pasar a siguiente filtro (tipo de entidades)
     this._entity_types();
   };
 
+  // Define las opciones de tipos de entidades que se pueden elegir:
   _entity_types = () => {
     let options = this.state.options;
+    // valores iniciales:
     this.selected["entidad_tipo"] = undefined;
     this.selected["entidad_nombre"] = undefined;
 
     if (this.state.nodes.length === 0) {
       this.utrs = [];
       this._utr_type();
+      // Finaliza la exploración
       return;
     }
-
+    // Filtrar mediante el nodo seleccionado:
     let nodes = this.state.nodes;
     for (var idx in nodes) {
       let node = nodes[idx];
@@ -178,32 +201,34 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         node.tipo === this.selected["nodo_tipo"] &&
         node.nombre === this.selected["nodo_nombre"]
       ) {
-        // filtrando por tipo y nombre, entidad tipo:
+        // Este es el nodo seleccionado:
+        this.selected_node = node;
+
+        // Creando lista de entidad tipo:
         options["entidad_tipo"] = this._filter_options(
-          node.entidades,
-          "entidad_tipo"
+          node.entidades, // lista de entidades a filtrar
+          "entidad_tipo" // crear lista de tipos de entidades
         );
-        // filtrando por tipo y nombre, entidad nombre:
-        options["entidad_nombre"] = this._filter_options(
-          node.entidades,
-          "entidad_nombre"
-        );
+
+        // Verificar si existen opciones de selección:
         if (options["entidad_tipo"].length > 0) {
+          // seleccionar el primer elemento por defecto
           this.selected["entidad_tipo"] =
             options["entidad_tipo"][0].props.children;
-          this.selected["entidad_nombre"] =
-            options["entidad_nombre"][0].props.children;
         } else {
+          // No hay elementos que seleccionar:
           options["entidad_tipo"] = [
             <option key={0}>No existen entidades a seleccionar </option>,
           ];
           options["entidad_nombre"] = [<option key={0}> </option>];
           this.utrs = [];
           this._utr_type();
+          // finaliza la exploración de filtrado
           return;
         }
       }
     }
+    // Existen opciones que filtrar, presentar las opciones de nombres de entidades:
     this.setState({ options: options });
     this._entity_names();
   };
@@ -212,77 +237,75 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     let options = this.state.options;
     if (this.state.nodes.length === 0) {
       this.selected["nodo_nombre"] = undefined;
-      this._update_node();
+      this._utr_type();
+      // finaliza la exploración
       return;
     }
-    
-    if (
-      this.selected["entidad_nombre"] === undefined &&
-      this.state.nodes.length > 0
-    ) {
-      let entidades = this.state.nodes[0].entidades;
-      options["entidad_nombre"] = this._filter_options(
-        entidades,
-        "entidad_nombre"
-      );
-      if (entidades.length === 0) {
-        this.selected["entidad_nombre"] = undefined;
-        this.selected["entidad_tipo"] = undefined;
-      }
-      this.setState({ options: options });
-      this._update_node();
+
+    // El nodo ha sido seleccionado previamente:
+    let node = this.selected_node;
+
+    // crear la lista de opciones de nombre de entidades
+    options["entidad_nombre"] = this._filter_options(
+      node.entidades, // lista a filtrar
+      "entidad_nombre", // campo a generar lista
+      "entidad_tipo", // condicional si "entidad tipo"
+      this.selected["entidad_tipo"] // es el tipo de entidad seleccionada
+    );
+    if (options["entidad_nombre"].length > 0) {
+      this.selected["entidad_nombre"] =
+        options["entidad_nombre"][0].props.children;
+    } else {
+      this.selected["entidad_nombre"] = undefined;
+      // No se puede explorar
       return;
     }
-    for (var idx in this.state.nodes) {
-      let node = this.state.nodes[idx];
-      if (
-        node.tipo === this.selected["nodo_tipo"] &&
-        node.nombre === this.selected["nodo_nombre"]
-      ) {
-        options["entidad_nombre"] = this._filter_options(
-          node.entidades,
-          "entidad_nombre",
-          "entidad_tipo",
-          this.selected["entidad_tipo"]
-        );
-        if (options["entidad_nombre"].length > 0) {
-          this.selected["entidad_nombre"] =
-            options["entidad_nombre"][0].props.children;
-        } else {
-          this.selected["entidad_nombre"] = undefined;
-        }
-      }
-    }
+
+    // existe opciones de seleccionar:
     this.setState({ options: options });
-    this._update_node();
+    this._utr_type();
   };
 
   _utr_type = () => {
     let options = this.state.options;
-    if (this.utrs.length === 0) {
-      options["utr_tipo"] = [
-        <option key={1}>No hay UTRs a seleccionar</option>,
-      ];
-      options["utr_nombre"] = [];
-      this.selected["utr_tipo"] = undefined;
-      this.selected["utr_nombre"] = undefined;
-    } else {
-      this.setState({ options: options });
-      options["utr_tipo"] = this._filter_options(this.utrs, "utr_tipo");
-      if (this.selected["utr_tipo"] === undefined) {
-        this.selected["utr_tipo"] = options["utr_tipo"][0].props.children;
-      }
-      if (options["utr_tipo"].length === 0) {
-        this.selected["utr_tipo"] = undefined;
+    // El nodo ha sido seleccionado previamente:
+    let node = this.selected_node;
+    for (var idx in node.entidades) {
+      let entidad = node.entidades[idx];
+      if (
+        entidad.entidad_tipo === this.selected["entidad_tipo"] &&
+        entidad.entidad_nombre === this.selected["entidad_nombre"]
+      ) {
+        // Esta es la entidad seleccionada:
+        this.selected_entity = entidad;
+        this.utrs = entidad.utrs;
+        if (this.utrs.length === 0) {
+          // No hay UTRs que mostrar:
+          options["utr_tipo"] = [
+            <option key={1}>No hay UTRs a seleccionar</option>,
+          ];
+          options["utr_nombre"] = [];
+          this.selected["utr_tipo"] = undefined;
+          this.selected["utr_nombre"] = undefined;
+        } else {
+          options["utr_tipo"] = this._filter_options(this.utrs, "utr_tipo");
+
+          if (options["utr_tipo"].length > 0) {
+            this.selected["utr_tipo"] = options["utr_tipo"][0].props.children;
+          } else {
+            this.selected["utr_tipo"] = undefined;
+          }
+        }
       }
     }
+
     this.setState({ options: options });
     this._utr_names();
   };
 
   _utr_names = () => {
     let options = this.state.options;
-    this.utrs.sort((a, b)=>(a.utr_nombre > b.utr_nombre)? 1 : -1)
+    this.utrs.sort((a, b) => (a.utr_nombre > b.utr_nombre ? 1 : -1));
     options["utr_nombre"] = this._filter_options(
       this.utrs,
       "utr_nombre",
@@ -298,43 +321,6 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     this._handle_filter_change();
   };
 
-  _update_node = async () => {
-    let path =
-      SRM_API_URL + "/admin-sRemoto/nodo/" +
-      this.selected["nodo_tipo"] +
-      "/" +
-      this.selected["nodo_nombre"];
-    let entidades = this.entidades;
-    let options = this.state.options;
-    options["utr_tipo"] = [<option key={0}>Cargando...</option>];
-    options["utr_nombre"] = [<option key={0}>Cargando...</option>];
-    this.selected["utr_tipo"] = undefined;
-    this.selected["utr_nombre"] = undefined;
-    this.setState({ options: options });
-
-    if (this.url !== path) {
-      await fetch(path)
-        .then((res) => res.json())
-        .then((nodo) => {
-          if (nodo !== null) {
-            entidades = nodo.entidades;
-            this.entidades = entidades;
-            this.url = path;
-          }
-        })
-        .catch(console.log);
-    }
-    for (var idx in entidades) {
-      let entidad = entidades[idx];
-      if (
-        entidad.entidad_tipo === this.selected["entidad_tipo"] &&
-        entidad.entidad_nombre === this.selected["entidad_nombre"]
-      ) {
-        this.utrs = entidad.utrs;
-        this._utr_type();
-      }
-    }
-  };
 
   _handle_change = (e, name) => {
     if (this.state.nodes.length === 0) return;
@@ -352,7 +338,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         this._entity_names();
         break;
       case "entidad_nombre":
-        this._update_node();
+        this._utr_type();
         break;
       case "utr_tipo":
         this._utr_names();
