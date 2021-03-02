@@ -45,7 +45,7 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 12000);
+    this.timer = setInterval(() => this._inform_status(), 4000);
   }
 
   componentWillUnmount() {
