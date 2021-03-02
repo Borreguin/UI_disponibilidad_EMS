@@ -3,11 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { Component } from "react";
 import { Alert, Button, Card, CardGroup } from "react-bootstrap";
 import { SRM_API_URL } from "../../Constantes";
-type UTR = {
-  id_utr: string;
-  utr_tipo: string;
-  utr_nombre: string;
-};
+import { UTR } from "./SRRTUtypes";
 
 type SREliminarUTRProps = {
   selected_nodo_id: string;

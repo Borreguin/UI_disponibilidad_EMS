@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Form, Col, Spinner } from "react-bootstrap";
+import { Form, Col, Spinner, Button } from "react-bootstrap";
+import ReactTooltip from "react-tooltip";
 import { Entity, Node } from "../../components/Cards/SRCard/SRCardModel";
 import { SRM_API_URL } from "./Constantes";
 
@@ -75,8 +76,13 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
 
   componentDidMount = () => {
     this.setState({ loading: true });
+    this._update_filter();
+    this.setState({ loading: false });
+  };
+
+  _update_filter = async () => {
     let path = SRM_API_URL + "/admin-sRemoto/nodos/";
-    fetch(path)
+    await fetch(path)
       .then((res) => res.json())
       .then((json) => {
         if (!json.success) {
@@ -86,13 +92,15 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
           // si los nodos están ok:
           let nodes = json.nodos;
           nodes.sort((a, b) => (a.nombre > b.nombre ? 1 : -1));
-          this.setState({ nodes: nodes, loading: false });
+          this.setState({ nodes: nodes });
+          this.selected = {};
+          this.selected_node = undefined;
+          this.selected_entity = undefined;
         }
-        this._node_types();
-        //this._update_node();
-        this._handle_filter_change();
       })
       .catch(console.log);
+    this._node_types();
+    this._handle_filter_change();
   };
 
   _filter_options = (
@@ -164,8 +172,6 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
       this.selected["nodo_tipo"] // es igual a "selected['nodo_tipo']"
     );
     // Actualizar el estado de las opciones nombres de nodos:
-    this.setState({ options: options });
-
     if (options["nodo_nombre"].length > 0) {
       // Existe algo que seleccionar:
       // Selección por defecto primer miembro de la lista
@@ -177,6 +183,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
       return;
     }
     // Si hay algo por seleccionar pasar a siguiente filtro (tipo de entidades)
+    this.setState({ options: options });
     this._entity_types();
   };
 
@@ -279,7 +286,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
         // Esta es la entidad seleccionada:
         this.selected_entity = entidad;
         this.utrs = entidad.utrs;
-        if (this.utrs.length === 0) {
+        if (this.utrs === undefined || this.utrs.length === 0) {
           // No hay UTRs que mostrar:
           options["utr_tipo"] = [
             <option key={1}>No hay UTRs a seleccionar</option>,
@@ -304,6 +311,9 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
   };
 
   _utr_names = () => {
+    if (this.utrs === undefined || this.utrs.length === 0) {
+      return;
+    }
     let options = this.state.options;
     this.utrs.sort((a, b) => (a.utr_nombre > b.utr_nombre ? 1 : -1));
     options["utr_nombre"] = this._filter_options(
@@ -320,7 +330,6 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
     this.setState({ options: options });
     this._handle_filter_change();
   };
-
 
   _handle_change = (e, name) => {
     if (this.state.nodes.length === 0) return;
@@ -358,12 +367,26 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
           </div>
         ) : (
           <Form className="tab-container">
-            <Form.Label className="cons-label">Selecione Nodo</Form.Label>
+            <Form.Row>
+              <Form.Label className="update_label">
+                <Button
+                  data-tip={"Actualiza todos los campos"}
+                  onClick={this._update_filter}
+                  variant="outline-success"
+                  size="sm"
+                >
+                  Actualizar
+                </Button>
+                <ReactTooltip />
+              </Form.Label>
+            </Form.Row>
+            <Form.Label className="cons-label space">Seleccione Nodo</Form.Label>
             <Form.Row>
               <Form.Group as={Col} className="cons-col">
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["nodo_tipo"]}
                   onChange={(e) => this._handle_change(e, "nodo_tipo")}
                 >
                   {this.state.options["nodo_tipo"] === undefined ? (
@@ -377,6 +400,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["nodo_nombre"]}
                   onChange={(e) => this._handle_change(e, "nodo_nombre")}
                 >
                   {this.state.options["nodo_nombre"] === undefined ? (
@@ -387,12 +411,13 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
                 </Form.Control>
               </Form.Group>
             </Form.Row>
-            <Form.Label className="cons-label">Selecione Entidad</Form.Label>
+            <Form.Label className="cons-label">Seleccione Entidad</Form.Label>
             <Form.Row>
               <Form.Group as={Col} className="cons-col">
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["entidad_tipo"]}
                   onChange={(e) => this._handle_change(e, "entidad_tipo")}
                 >
                   {this.state.options["entidad_tipo"] === undefined ? (
@@ -406,6 +431,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["entidad_nombre"]}
                   onChange={(e) => this._handle_change(e, "entidad_nombre")}
                 >
                   {this.state.options["entidad_nombre"] === undefined ? (
@@ -417,13 +443,14 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
               </Form.Group>
             </Form.Row>
 
-            <Form.Label className="cons-label">Selecione UTR</Form.Label>
+            <Form.Label className="cons-label">Seleccione UTR</Form.Label>
 
             <Form.Row>
               <Form.Group as={Col}>
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["utr_tipo"]}
                   onChange={(e) => this._handle_change(e, "utr_tipo")}
                 >
                   {this.state.options["utr_tipo"] === undefined ? (
@@ -437,6 +464,7 @@ class FilterSTRNodes extends Component<SRConsigProps, SRConsigState> {
                 <Form.Control
                   as="select"
                   size="sm"
+                  value={this.selected["utr_nombre"]}
                   onChange={(e) => this._handle_change(e, "utr_nombre")}
                 >
                   {this.state.options["utr_nombre"] === undefined ? (

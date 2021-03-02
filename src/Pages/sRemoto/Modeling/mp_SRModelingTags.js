@@ -91,7 +91,7 @@ class SRModelingTags extends Component {
                   <Tab
                     eventKey="dt-entidad"
                     title={
-                      "UTRs en " +
+                      "Administrar UTRs en " +
                       this.state.forma.selected["entidad_tipo"] +
                       ": " +
                       this.state.forma.selected["entidad_nombre"]
@@ -110,7 +110,7 @@ class SRModelingTags extends Component {
                   <Tab
                     eventKey="dt-rtu"
                     title={
-                      "Tags en " +
+                      "Administrar Tags en " +
                       this.state.forma.selected["utr_tipo"] +
                       ": " +
                       this.state.forma.selected["utr_nombre"]
@@ -120,7 +120,6 @@ class SRModelingTags extends Component {
                       selected={this.state.forma.selected}
                       selected_id={this.state.forma.selected_id}
                     />
-                      
                   </Tab>
                 )}
               </Tabs>

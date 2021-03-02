@@ -149,9 +149,17 @@
 .cons-label{
   margin-bottom: 2px !important;
 }
+.space{
+  margin-top: -4px;
+}
+.update_label{
+  position: relative;
+  left: 92%;
+  margin-bottom: -10px;
+}
 
 .cons-header{
-  padding: 7px;
+  padding: 4px;
 }
 
 .cons-mandatory{

@@ -10,5 +10,5 @@ export type UTR = {
     utr_tipo: string,
     activado: boolean,
     utr_code: string,
-    tags?: Array<TAG>
+    tags?: Array<TAG>,
 }

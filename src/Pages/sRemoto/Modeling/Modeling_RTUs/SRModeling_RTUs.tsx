@@ -11,11 +11,13 @@ import {
   CardGroup,
 } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
-import { UTR } from "../../SRNode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { SRM_API_URL } from "../../Constantes";
 import { SREliminarUTR } from "./SREliminarUTR";
+import { SRCreateUTR } from "./SRCreateUTR";
+import { SREditarUTR } from "./SREditarUTR";
+import { UTR } from "./SRRTUtypes";
 
 type Selected = {
   entidad_tipo: string;
@@ -33,22 +35,19 @@ type SRModelingRTUProps = {
 };
 
 type SRModelingRTUState = {
-  utr_valid: boolean;
-  utr_form: Object;
+  utr_valid: boolean; // check
+  utr_form: Object; // check
   success: boolean;
   msg: string;
   utrs: Array<UTR>;
-  options: Array<any>;
+  options: Array<any>; //check
   edited_utr_valid: boolean;
   edited_utr: UTR;
   loading: boolean;
 };
 
-class SRModelingRTU extends Component<
-  SRModelingRTUProps,
-  SRModelingRTUState
-> {
-  selected_entity: string;
+class SRModelingRTU extends Component<SRModelingRTUProps, SRModelingRTUState> {
+  selected_entity: string; // check
   constructor(props) {
     super(props);
     this.state = {
@@ -65,11 +64,13 @@ class SRModelingRTU extends Component<
       options: [],
       edited_utr_valid: false,
       edited_utr: {
-        activado: true,
+        id_utr: "",
         utr_tipo: "",
         utr_nombre: "",
-        id_utr: "",
-        utr_code: "",
+        activado: true,
+        longitude: 0,
+        latitude: 0,
+        protocol: "",
       },
       loading: false,
     };
@@ -92,9 +93,9 @@ class SRModelingRTU extends Component<
     }
   }
 
-  handle_RTUs_changes = (utrs) => { 
+  handle_RTUs_changes = (utrs) => {
     this.setState({ utrs: utrs });
-  }
+  };
 
   // Convierte la lista de RTUs en un ComboBox
   _rtu_options = () => {
@@ -108,7 +109,8 @@ class SRModelingRTU extends Component<
   // Trae la lista de RTUs de este nodo e identidad
   _get_utrs = async () => {
     let path =
-      SRM_API_URL + "/admin-sRemoto/rtu/" +
+      SRM_API_URL +
+      "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad;
@@ -172,10 +174,18 @@ class SRModelingRTU extends Component<
     this._check_rtu_form();
   };
 
-  //  maneja la edición de una RTU
-  _edit_rtu_form_changes = (e, field) => {
+  //  maneja la edición de una RTU de campos tipo string
+  _edit_rtu_string_form_changes = (e, field) => {
     let rtu_form = this.state.edited_utr;
     rtu_form[field] = e.target.value;
+    this.setState({ utr_form: rtu_form });
+    this._check_edited_rtu_form();
+  };
+
+  //  maneja la edición de una RTU de campos tipo float
+  _edit_rtu_float_form_changes = (e, field) => {
+    let rtu_form = this.state.edited_utr;
+    rtu_form[field] = parseFloat(e.target.value);
     this.setState({ utr_form: rtu_form });
     this._check_edited_rtu_form();
   };
@@ -185,7 +195,8 @@ class SRModelingRTU extends Component<
     this.setState({ success: false, msg: "" });
     console.log(this.state.utr_form);
     let path =
-      SRM_API_URL + "/admin-sRemoto/rtu/" +
+      SRM_API_URL +
+      "/admin-sRemoto/rtu/" +
       this.props.selected_id.nodo +
       "/" +
       this.props.selected_id.entidad;
@@ -221,80 +232,6 @@ class SRModelingRTU extends Component<
     this._send_rtu_form();
   };
 
-  // forma para crear RTUs
-  _render_create_rtu_form = () => {
-    return (
-      <Form className="tab-container">
-        <Form.Row>
-          <Form.Group as={Col} controlId="formIdUTR">
-            <Form.Label>
-              <span className="cons-mandatory">* </span> Id UTR
-            </Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Ingrese Id"
-              onChange={(e) => this._handle_rtu_form_changes(e, "id_utr")}
-            />
-          </Form.Group>
-          <Form.Group as={Col} controlId="formTipoUTR">
-            <Form.Label>
-              <span className="cons-mandatory">* </span> Tipo
-            </Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Ingrese tipo"
-              onChange={(e) => this._handle_rtu_form_changes(e, "tipo")}
-            />
-          </Form.Group>
-        </Form.Row>
-        <Form.Row>
-          <Form.Group as={Col} controlId="formTipoUTR">
-            <Form.Label>
-              <span className="cons-mandatory">* </span> Nombre
-            </Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Nombre"
-              onChange={(e) => this._handle_rtu_form_changes(e, "nombre")}
-            />
-          </Form.Group>
-        </Form.Row>
-        <Form.Row>
-          <Form.Group id="checkRTU" as={Col}>
-            <Form.Check
-              defaultChecked
-              type="checkbox"
-              label="Activada"
-              onChange={(e) => {
-                let utr_form = this.state.utr_form;
-                utr_form["activado"] = !utr_form["activado"];
-                this.setState({ utr_form: utr_form });
-                this._check_rtu_form();
-              }}
-            />
-          </Form.Group>
-          <Form.Group id="checkRTU" as={Col}>
-            <Button
-              variant="outline-success"
-              style={{ float: "right" }}
-              disabled={!this.state.utr_valid}
-              data-tip={
-                "<div>Presione aquí para crear una nueva UTR</div>" +
-                "<div>Revise todos los campos obligatorios (*)</div>" +
-                "<div>mínimo 4 caracteres</div>"
-              }
-              data-html={true}
-              onClick={this._send_rtu_form}
-            >
-              {"Crear UTR en " + this.props.selected.entidad_nombre}
-            </Button>
-            <ReactTooltip />
-          </Form.Group>
-        </Form.Row>
-      </Form>
-    );
-  };
-
   // forma para editar RTUs
   _render_edit_rtu_form = () => {
     return (
@@ -318,7 +255,7 @@ class SRModelingRTU extends Component<
               type="text"
               placeholder="Ingrese tipo"
               value={this.state.edited_utr.utr_tipo}
-              onChange={(e) => this._edit_rtu_form_changes(e, "utr_tipo")}
+              onChange={(e) => this._edit_rtu_string_form_changes(e, "utr_tipo")}
             />
           </Form.Group>
         </Form.Row>
@@ -331,7 +268,7 @@ class SRModelingRTU extends Component<
               type="text"
               placeholder="Nombre"
               value={this.state.edited_utr.utr_nombre}
-              onChange={(e) => this._edit_rtu_form_changes(e, "utr_nombre")}
+              onChange={(e) => this._edit_rtu_string_form_changes(e, "utr_nombre")}
             />
           </Form.Group>
         </Form.Row>
@@ -371,7 +308,6 @@ class SRModelingRTU extends Component<
     );
   };
 
-
   render() {
     return (
       <div className="tab-container">
@@ -381,15 +317,28 @@ class SRModelingRTU extends Component<
           transition={false}
         >
           <Tab eventKey="dt-create-utr" title="Crear UTR">
-            {this._render_create_rtu_form()}
+            <SRCreateUTR
+              selected={this.props.selected}
+              selected_id={this.props.selected_id}
+              handle_RTUs_changes={this.handle_RTUs_changes}
+            ></SRCreateUTR>
           </Tab>
           <Tab eventKey="dt-editar-utr" title={"Editar UTR"}>
-            {this._render_edit_rtu_form()}
+            <SREditarUTR
+              selected={this.props.selected}
+              selected_id={this.props.selected_id}
+              utrs={this.state.utrs}
+              handle_RTUs_changes={this.handle_RTUs_changes}
+            ></SREditarUTR>
           </Tab>
           <Tab eventKey="dt-eliminar-utr" title="Eliminar UTR">
-            <SREliminarUTR selected_nodo_id={this.props.selected_id.nodo} selected_entidad_id={this.props.selected_id.entidad}
-              utrs={this.state.utrs} handle_RTUs_changes={this.handle_RTUs_changes}
-            > </SREliminarUTR>
+            <SREliminarUTR
+              selected_nodo_id={this.props.selected_id.nodo}
+              selected_entidad_id={this.props.selected_id.entidad}
+              utrs={this.state.utrs}
+              handle_RTUs_changes={this.handle_RTUs_changes}
+            >
+            </SREliminarUTR>
           </Tab>
         </Tabs>
         {this.state.msg.length === 0 ? (
