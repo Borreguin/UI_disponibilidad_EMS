@@ -17,7 +17,7 @@ import { SRM_API_URL } from "../../Constantes";
 import { SREliminarUTR } from "./SREliminarUTR";
 import { SRCreateUTR } from "./SRCreateUTR";
 import { SREditarUTR } from "./SREditarUTR";
-import { UTR } from "./SRRTUtypes";
+import { UTR } from "../ModelingTypes";
 
 type Selected = {
   entidad_tipo: string;

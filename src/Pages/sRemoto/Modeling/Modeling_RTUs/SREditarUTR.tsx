@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Alert, Button, Col, Form } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
 import { SRM_API_URL } from "../../Constantes";
-import { Selected, SelectedID, UTR } from "./SRRTUtypes";
+import { Selected, SelectedID, UTR } from "../ModelingTypes";
 
 
 type SREditarUTRProps = {
@@ -165,7 +165,6 @@ export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
           this.setState({ utrs: json.utrs, loading: false });
           this._handle_RTUs_changes(json.utrs);
         }
-        console.log("check", json.utrs);
         this._rtu_options();
         if (json.utrs.length > 0) {
           this.setState({ utr_form: json.utrs[0] });

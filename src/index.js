@@ -11,7 +11,7 @@ import * as serviceWorker from './serviceWorker';
 import { Route,  BrowserRouter as Router} from 'react-router-dom'
 import './components/icons/fontawesome'
 import SRConsignaciones from './Pages/sRemoto/Consignaciones/mp_SRConsignaciones';
-import SRModelingTags from './Pages/sRemoto/Modeling/mp_SRModelingTags';
+import SRModelingRTUsOrTags from './Pages/sRemoto/Modeling/mp_SRModelingRTUsOrTags';
 import SRConsignacionesConsultar from './Pages/sRemoto/Consignaciones/mp_SRConsignacionesConsultar';
 
 //<Route exact path="/icons" component={IconLibrary} />
@@ -20,7 +20,7 @@ const routing = (
     <Route exact path="/" component={Home} />
     <Route exact path="/about" component={About} />
     <Route exact path="/Pages/sRemoto/SRmodeling" component={SRManage} />
-    <Route exact path="/Pages/sRemoto/SRmodelingTags" component={SRModelingTags}/>
+    <Route exact path="/Pages/sRemoto/SRmodelingTags" component={SRModelingRTUsOrTags}/>
     <Route exact path="/Pages/sCentral" component={SCManage} />
     <Route exact path="/Pages/sRemoto/SRCalDisponibilidad" component={SRCalDisponibilidad} />
     <Route exact path="/Pages/sRemoto/SRBackupFiles" component={SRBackupFiles} />

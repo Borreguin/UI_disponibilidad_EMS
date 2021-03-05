@@ -18,6 +18,8 @@ type StatusCalcReportState = {
   status: Array<StatusReport>;
   percentage: number;
   isFetching: boolean;
+  all_finished: boolean;
+  isFinish: boolean;
 };
 
 class StatusCalcReport extends Component<
@@ -33,6 +35,8 @@ class StatusCalcReport extends Component<
       status: [],
       percentage: 0,
       isFetching: false,
+      all_finished: false,
+      isFinish: false,
     };
     this.abortController = new AbortController();
   }
@@ -45,7 +49,7 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 4000);
+    this.timer = setInterval(() => this._inform_status(), 5500);
   }
 
   componentWillUnmount() {
@@ -56,10 +60,17 @@ class StatusCalcReport extends Component<
     } catch {}
   }
 
-  _handle_finish_report_status = async() => {
+  _handle_finish_report_status = async () => {
     this.props.onFinish(this.state.log);
   };
   _inform_status = async () => {
+
+    if (this.state.isFinish) { 
+      setTimeout(() => {
+        this._handle_finish_report_status();
+      }, 10000);
+    }
+
     this.setState({ isFetching: true });
     let path =
       SRM_API_URL + "/disp-sRemoto/estado/disponibilidad/" + this._range_time();
@@ -72,29 +83,30 @@ class StatusCalcReport extends Component<
           });
           this.setState({ status: json.status });
         }
-        this._processing_percentage();
-        this.setState({ isFetching: false, log: json });
+
+        this.setState({ isFetching: false, log: json }, () => { 
+          this._processing_percentage();
+          if (this.state.all_finished && !this.state.isFinish) {
+            this.setState({ percentage: 100, isFinish: true});
+            return;
+          }
+        }
+        );
       })
       .catch(console.log);
-    this._processing_percentage();
-    if (this.state.percentage >= 99.99) {
-      this.setState({ isFetching: false, percentage: 100 });
-      setTimeout(() => {
-        this._handle_finish_report_status();
-      }, 500);
-      return;
-    }
   };
 
   _processing_percentage = () => {
     let p = 0;
+    let all_finished = true;
     this.state.status.forEach((status_report) => {
       p += status_report.percentage;
+      all_finished = all_finished && status_report.finish;
     });
     if (this.state.status.length > 0) {
       p = p / this.state.status.length;
     }
-    this.setState({ percentage: p });
+    this.setState({ percentage: p, all_finished: all_finished});
   };
 
   _range_time = () => {

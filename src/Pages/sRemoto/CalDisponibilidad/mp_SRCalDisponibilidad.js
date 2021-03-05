@@ -66,13 +66,12 @@ class SRCalDisponibilidad extends Component {
   };
 
   // cuando finaliza el cálculo
-  handle_finish_calculation = () => {
+  handle_finish_calculation = (calculation_log) => {
     if (this.state.calculating) {
-      this.setState({ calculating: false });
+      this.setState({ calculating: false, log: calculation_log });
     }
-    if (this.state.report === undefined) {
-      this._search_report_now();
-    }
+    this._search_report_now();
+    console.log(calculation_log);
   };
 
   // actualiza el valor del umbral a reportar:
@@ -240,7 +239,7 @@ class SRCalDisponibilidad extends Component {
 
   // Realizar el cálculo de los nodos existentes en base de datos
   // El estado calculating permite identificar el momento en que se realiza los cálculos
-  _cal_all = async (method) => {
+  _cal_all = (method) => {
     let msg = "";
     let pcc =
       this.state.search === "" ? "todos los nodos" : this._nodes_names();
@@ -279,7 +278,7 @@ class SRCalDisponibilidad extends Component {
       payload["body"] = JSON.stringify({ nodos: this._nodes_names() });
     }
 
-    await fetch(path, payload)
+    fetch(path, payload)
       .then((res) => res.json())
       .then((json) => {
         this.setState({ loading: true });
@@ -301,16 +300,16 @@ class SRCalDisponibilidad extends Component {
             msg: json.msg,
           });
         }
+        this.setState({ loading: false });
       })
       .catch((error) => {
         // Dado que el cálculo puede tomar mas tiempo y causar un time-out
         /*let msg =
           "Ha fallado la conexión con la API de cálculo de disponibilidad";
         this.setState({ log: { error: msg }, msg: msg });*/
-        console.log(error);
+        // console.log(error);
       });
     this._filter_reports(this.state.search);
-    this.setState({ loading: false });
   };
 
   render() {

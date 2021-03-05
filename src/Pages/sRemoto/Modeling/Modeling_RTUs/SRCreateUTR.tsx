@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Alert, Button, Col, Form } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
 import { SRM_API_URL } from "../../Constantes";
-import { Selected, SelectedID, UTR } from "./SRRTUtypes";
+import { Selected, SelectedID, UTR } from "../ModelingTypes";
 
 export type SRCreateUTRProps = {
   selected: Selected;

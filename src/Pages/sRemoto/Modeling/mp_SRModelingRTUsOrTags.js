@@ -10,7 +10,7 @@ import SRModelingRTU from "./Modeling_RTUs/SRModeling_RTUs";
 import SRModelingTag from "./Modeling_Tags/SRModeling_Tags";
 
 // Pagina inicial de manejo de nodos:
-class SRModelingTags extends Component {
+class SRModelingRTUsOrTags extends Component {
   /* Configuración de la página: */
   state = {
     brand: {
@@ -133,4 +133,4 @@ class SRModelingTags extends Component {
   }
 }
 
-export default SRModelingTags;
+export default SRModelingRTUsOrTags;

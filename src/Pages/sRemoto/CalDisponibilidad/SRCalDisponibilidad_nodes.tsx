@@ -27,7 +27,7 @@ class NodeReport extends Component<NodeReportProps, NodeReportState> {
   }
   _handle_finish_calculation = (log) => { 
     this.setState({ finish: true, log: log});
-    this.props.onFinish();
+    this.props.onFinish(log);
   }
   
   render() {
