@@ -208,6 +208,10 @@ class SRCalDisponibilidad extends Component {
   _download_excel_report = async () =>{
     let url = SRM_API_URL + "/sRemoto/disponibilidad/excel/" + this._range_time() + "/" + _.uniqueId(Math.random());
     let filename = "Reporte_" + to_yyyy_mm_dd(this.state.ini_date) + "@" + to_yyyy_mm_dd(this.state.end_date) + ".xlsx"
+    this.setState({
+      log: { estado: "Iniciando descarga de reporte, espere por favor" },
+      loading: true,
+    });
     await fetch(url).then((response) => {
       response.blob().then((blob) => {
         let url = window.URL.createObjectURL(blob);
@@ -216,6 +220,10 @@ class SRCalDisponibilidad extends Component {
         a.download = filename;
         a.click();
       });
+    });
+    this.setState({
+      log: { estado: "Descarga de reporte finalizado" },
+      loading: false,
     });
   }
 
@@ -385,10 +393,12 @@ class SRCalDisponibilidad extends Component {
                   onClick={this._download_excel_report}
                   disabled={this.state.loading || this.state.calculating}
                   className="donwload_excel"
+                  data-tip={SRM_API_URL + "/sRemoto/disponibilidad/json/" + this._range_time()}
                 >
                 <FontAwesomeIcon  icon={faFileExcel} size="lg" /> {" "}
                 Descargar
                 </Button>
+                <ReactTooltip />
               </Col>
               <div className="sc-body-cal">
                 <Button
