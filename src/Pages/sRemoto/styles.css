@@ -17,6 +17,10 @@
   margin: 5px;
   padding-top: 70px;
 }
+.donwload_excel{
+  float: right;
+}
+
 .sc-btn-search {
   margin-top: -9px;
   min-width: 125px;

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPencilAlt,
   faPenFancy,
-  faTag,
+  faTag, faFileExcel
 } from "@fortawesome/free-solid-svg-icons";
 import {
   DateRange,
@@ -71,7 +71,6 @@ class SRCalDisponibilidad extends Component {
       this.setState({ calculating: false, log: calculation_log });
     }
     this._search_report_now();
-    console.log(calculation_log);
   };
 
   // actualiza el valor del umbral a reportar:
@@ -205,6 +204,21 @@ class SRCalDisponibilidad extends Component {
     return node_names;
   };
 
+  // descargar reporte Excel:
+  _download_excel_report = async () =>{
+    let url = SRM_API_URL + "/sRemoto/disponibilidad/excel/" + this._range_time() + "/" + _.uniqueId(Math.random());
+    let filename = "Reporte_" + to_yyyy_mm_dd(this.state.ini_date) + "@" + to_yyyy_mm_dd(this.state.end_date) + ".xlsx"
+    await fetch(url).then((response) => {
+      response.blob().then((blob) => {
+        let url = window.URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+      });
+    });
+  }
+
   // descargar reporte de tags:
   _download_tag_report = async () => {
     let url =
@@ -222,7 +236,6 @@ class SRCalDisponibilidad extends Component {
     let filename = "IndispTag_" + to_yyyy_mm_dd(this.state.ini_date) + "@" + to_yyyy_mm_dd(this.state.end_date) + ".xlsx"
     await fetch(url).then((response) => {
       response.blob().then((blob) => {
-        console.log("blob:", blob);
         let url = window.URL.createObjectURL(blob);
         let a = document.createElement("a");
         a.href = url;
@@ -357,7 +370,7 @@ class SRCalDisponibilidad extends Component {
                 </Button>
               </Form.Label>
 
-              <Col sm="6" className="sc-search-input">
+              <Col sm="5" className="sc-search-input">
                 <Form.Control
                   type="text"
                   onBlur={this._update_search}
@@ -365,6 +378,17 @@ class SRCalDisponibilidad extends Component {
                   placeholder="Nodo a buscar"
                   disabled={this.state.calculating}
                 />
+              </Col>
+              <Col className="sc-search-input">
+                <Button
+                  variant="outline-success"
+                  onClick={this._download_excel_report}
+                  disabled={this.state.loading || this.state.calculating}
+                  className="donwload_excel"
+                >
+                <FontAwesomeIcon  icon={faFileExcel} size="lg" /> {" "}
+                Descargar
+                </Button>
               </Col>
               <div className="sc-body-cal">
                 <Button
