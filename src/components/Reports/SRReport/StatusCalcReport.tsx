@@ -49,7 +49,7 @@ class StatusCalcReport extends Component<
       return;
     }
     // consultar el estado del cálculo
-    this.timer = setInterval(() => this._inform_status(), 5500);
+    this.timer = setInterval(() => this._inform_status(), 12000);
   }
 
   componentWillUnmount() {
@@ -63,6 +63,7 @@ class StatusCalcReport extends Component<
   _handle_finish_report_status = async () => {
     this.props.onFinish(this.state.log);
   };
+
   _inform_status = async () => {
 
     if (this.state.isFinish) { 
@@ -83,7 +84,6 @@ class StatusCalcReport extends Component<
           });
           this.setState({ status: json.status });
         }
-
         this.setState({ isFetching: false, log: json }, () => { 
           this._processing_percentage();
           if (this.state.all_finished && !this.state.isFinish) {

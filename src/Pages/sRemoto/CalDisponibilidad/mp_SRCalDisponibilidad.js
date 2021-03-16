@@ -82,7 +82,7 @@ class SRCalDisponibilidad extends Component {
   };
 
   _search_report_now = async () => {
-    //" No hay resultados para la búsqueda, el cálculo en referencia no existe."
+    // buscar el reporte en el periodo
     if (String(this.state.ini_date) === String(this.state.end_date)) {
       let msg = "Seleccione fechas distintas para el cálculo";
       this.setState({
@@ -206,7 +206,7 @@ class SRCalDisponibilidad extends Component {
 
   // descargar reporte Excel:
   _download_excel_report = async () =>{
-    let url = SRM_API_URL + "/sRemoto/disponibilidad/excel/" + this._range_time() + "/" + _.uniqueId(Math.random());
+    let url = SRM_API_URL + "/sRemoto/disponibilidad/excel/" + this._range_time() + "?nid=" + _.uniqueId(Math.random());
     let filename = "Reporte_" + to_yyyy_mm_dd(this.state.ini_date) + "@" + to_yyyy_mm_dd(this.state.end_date) + ".xlsx"
     this.setState({
       log: { estado: "Iniciando descarga de reporte, espere por favor" },
@@ -235,7 +235,7 @@ class SRCalDisponibilidad extends Component {
       this._range_time() +
       "/" +
       this.state.umbral +
-      "/" +
+      "?nid=" +
       _.uniqueId(Math.random());
     this.setState({
       log: { estado: "Iniciando descarga de reporte, espere por favor" },

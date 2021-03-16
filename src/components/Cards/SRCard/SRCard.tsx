@@ -119,7 +119,6 @@ class SRCard extends Component<SRCardProps> {
   };
 
   _save_node = async () => {
-    console.log("me again");
     this.setState({ message: "Guardando en base de datos...", edited: false });
     this.onShowAlert();
     let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
@@ -205,7 +204,7 @@ class SRCard extends Component<SRCardProps> {
       this.bck_node.tipo +
       "/" +
       this.bck_node.nombre +
-      "/from-excel/" + _.uniqueId("sdfsadf");
+      "/from-excel?nid=" + _.uniqueId(Math.random());
     let name = this.bck_node.tipo + this.bck_node.nombre + ".xlsx";
     fetch(url).then((response) => {
       if (!response.ok) return;

@@ -13,6 +13,7 @@ import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { ParallelOutPortModel } from "./ParallelOutputPort";
+import { SCT_API_URL } from "../../../Constantes";
 /*
     ---- Define el modelo del nodo (Leaf Block) ----
     Tipo de puertos a colocar en el nodo: 
@@ -63,9 +64,17 @@ export class BlockNodeModel extends NodeModel<
   
   
   updatePosition = () => {
-    console.log("check", this.data.editado);
-    this.data.editado = !this.data.editado;
-    this.edited = true;
+    let path = SCT_API_URL + "/block-leaf/block-root/" + this.data.parent_id + "/block-leaf/" + this.data.public_id + "/position";
+    let body = {pos_x: this.getPosition().x, pos_y: this.getPosition().y};
+    fetch(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then((res) => res.json())
+    .then((json) => {
+      console.log(json);
+    })
+    .catch(console.log);
   };
 
 
