@@ -59,11 +59,11 @@
   font-size: 9pt;
 }
 
-.sr-node {
+.sr-average {
   box-sizing: border-box;
   white-space: nowrap;
   pointer-events: all;
-  background-color: hsla(192, 60%, 74%, 0.705);
+  background-color: hsla(211, 13%, 35%, 0.453);
   color: white;
   border-radius: 1px;
   border: black solid 1px;
@@ -229,7 +229,7 @@
   margin: 2px;
 }
 
-.ParallelPort{
+.AveragePort{
   float: right;
   height: 20px;
   width: 20px;

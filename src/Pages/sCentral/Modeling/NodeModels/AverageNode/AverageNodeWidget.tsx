@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BlockNodeModel } from "./BlockNodeModel";
+import { AverageNodeModel } from "./AverageNodeModel";
 import {
   DefaultPortLabel,
   DiagramEngine,
@@ -7,7 +7,7 @@ import {
   PortWidget,
 } from "@projectstorm/react-diagrams";
 import { SerialOutPortModel } from "./SerialOutputPort";
-import "./BlockNodeStyle.css";
+import "./AverageNodeStyle.css";
 import {
   faTrash,
   faSave,
@@ -19,10 +19,10 @@ import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
-import { ParallelOutPortModel } from "./ParallelOutputPort";
+import { AverageOutPortModel as AverageOutPortModel } from "./AverageOutputPort";
 
-export interface BlockWidgetProps {
-  node: BlockNodeModel;
+export interface AverageNodeWidgetProps {
+  node: AverageNodeModel;
   engine: DiagramEngine;
   size?: number;
   handle_messages?: Function;
@@ -35,9 +35,9 @@ export interface BlockWidgetProps {
  * 	node; 	    los tributos cambiados del nodo si se requiere
  */
 
-export class BlockWidget extends React.Component<BlockWidgetProps> {
-  bck_node: BlockNodeModel; // original node
-  node: BlockNodeModel; // edited node
+export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
+  bck_node: AverageNodeModel; // original node
+  node: AverageNodeModel; // edited node
   state = {
     edited: false,
   };
@@ -57,23 +57,23 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     }
   }
 
-  _addParallelPort = () => {
-    let newH = Object.assign([], this.node.data.parallel_connections);
+  _addAveragePort = () => {
+    let newH = Object.assign([], this.node.data.average_connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
     let p_port = {
       nombre: "Sin conexión",
-      public_id: "PPort_" + this.node.data.public_id + "_" + next_id,
+      public_id: "PAverage_" + this.node.data.public_id + "_" + next_id,
     };
     newH.push(p_port);
     // making a backup of the last node:
     this.bck_node = _.cloneDeep(this.node);
     // edititing the node:
-    this.node.data.parallel_connections = newH;
-    this.props.node.addPort(new ParallelOutPortModel(p_port.public_id));
+    this.node.data.average_connections = newH;
+    this.props.node.addPort(new AverageOutPortModel(p_port.public_id));
     this.is_edited();
   };
 
-  _deleteParallelPort = (id_port) => {
+  _deleteAveragePort = (id_port) => {
     // lista nueva de puertos
     let newH = [];
     // identificando el puerto a eliminar
@@ -86,12 +86,12 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     // removiendo el puerto
     this.props.node.removePort(port);
     // actualizando la metadata del nodo:
-    this.node.data.parallel_connections.forEach((port) => {
+    this.node.data.average_connections.forEach((port) => {
       if (port.public_id !== id_port) {
         newH.push(port);
       }
     });
-    this.node.data.parallel_connections = newH;
+    this.node.data.average_connections = newH;
     // cambiando el estado de editado:
     this.is_edited();
     let msg = { msg: "Se ha eliminado el puerto" };
@@ -137,14 +137,6 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
       return false;
     }
   };
-
-  test = () => {
-    console.log(this.bck_node);
-  };
-
-  generatePort(port) {
-    return <DefaultPortLabel port={port} engine={this.props.engine} />;
-  }
 
   /* Generación del título del nodo */
   generateTitle(node) {
@@ -208,25 +200,25 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   };
 
   /* Generando puerto en paralelo */
-  generateParallelPort = () => {
-    return this.node.data.parallel_connections.map((parallelPort) => (
-      <div key={_.uniqueId("ParallelPort")} className="Port-Container">
+  generateAveragePort = () => {
+    return this.node.data.average_connections.map((averagePort) => (
+      <div key={_.uniqueId("AveragePort")} className="Port-Container">
         <button
           data-tip="Remover este puerto"
           className="widget-delete"
-          onClick={() => this._deleteParallelPort(parallelPort.public_id)}
+          onClick={() => this._deleteAveragePort(averagePort.public_id)}
         >
           -
         </button>
         <ReactTooltip />
         <div className="ParallelLabel">
-          {parallelPort.name}{" "}
-          <span className="badge badge-warning right">ParalOut</span>
+          {averagePort.name}{" "}
+          <span className="badge badge-warning right">PromOut</span>
         </div>
 
         <PortWidget
-          className="ParallelPort"
-          port={this.props.node.getPort(parallelPort.public_id)}
+          className="AveragePort"
+          port={this.props.node.getPort(averagePort.public_id)}
           engine={this.props.engine}
         ></PortWidget>
       </div>
@@ -245,27 +237,18 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-node">
+        <div className="sr-average">
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
 
-          <button className="widget-add" onClick={this._addParallelPort}>
+          <button className="widget-add" onClick={this._addAveragePort}>
             +
           </button>
 
-          {this.generateParallelPort()}
+          {this.generateAveragePort()}
         </div>
       </div>
     );
   }
 }
 
-function name_format(name: string) {
-  const n = 9;
-  if (name.length > n) {
-    name = name.toUpperCase().substring(0, n) + ".";
-  } else {
-    name = name.toUpperCase() + ".".repeat(n - name.length) + ".";
-  }
-  return name;
-}

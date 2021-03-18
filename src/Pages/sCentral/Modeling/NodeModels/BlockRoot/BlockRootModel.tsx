@@ -1,5 +1,5 @@
 import {
-  NodeModel as RootModel,
+  NodeModel,
   NodeModelGenerics,
 } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
@@ -32,7 +32,7 @@ export interface BlockRootParams {
 
 // Aquí se definen las funciones del nodo
 
-export class BlockRootModel extends RootModel<
+export class BlockRootModel extends NodeModel<
   BlockRootParams & NodeModelGenerics
 > {
   data: Root;
@@ -41,13 +41,14 @@ export class BlockRootModel extends RootModel<
   constructor(params: { root: any }) {
     super({ type: "BlockRoot", id: params.root.public_id });
     this.data = params.root;
-    this.addPort(new OutPortModel("OutPut"));
+    this.addPort(new OutPortModel("OutBlockport"));
+    this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
   }
   
   
   updatePosition = () => {
-    let path = SCT_API_URL + "/block-leaf/block-root/" + this.data.parent_id + "/block-leaf/" + this.data.public_id + "/position";
+    let path = SCT_API_URL + "/block-root/" + this.data.public_id + "/position";
     let body = {pos_x: this.getPosition().x, pos_y: this.getPosition().y};
     fetch(path, {
       method: "PUT",
@@ -55,7 +56,6 @@ export class BlockRootModel extends RootModel<
       body: JSON.stringify(body),
     }).then((res) => res.json())
     .then((json) => {
-      console.log(json);
     })
     .catch(console.log);
   };

@@ -21,15 +21,12 @@ export class InPortModel extends PortModel {
     // 1. Input -> SerialOut
     // 2. Input -> ParallelOutputPort
     // 3. Input -> Output (conexión con root) 
-    // 4. Input -> AverageOutputPort (conexión para operación: promedio)
     const isSerialOutPort = port.getType() === "SerialOutPut";
     const isParallelOutPort = port.getType() === "ParallelOutputPort";
     const isOutPut = port.getType() === "OutBlockPort";
-    const isAverageOutPut = port.getType() === "AverageOutputPort";
     const isFreeConnect = Object.keys(port.links).length === 0;
     console.log(port.getType());
-    const connect = isFreeConnect &&
-      (isSerialOutPort || isParallelOutPort || isOutPut || isAverageOutPut);
+    const connect = isFreeConnect && (isSerialOutPort || isParallelOutPort || isOutPut);
     
     return connect;
   }

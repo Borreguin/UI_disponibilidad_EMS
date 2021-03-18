@@ -6,7 +6,7 @@ import {
   PortModelAlignment,
   PortWidget,
 } from "@projectstorm/react-diagrams";
-import "./BlockNodeStyle.css";
+import "./BlockRootStyle.css";
 import {
   faTrash,
   faSave,
@@ -60,7 +60,20 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
     //this.is_edited();
     // actualizar posición del nodo
     this.node.updatePosition();
+    this.props.engine.repaintCanvas();
   };
+
+  _disconnect_port = (port) => {
+    var links = port.getLinks();
+    for (var link in links) {
+      this.props.node.getLink(link).remove();
+    }
+    this.is_edited();
+    let msg = { msg: "Se ha realizado la desconexión" };
+    this._handle_message(msg);
+    // actualizando el Canvas
+    this.props.engine.repaintCanvas();
+  }
 
   is_edited = () => {
     if (_.isEqual(this.bck_node, this.node)) {
@@ -80,13 +93,6 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
     }
   };
 
-  test = () => {
-    console.log(this.bck_node);
-  };
-
-  generatePort(port) {
-    return <DefaultPortLabel port={port} engine={this.props.engine} />;
-  }
 
   /* Generación del título del nodo */
   generateTitle(node) {
@@ -113,19 +119,20 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
   generateInAndOutSerialPort = () => {
     return (
       <div className="Port-Container">
-        <div className="in-port" key={_.uniqueId("InPort")}>
-          <PortWidget
-            className="InPort"
-            port={this.props.node.getPort("InPut")}
-            engine={this.props.engine}
-          ></PortWidget>
-          <span className="badge badge-warning">InPut</span>
-        </div>
-        <div className="out-serial-port" key={_.uniqueId("SerialOutPort")}>
-          <span className="badge badge-warning">SerialOut</span>
+        
+        <div className="root-port" key={_.uniqueId("OutBlockport")}>
+          <span className="badge badge-warning badge-space">Root</span>
+          <button
+            data-tip="Desconectar este puerto"
+            className="widget-disconnect"
+            onClick={() => this._disconnect_port(this.props.node.getPort("OutBlockport"))}
+          >
+            -
+          </button>
+          <ReactTooltip />
           <PortWidget
             className="SerialOutPort"
-            port={this.props.node.getPort("SerialOutPut")}
+            port={this.props.node.getPort("OutBlockport")}
             engine={this.props.engine}
           ></PortWidget>
         </div>
@@ -147,7 +154,7 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-node">
+        <div className="sr-root">
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
         </div>
@@ -156,12 +163,3 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
   }
 }
 
-function name_format(name: string) {
-  const n = 9;
-  if (name.length > n) {
-    name = name.toUpperCase().substring(0, n) + ".";
-  } else {
-    name = name.toUpperCase() + ".".repeat(n - name.length) + ".";
-  }
-  return name;
-}
