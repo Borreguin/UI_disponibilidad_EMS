@@ -1,23 +1,16 @@
 import * as React from "react";
 import { WeightedAverageNodeModel } from "./WeightedAverageNodeModel";
 import {
-  DefaultPortLabel,
   DiagramEngine,
-  PortModelAlignment,
   PortWidget,
 } from "@projectstorm/react-diagrams";
-import { SerialOutPortModel } from "./SerialOutputPort";
 import "./WeightedAverageNodeStyle.css";
 import {
-  faTrash,
   faSave,
-  faToggleOn,
-  faToggleOff,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
 import { WeightedAverageOutPortModel } from "./WeightedAverageOutputPort";
 
@@ -237,7 +230,7 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-average">
+        <div className={this.props.node.valid? "sr-average": "sr-average in_error"} >
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
 

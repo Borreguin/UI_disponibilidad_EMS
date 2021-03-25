@@ -245,10 +245,9 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-node">
+        <div className={this.props.node.valid? "sr-node": "sr-node in_error"}>
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
-
           <button className="widget-add" onClick={this._addParallelPort}>
             +
           </button>
@@ -260,12 +259,3 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
   }
 }
 
-function name_format(name: string) {
-  const n = 9;
-  if (name.length > n) {
-    name = name.toUpperCase().substring(0, n) + ".";
-  } else {
-    name = name.toUpperCase() + ".".repeat(n - name.length) + ".";
-  }
-  return name;
-}

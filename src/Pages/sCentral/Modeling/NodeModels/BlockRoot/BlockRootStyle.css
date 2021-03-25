@@ -19,6 +19,10 @@
   background-color: rgb(37, 112, 182);
 }
 
+.in_error{
+  border-color: red !important;
+}
+
 .sr-root {
   box-sizing: border-box;
   white-space: nowrap;

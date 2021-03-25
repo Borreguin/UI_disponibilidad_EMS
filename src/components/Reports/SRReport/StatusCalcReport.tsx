@@ -4,7 +4,7 @@ import { Spinner, ProgressBar } from "react-bootstrap";
 import ReactJson from "react-json-view";
 import "./style.css";
 import { StatusReport } from "./Report";
-import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
+import { to_yyyy_mm_dd, to_yyyy_mm_dd_hh_mm_ss } from "../../DatePicker/DateRange";
 import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
 
 type StatusCalcReportProps = {
@@ -111,9 +111,9 @@ class StatusCalcReport extends Component<
 
   _range_time = () => {
     return (
-      to_yyyy_mm_dd(this.props.ini_date) +
+      to_yyyy_mm_dd_hh_mm_ss(this.props.ini_date) +
       "/" +
-      to_yyyy_mm_dd(this.props.end_date)
+      to_yyyy_mm_dd_hh_mm_ss(this.props.end_date)
     );
   };
 

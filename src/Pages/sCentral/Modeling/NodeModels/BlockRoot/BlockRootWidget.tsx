@@ -154,7 +154,7 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-root">
+        <div className={this.props.node.valid? "sr-root": "sr-root in_error"} >
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
         </div>

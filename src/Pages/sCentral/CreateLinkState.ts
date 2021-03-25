@@ -47,7 +47,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						// Se permite una conexión por cada puerto
 						this.sourcePort = element;
 						// Colocando los valores corresponientes para este nodo:
-						console.log("Conexión inicial");
+						// console.log("Conexión inicial");
 						const link = this.sourcePort.createLinkModel();
 						link.setSourcePort(this.sourcePort);
 						link.getFirstPoint().setPosition(el_x, el_y);
@@ -58,10 +58,12 @@ export class CreateLinkState extends State<DiagramEngine> {
 					}
 					if (element instanceof PortModel && this.sourcePort && element !== this.sourcePort) {
 						// observar restricciones de conexión
-						console.log("Conexión final", this.sourcePort, this.sourcePort.canLinkToPort(element));
+						// console.log("Conexión final", this.sourcePort, this.sourcePort.canLinkToPort(element));
 						if (this.sourcePort.canLinkToPort(element)) {
 							this.link.setTargetPort(element);
 							element.reportPosition();
+							element.getNode().performanceTune();
+							this.sourcePort.getNode().performanceTune();
 							this.clearState();
 							this.eject();
 						} 

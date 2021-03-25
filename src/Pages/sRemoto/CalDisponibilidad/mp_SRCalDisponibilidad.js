@@ -12,10 +12,11 @@ import {
   faTag, faFileExcel
 } from "@fortawesome/free-solid-svg-icons";
 import {
-  DateRange,
   to_yyyy_mm_dd,
   get_last_month_dates,
+  to_yyyy_mm_dd_hh_mm_ss,
 } from "../../../components/DatePicker/DateRange";
+import { DateRangeTime } from "../../../components/DatePicker/DateRangeTime";
 import ReactJson from "react-json-view";
 import NodeReport from "./SRCalDisponibilidad_nodes";
 import SRGeneralReport from "../../../components/Reports/SRReport/GeneralReport";
@@ -189,9 +190,9 @@ class SRCalDisponibilidad extends Component {
 
   _range_time = () => {
     return (
-      to_yyyy_mm_dd(this.state.ini_date) +
+      to_yyyy_mm_dd_hh_mm_ss(this.state.ini_date) +
       "/" +
-      to_yyyy_mm_dd(this.state.end_date)
+      to_yyyy_mm_dd_hh_mm_ss(this.state.end_date)
     );
   };
 
@@ -362,10 +363,10 @@ class SRCalDisponibilidad extends Component {
           <div className="page-content">
             <Form.Group as={Row} className="sc-search">
               <Form.Label column sm="3" className="sc-pick-menu">
-                <DateRange
+                <DateRangeTime
                   last_month={true}
                   onPickerChange={this.handle_picker_change}
-                ></DateRange>
+                ></DateRangeTime>
               </Form.Label>
               <Form.Label column sm="2" className="sc-btn-search">
                 <Button
@@ -378,7 +379,7 @@ class SRCalDisponibilidad extends Component {
                 </Button>
               </Form.Label>
 
-              <Col sm="5" className="sc-search-input">
+              <Col sm="4" className="sc-search-input">
                 <Form.Control
                   type="text"
                   onBlur={this._update_search}

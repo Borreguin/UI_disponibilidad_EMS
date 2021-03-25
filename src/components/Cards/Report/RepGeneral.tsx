@@ -16,7 +16,7 @@ import {
   faPencilAlt,
   faPenFancy,
 } from "@fortawesome/free-solid-svg-icons";
-import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
+import { to_yyyy_mm_dd_hh_mm_ss } from "../../DatePicker/DateRange";
 import "./Report.css";
 import ReactJson from "react-json-view";
 import { SRM_API_URL } from "../../../Pages/sRemoto/Constantes";
@@ -96,9 +96,9 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
 
   _range_time = () => {
     return (
-      to_yyyy_mm_dd(this.props.ini_date) +
+      to_yyyy_mm_dd_hh_mm_ss(this.props.ini_date) +
       "/" +
-      to_yyyy_mm_dd(this.props.end_date)
+      to_yyyy_mm_dd_hh_mm_ss(this.props.end_date)
     );
   };
 

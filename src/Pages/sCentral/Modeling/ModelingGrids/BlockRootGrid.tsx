@@ -1,54 +1,59 @@
-import React, { Component }  from 'react';
+import React, { Component } from "react";
 // For diagrams:
-import createEngine, { DiagramModel, DefaultNodeModel, DefaultLinkModel, PortModelAlignment} from '@projectstorm/react-diagrams';
-import { CanvasWidget, Action, ActionEvent, InputType } from '@projectstorm/react-canvas-core';
-import { StyledCanvasWidget } from '../../../../components/Diagrams/helpers/StyledCanvasWidget'
-import { SimplePortFactory } from '../../../../components/Diagrams/helpers/SimplePortFactory'
-import { SerialOutPortModel } from '../NodeModels/BlockNode/SerialOutputPort';
-import { BlockFactory} from '../NodeModels/BlockNode/BlockFactory'
-import { static_menu } from '../../../../components/SideBars/menu_type';
-import { BlockNodeModel } from '../NodeModels/BlockNode/BlockNodeModel';
-import { BlockRootModel } from '../NodeModels/BlockRoot/BlockRootModel';
-import { DefaultState } from '../../DefaultState';
-import { BlockRootFactory } from '../NodeModels/BlockRoot/BlockRootFactory';
-import { AverageNodeFactory } from '../NodeModels/AverageNode/AverageNodeFactory';
-import { AverageNodeModel } from '../NodeModels/AverageNode/AverageNodeModel';
-import { WeightedAverageNodeFactory } from '../NodeModels/WeightedAverageNode/WeightedAverageNodeFactory';
-import { WeightedAverageNodeModel } from '../NodeModels/WeightedAverageNode/WeightedAverageNodeModel';
+import createEngine, {
+  DiagramModel,
+  DefaultNodeModel,
+  DefaultLinkModel,
+  PortModelAlignment,
+} from "@projectstorm/react-diagrams";
+import {
+  CanvasWidget,
+  Action,
+  ActionEvent,
+  InputType,
+} from "@projectstorm/react-canvas-core";
+import { StyledCanvasWidget } from "../../../../components/Diagrams/helpers/StyledCanvasWidget";
+import { BlockFactory } from "../NodeModels/BlockNode/BlockFactory";
+import { static_menu } from "../../../../components/SideBars/menu_type";
+import { BlockNodeModel } from "../NodeModels/BlockNode/BlockNodeModel";
+import { BlockRootModel } from "../NodeModels/BlockRoot/BlockRootModel";
+import { DefaultState } from "../../DefaultState";
+import { BlockRootFactory } from "../NodeModels/BlockRoot/BlockRootFactory";
+import { AverageNodeFactory } from "../NodeModels/AverageNode/AverageNodeFactory";
+import { AverageNodeModel } from "../NodeModels/AverageNode/AverageNodeModel";
+import { WeightedAverageNodeFactory } from "../NodeModels/WeightedAverageNode/WeightedAverageNodeFactory";
+import { WeightedAverageNodeModel } from "../NodeModels/WeightedAverageNode/WeightedAverageNodeModel";
+import { TrayWidget } from "../NodeModels/DragAndDropWidget/TrayWidget";
+import { TrayItemWidget } from "../NodeModels/DragAndDropWidget/TrayItemWidget";
+import "../NodeModels/DragAndDropWidget/styles.css";
+import * as _ from "lodash";
 
 type BlockRootGridProps = {
-    static_menu: static_menu
-}
+  static_menu: static_menu;
+};
 
+class BlockRootGrid extends Component<BlockRootGridProps> {
+  shouldComponentUpdate(nexProps, nextState) {
+    return false;
+  }
 
-class BlockRootGrid extends Component<BlockRootGridProps>{ 
+  render() {
+    const { static_menu } = this.props;
+    let blocks = static_menu.blocks;
+    //1) setup the diagram engine
+    // IMPORTANTE: No se registra la manera por defecto de eliminar elementos
+    let engine = createEngine({ registerDefaultDeleteItemsAction: false });
+    let model = new DiagramModel();
 
-    shouldComponentUpdate(nexProps, nextState) { 
-        return false;
-    }
+    // 1.a) Register factories: Puertos y Nodos
+    engine.getNodeFactories().registerFactory(new BlockFactory());
+    engine.getNodeFactories().registerFactory(new BlockRootFactory());
 
-    render() { 
-        const { static_menu } = this.props;
-        let blocks = static_menu.blocks;
-         //1) setup the diagram engine
-        // IMPORTANTE: No se registra la manera por defecto de eliminar elementos 
-        const engine = createEngine({ registerDefaultDeleteItemsAction: false });
-        const model = new DiagramModel();
-        
-        // 1.a) Register factories: Puertos y Nodos 
-        engine.getNodeFactories()
-            .registerFactory(new BlockFactory());
-        engine.getNodeFactories()
-            .registerFactory(new BlockRootFactory());
-        
-        engine.getNodeFactories()
-            .registerFactory(new AverageNodeFactory());
-        
-        engine.getNodeFactories()
-            .registerFactory(new WeightedAverageNodeFactory());
-        
-        
-        /* 
+    engine.getNodeFactories().registerFactory(new AverageNodeFactory());
+
+    engine.getNodeFactories().registerFactory(new WeightedAverageNodeFactory());
+
+    /* 
             Esta grid permite el manejo de bloques leafs.
             Se transforma a las siguientes estructuras de datos:
         From:
@@ -79,75 +84,112 @@ class BlockRootGrid extends Component<BlockRootGridProps>{
             serial_connection: Node | undefined;
         };
         */
-        var root_data = static_menu.object;
-        let Root = {
-            name: root_data["name"],
-            type: root_data["document"],
-            editado: false,
-            public_id: root_data["public_id"],
-            parent_id: null,
-            posx: root_data["position_x_y"][0],
-            posy: root_data["position_x_y"][1],
-        }
-        var root = new BlockRootModel({ root: Root });
-        model.addNode(root);
+    var root_data = static_menu.object;
+    let Root = {
+      name: root_data["name"],
+      type: root_data["document"],
+      editado: false,
+      public_id: root_data["public_id"],
+      parent_id: null,
+      posx: root_data["position_x_y"][0],
+      posy: root_data["position_x_y"][1],
+    };
+    var root = new BlockRootModel({ root: Root });
+    model.addNode(root);
 
-        let w_average_data = {
-            name: "PROMEDIO PONDERADO",
-            type: "WeightedAverageNode",
-            editado: false,
-            public_id: "string1",
-            parent_id: "string2",
-            posx: 200,
-            posy: 250,
-            average_connections: [],
-            serial_connection: [],
-        }
+    blocks.forEach((block) => {
+      let Node = {
+        name: block.name,
+        editado: false,
+        public_id: block.public_id,
+        parent_id: static_menu.public_id,
+        posx: block.object["position_x_y"][0],
+        posy: block.object["position_x_y"][1],
+        parallel_connections: [],
+      };
+      let node = new BlockNodeModel({ node: Node });
+      model.addNode(node);
+    });
 
-        var w_average_nodo = new WeightedAverageNodeModel({ node: w_average_data });
-        model.addNode(w_average_nodo);
-        
-        let Average_data = {
-            name: "PROMEDIO",
-            type: "AverageNode",
-            editado: false,
-            public_id: "string3",
-            parent_id: "string4",
-            posx: 150,
-            posy: 150,
-            average_connections: [],
-            serial_connection: [],
-        }
+    engine.setModel(model);
+    // Use this custom "DefaultState" instead of the actual default state we get with the engine
+    engine.getStateMachine().pushState(new DefaultState());
 
-        var average_nodo = new AverageNodeModel({ node: Average_data });
-        model.addNode(average_nodo);
-
-
-        
-
-
-        blocks.forEach((block) => { 
-            let Node = {
-                name: block.name,
+    return (
+      <>
+        <TrayWidget>
+          <TrayItemWidget
+            model={{ type: "AverageNode" }}
+            name="Promedio"
+            color="rgb(192,255,0)"
+          />
+          <TrayItemWidget
+            model={{ type: "WeightedAverageNode" }}
+            name="Promedio ponderado"
+            color="rgb(0,192,255)"
+          />
+        </TrayWidget>
+        <div
+          className="Layer"
+          onDrop={(event) => {
+            var data = JSON.parse(
+              event.dataTransfer.getData("storm-diagram-node")
+            );
+            /*var nodesCount = _.keys(
+                        this.props.app
+                            .getDiagramEngine()
+                            .getModel()
+                            .getNodes()
+                    ).length;*/
+            console.log("me working", engine.getModel().getNodes(), data);
+            var node = null;
+            if (data.type === "AverageNode") {
+              // Nodo de tipo promedio
+              let Average_data = {
+                name: "PROMEDIO",
+                type: "AverageNode",
                 editado: false,
-                public_id: block.public_id,
-                parent_id: static_menu.public_id,
-                posx: block.object["position_x_y"][0],
-                posy: block.object["position_x_y"][1],
-                parallel_connections: []
+                public_id: _.uniqueId("AverageNode_"),
+                parent_id: root_data["public_id"],
+                average_connections: [],
+                serial_connection: [],
+              };
+              node = new AverageNodeModel({ node: Average_data });
+              // añadiendo mínimo 2 puertos paralelos:
+              node.addAveragePort();
+              node.addAveragePort();
+            } else if (data.type === "WeightedAverageNode") {
+              // Nodo de tipo promedio ponderado 
+              let w_average_data = {
+                name: "PROMEDIO PONDERADO",
+                type: "WeightedAverageNode",
+                editado: false,
+                public_id: _.uniqueId("WeightedAverageNode_"),
+                parent_id: root_data["public_id"],
+                average_connections: [],
+                serial_connection: [],
+              };
+              node = new WeightedAverageNodeModel({ node: w_average_data });
+              
             }
-            let node = new BlockNodeModel({ node: Node });
+            console.log(node);
+            var point = engine.getRelativeMousePoint(event);
+            node.setPosition(point);
             model.addNode(node);
-        });
-
-      
-        engine.setModel(model);
-        // Use this custom "DefaultState" instead of the actual default state we get with the engine
-	    engine.getStateMachine().pushState(new DefaultState());
-        return(<StyledCanvasWidget className="grid">
-            <CanvasWidget  engine={engine} />
-        </StyledCanvasWidget>)
-    }
+            console.log("me working 2", engine.getModel().getNodes());
+            engine.repaintCanvas();
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <StyledCanvasWidget className="grid">
+            <CanvasWidget engine={engine} />
+          </StyledCanvasWidget>
+        </div>
+      </>
+    );
+  }
 }
 
 export default BlockRootGrid;

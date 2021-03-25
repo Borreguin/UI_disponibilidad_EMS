@@ -22,10 +22,12 @@ export class OutPortModel extends PortModel {
     const isInPort = port.getType() === "InPort";
     const isFreeConnect = Object.keys(port.links).length === 0;
     const connect = isFreeConnect && (isInPort);
+    console.log("evaluate connection");
     return connect;
   }
 
   createLinkModel(): LinkModel {
+    console.log("Creating link")
     return new DefaultLinkModel();
   }
 

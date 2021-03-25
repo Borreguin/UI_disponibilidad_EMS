@@ -58,45 +58,28 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
   }
 
   _addAveragePort = () => {
-    let newH = Object.assign([], this.node.data.average_connections);
-    let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
-    let p_port = {
-      nombre: "Sin conexión",
-      public_id: "PAverage_" + this.node.data.public_id + "_" + next_id,
-    };
-    newH.push(p_port);
     // making a backup of the last node:
     this.bck_node = _.cloneDeep(this.node);
-    // edititing the node:
-    this.node.data.average_connections = newH;
-    this.props.node.addPort(new AverageOutPortModel(p_port.public_id));
+    // añadiendo puerto:
+    var resp = this.node.addAveragePort();
+    this.node.data = resp.data;
+    // actualizando estado de editado
     this.is_edited();
+    this.props.engine.repaintCanvas();
   };
 
   _deleteAveragePort = (id_port) => {
-    // lista nueva de puertos
-    let newH = [];
-    // identificando el puerto a eliminar
-    var port = this.props.node.getPort(id_port);
-    // eliminando los links conectados a este puerto
-    var links = this.props.node.getPort(id_port).getLinks();
-    for (var link in links) {
-      this.props.node.getLink(link).remove();
+  
+    // identificando si es posible eliminar el puerto:
+    if (Object.keys(this.props.node.getPorts()).length <= 4) {
+      let msg = { msg: "No se puede eliminar este puerto" };
+      this._handle_message(msg);
+      return;
     }
-    // removiendo el puerto
-    this.props.node.removePort(port);
-    // actualizando la metadata del nodo:
-    this.node.data.average_connections.forEach((port) => {
-      if (port.public_id !== id_port) {
-        newH.push(port);
-      }
-    });
-    this.node.data.average_connections = newH;
-    // cambiando el estado de editado:
+    // eliminando el puerto y links
+    var resp = this.node.deleteAveragePort(id_port);
+    this.node.data = resp.data;
     this.is_edited();
-    let msg = { msg: "Se ha eliminado el puerto" };
-    this._handle_message(msg);
-    // actualizando el Canvas
     this.props.engine.repaintCanvas();
   };
 
@@ -237,7 +220,7 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className="sr-average">
+        <div className={this.props.node.valid? "sr-average": "sr-average in_error"}>
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
 

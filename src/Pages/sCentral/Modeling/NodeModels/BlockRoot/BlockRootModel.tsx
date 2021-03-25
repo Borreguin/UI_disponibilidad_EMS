@@ -37,6 +37,7 @@ export class BlockRootModel extends NodeModel<
 > {
   data: Root;
   edited: boolean;
+  valid: boolean;
 
   constructor(params: { root: any }) {
     super({ type: "BlockRoot", id: params.root.public_id });
@@ -44,6 +45,7 @@ export class BlockRootModel extends NodeModel<
     this.addPort(new OutPortModel("OutBlockport"));
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
+    this.valid = false;
   }
   
   
@@ -59,6 +61,20 @@ export class BlockRootModel extends NodeModel<
     })
     .catch(console.log);
   };
+
+  validate = () => {
+    let valid = true;
+    for (var name_port in this.getPorts()) {
+      var port = this.getPorts()[name_port];
+      valid = valid && Object.keys(port.links).length === 1;
+    }
+    this.valid = valid;
+  }
+
+  performanceTune = () => {
+    this.validate();
+    return true;
+  }
 
   setRootInfo(_root: Root) {
     this.data = _root;

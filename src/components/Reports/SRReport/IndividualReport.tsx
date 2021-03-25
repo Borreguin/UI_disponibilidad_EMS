@@ -10,7 +10,7 @@ import {
   faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { to_yyyy_mm_dd } from "../../DatePicker/DateRange";
+import { to_yyyy_mm_dd, to_yyyy_mm_dd_hh_mm_ss } from "../../DatePicker/DateRange";
 import ReactTooltip from "react-tooltip";
 import DetailReport from "./DetailReport";
 import ReactJson from "react-json-view";
@@ -119,9 +119,9 @@ class IndividualReport extends Component<IndReportProps, IndReportState> {
 
   _range_time = () => {
     return (
-      to_yyyy_mm_dd(this.props.ini_date) +
+      to_yyyy_mm_dd_hh_mm_ss(this.props.ini_date) +
       "/" +
-      to_yyyy_mm_dd(this.props.end_date)
+      to_yyyy_mm_dd_hh_mm_ss(this.props.end_date)
     );
   };
 

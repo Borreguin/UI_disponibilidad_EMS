@@ -33,7 +33,8 @@
   padding-right: 0px;
   margin-right: 2px;
   margin-left: 2px;
-  min-width: 270px;
+  min-width: 300px;
+  max-width: 310px;
 }
 
 .sc-search-input{
@@ -44,6 +45,7 @@
 
 .btn-search {
   width: 100% !important;
+  margin-left: 5px;
 }
 
 .btn-add-node {

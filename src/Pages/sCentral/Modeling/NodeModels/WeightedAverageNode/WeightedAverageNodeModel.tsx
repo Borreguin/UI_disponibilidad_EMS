@@ -44,6 +44,7 @@ export class WeightedAverageNodeModel extends NodeModel<
 > {
   data: WeightedAverageNode;
   edited: boolean;
+  valid: boolean;
 
   constructor(params: { node: any }) {
     super({ type: "WeightedAverageNode", id: params.node.public_id });
@@ -56,8 +57,27 @@ export class WeightedAverageNodeModel extends NodeModel<
     });
       this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
+    this.valid = false;
   }
   
+  // Permite validar que el elemento ha sido correctamente conectado
+  validate = () => {
+    let valid = true;
+    for (var type_port in this.getPorts()) {
+      // todos los nodos deben estar conectados 
+      // a excepción del puerto SerialOutPut ya que es opcional
+      if (type_port !== "SerialOutPut") {
+        var port = this.getPorts()[type_port];
+        valid = valid && Object.keys(port.links).length === 1;
+      }
+    }
+    this.valid = valid;
+  }
+
+  performanceTune = () => {
+    this.validate();
+    return true;
+  }
   
   updatePosition = () => {
     let path = SCT_API_URL + "/block-leaf/block-root/" + this.data.parent_id + "/block-leaf/" + this.data.public_id + "/position";
@@ -73,28 +93,5 @@ export class WeightedAverageNodeModel extends NodeModel<
     .catch(console.log);
   };
 
-  setNodeInfo(data: WeightedAverageNode) {
-    this.data = data;
-  }
-
-  addInPort(label) {
-    return this.addPort(
-      new DefaultPortModel(true, _.uniqueId("InPort"), label)
-    );
-  }
-  addOutPort(label) {
-    return this.addPort(
-      new DefaultPortModel(false, _.uniqueId("OutPort"), label)
-    );
-  }
-  getInPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return portModel.in;
-    });
-  }
-  getOutPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return !portModel.in;
-    });
-  }
+  
 }

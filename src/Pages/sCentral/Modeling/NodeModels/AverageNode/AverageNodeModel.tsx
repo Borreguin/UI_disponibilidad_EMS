@@ -24,6 +24,11 @@ import { SCT_API_URL } from "../../../Constantes";
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
 
+export type PortData = {
+  name: string,
+  public_id: string
+}
+
 export type AverageNode = {
   name: string,
   type: string,
@@ -32,8 +37,8 @@ export type AverageNode = {
   parent_id?: string,
   posx: number,
   posy: number,
-  average_connections: Array<AverageNode>,
-  serial_connection: AverageNode | undefined,
+  average_connections: Array<PortData>,
+  serial_connection: PortData | undefined,
 };
 
 export interface AverageNodeParams {
@@ -48,6 +53,7 @@ export class AverageNodeModel extends NodeModel<
 > {
   data: AverageNode;
   edited: boolean;
+  valid: boolean;
 
   constructor(params: { node: any }) {
     super({ type: "AverageNode", id: params.node.public_id });
@@ -59,7 +65,8 @@ export class AverageNodeModel extends NodeModel<
       this.addPort(new AverageOutPortModel(parallel.public_id));
     });
       this.setPosition(this.data.posx, this.data.posy);
-    this.edited = false;
+  this.edited = false;
+  this.valid = false;
   }
   
   
@@ -77,28 +84,62 @@ export class AverageNodeModel extends NodeModel<
     .catch(console.log);
   };
 
+  // Permite validar que el elemento ha sido correctamente conectado
+  validate = () => {
+    let valid = true;
+    for (var type_port in this.getPorts()) {
+      // todos los nodos deben estar conectados 
+      // a excepción del puerto SerialOutPut ya que es opcional
+      if (type_port !== "SerialOutPut") {
+        var port = this.getPorts()[type_port];
+        valid = valid && Object.keys(port.links).length === 1;
+      }
+    }
+    this.valid = valid;
+  }
+
+  performanceTune = () => {
+    this.validate();
+    return true;
+  }
+
   setNodeInfo(data: AverageNode) {
     this.data = data;
   }
 
-  addInPort(label) {
-    return this.addPort(
-      new DefaultPortModel(true, _.uniqueId("InPort"), label)
-    );
+  addAveragePort = () => {
+    let newH = Object.assign([], this.data.average_connections);
+    let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
+    let p_port = {
+      name: "",
+      public_id: "PAverage_" + this.data.public_id + "_" + next_id,
+    };
+    newH.push(p_port);
+    // edititing the node:
+    this.data.average_connections = newH;
+    this.addPort(new AverageOutPortModel(p_port.public_id));
+    return {data:this.data}
   }
-  addOutPort(label) {
-    return this.addPort(
-      new DefaultPortModel(false, _.uniqueId("OutPort"), label)
-    );
-  }
-  getInPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return portModel.in;
+
+  deleteAveragePort = (id_port) => {
+    let newH = [];
+    // eliminando los links conectados a este puerto
+    var port = this.getPort(id_port);
+    var links = this.getPort(id_port).getLinks();
+    for (var link in links) {
+      this.getLink(link).remove();
+    }
+    // removiendo el puerto
+    this.removePort(port);
+    // actualizando la metadata del nodo:
+    this.data.average_connections.forEach((port) => {
+      if (port.public_id !== id_port) {
+        newH.push(port);
+      }
     });
+    // edititing the node:
+    this.data.average_connections = newH;
+    return {data:this.data}
   }
-  getOutPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return !portModel.in;
-    });
-  }
+ 
 }

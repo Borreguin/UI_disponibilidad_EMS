@@ -42,7 +42,12 @@ class SCManage extends Component {
   a_evaluar = true;
 
   async componentDidMount() {
-    this._search_root_block();
+    await this._search_root_block();
+    // Seleccionar la primera por defecto al empezar 
+    if (this.state.sidebar_menu !== undefined && this.state.sidebar_menu[0] !== undefined
+      && this.state.sidebar_menu[0]["static_menu"] !== undefined) {
+      this.handle_click_menu_button(this.state.sidebar_menu[0]["static_menu"], undefined);
+    }
   }
 
   // HOOKS SECTION:
@@ -71,6 +76,8 @@ class SCManage extends Component {
 
   // Manejar el botón en el menú cuando se selecciona:
   handle_click_menu_button = (selected_static_menu, selected_block) => {
+    console.log("check this", selected_static_menu)
+    console.log("and this", selected_block);
     // obtener el sidebar usando los últimos cambios
     let sidebar = this._root_block_to_sidebar_menu(
       this.state.root_block,
@@ -236,7 +243,6 @@ class SCManage extends Component {
 
   evaluate = () =>{ 
     var check = this.state.selected_static_menu !== undefined && this.state.selected_block === undefined;
-    console.log("evaluando", check);
     return check;
   }
 

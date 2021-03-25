@@ -48,6 +48,7 @@ export class BlockNodeModel extends NodeModel<
 > {
   data: Node;
   edited: boolean;
+  valid: boolean;
 
   constructor(params: { node: any }) {
     super({ type: "BlockNode", id: params.node.public_id });
@@ -60,6 +61,7 @@ export class BlockNodeModel extends NodeModel<
     });
       this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
+    this.valid = false;
   }
   
   
@@ -77,39 +79,29 @@ export class BlockNodeModel extends NodeModel<
     .catch(console.log);
   };
 
+  // Permite validar que el elemento ha sido correctamente conectado
+  validate = () => {
+    let valid = true;
+    for (var type_port in this.getPorts()) {
+      // todos los nodos deben estar conectados 
+      // a excepción del puerto SerialOutPut ya que es opcional
+      if (type_port !== "SerialOutPut") {
+        var port = this.getPorts()[type_port];
+        valid = valid && Object.keys(port.links).length === 1;
+      }
+    }
+    this.valid = valid;
+  }
 
+  performanceTune = () => {
+    this.validate();
+    return true;
+  }
 
 
   setNodeInfo(_node: Node) {
     this.data = _node;
   }
 
-  addNextPort(label: any) {
-    this.addPort(new SRPortModel(PortModelAlignment.RIGHT));
-  }
-
-  generateNextPort = (port) => {
-    this.addPort(new SRPortModel(PortModelAlignment.RIGHT));
-  };
-
-  addInPort(label) {
-    return this.addPort(
-      new DefaultPortModel(true, _.uniqueId("InPort"), label)
-    );
-  }
-  addOutPort(label) {
-    return this.addPort(
-      new DefaultPortModel(false, _.uniqueId("OutPort"), label)
-    );
-  }
-  getInPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return portModel.in;
-    });
-  }
-  getOutPorts() {
-    return _.filter(this.ports, (portModel) => {
-      return !portModel.in;
-    });
-  }
+  
 }
