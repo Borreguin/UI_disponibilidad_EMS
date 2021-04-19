@@ -17,8 +17,9 @@
   margin: 5px;
   padding-top: 70px;
 }
-.donwload_excel{
-  float: right;
+.download_excel{
+  height: 35px;
+  overflow: hidden;
 }
 
 .sc-btn-search {
@@ -28,19 +29,20 @@
 }
 
 .sc-pick-menu {
-  margin-top: -2px;
-  padding-left:  0px;
-  padding-right: 0px;
-  margin-right: 2px;
-  margin-left: 2px;
-  min-width: 300px;
-  max-width: 310px;
+  padding: 4px;
+  min-width: 340px;
+  max-width: 360px;
+  height: 40px;
+}
+
+.bt-download{
+  height: 35px;
+  padding: 1px !important;
 }
 
 .sc-search-input{
   margin-top: -2px;
-  margin-left: -15px;
-  padding: 1;
+  padding: 1px !important;
 }
 
 .btn-search {
@@ -65,8 +67,9 @@
 .btn-cal-disp{
   float: left;
   height: 30px;
-  width: 33%;
+  width: 25%;
   padding: 1px;
+  border-radius: 4px;
   background-color: rgba(20, 57, 110, 0.685);
 }
 

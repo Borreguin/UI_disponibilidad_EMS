@@ -24,20 +24,16 @@ export const to_yyyy_mm_dd_hh_mm_ss = (date:Date) => {
 
 export const get_last_month_dates = () => { 
   let now = new Date();
+  let first_day_month = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1
+  );
   let last_day_month = new Date(
     now.getFullYear(),
     now.getMonth(),
-    now.getDate()
+    0
   );
-  let first_day_month = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  );
-  first_day_month.setMonth(now.getMonth() - 1);
-  first_day_month.setDate(1);
-  last_day_month.setDate(0);
-  
   return {first_day_month:first_day_month, last_day_month:last_day_month}
 
 }

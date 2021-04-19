@@ -103,7 +103,7 @@ class SRModelingRTU extends Component<SRModelingRTUProps, SRModelingRTUState> {
     this.state.utrs.forEach((utr, ix) => {
       options.push(<option key={ix}>{utr.id_utr}</option>);
     });
-    this.setState({ options: options });
+    this.setState({ options: options});
   };
 
   // Trae la lista de RTUs de este nodo e identidad
@@ -118,7 +118,9 @@ class SRModelingRTU extends Component<SRModelingRTUProps, SRModelingRTUState> {
       .then((res) => res.json())
       .then((json) => {
         if (json.success) {
-          this.setState({ utrs: json.utrs });
+          let utrs = json.utrs;
+          utrs.sort((a, b) => (a.utr_nombre > b.utr_nombre ? 1 : -1));
+          this.setState({ utrs: utrs });
         }
         this._rtu_options();
       })

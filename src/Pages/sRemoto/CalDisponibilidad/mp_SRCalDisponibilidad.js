@@ -362,13 +362,13 @@ class SRCalDisponibilidad extends Component {
           <DefaultSideBar menu={menu()} pinned={this.state.pinned} />
           <div className="page-content">
             <Form.Group as={Row} className="sc-search">
-              <Form.Label column sm="3" className="sc-pick-menu">
+              <Form.Label column sm="4" className="sc-pick-menu">
                 <DateRangeTime
                   last_month={true}
                   onPickerChange={this.handle_picker_change}
                 ></DateRangeTime>
               </Form.Label>
-              <Form.Label column sm="2" className="sc-btn-search">
+              <Form.Label column sm="1" className="sc-btn-search">
                 <Button
                   variant="outline-dark"
                   onClick={this._search_report_now}
@@ -379,7 +379,7 @@ class SRCalDisponibilidad extends Component {
                 </Button>
               </Form.Label>
 
-              <Col sm="4" className="sc-search-input">
+              <Col column sm="4" className="sc-search-input">
                 <Form.Control
                   type="text"
                   onBlur={this._update_search}
@@ -388,19 +388,7 @@ class SRCalDisponibilidad extends Component {
                   disabled={this.state.calculating}
                 />
               </Col>
-              <Col className="sc-search-input">
-                <Button
-                  variant="outline-success"
-                  onClick={this._download_excel_report}
-                  disabled={this.state.loading || this.state.calculating}
-                  className="donwload_excel"
-                  data-tip={SRM_API_URL + "/sRemoto/disponibilidad/json/" + this._range_time()}
-                >
-                <FontAwesomeIcon  icon={faFileExcel} size="lg" /> {" "}
-                Descargar
-                </Button>
-                <ReactTooltip />
-              </Col>
+              
               <div className="sc-body-cal">
                 <Button
                   variant="outline-light"
@@ -426,6 +414,23 @@ class SRCalDisponibilidad extends Component {
                   <FontAwesomeIcon inverse icon={faPenFancy} size="lg" />{" "}
                   RE-ESCRIBIR CÁLCULO
                 </Button>
+                
+                <Button
+                  variant="outline-light"
+                  onClick={this._download_excel_report}
+                  
+                  className={
+                    this.state.loading || this.state.calculating
+                      ? "btn-cal-disp btn-dis"
+                      : "btn-cal-disp"
+                  }
+                  data-tip={SRM_API_URL + "/sRemoto/disponibilidad/json/" + this._range_time()}
+                >
+                <FontAwesomeIcon inverse icon={faFileExcel} size="lg" /> {" "}
+                DESCARGAR
+                </Button>
+                <ReactTooltip />
+
                 <div
                   className={
                     this.state.loading || this.state.calculating
@@ -454,6 +459,9 @@ class SRCalDisponibilidad extends Component {
                 </div>
                 <ReactTooltip />
               </div>
+              
+               
+              
             </Form.Group>
             <div className="div-cards">
               {this.state.report === undefined ? (
