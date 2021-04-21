@@ -24,6 +24,11 @@ import { SCT_API_URL } from "../../../Constantes";
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
 
+export type PortData = {
+  name: string;
+  public_id: string;
+};
+
 export type Node = {
   name: string,
   type: string,
@@ -32,8 +37,8 @@ export type Node = {
   parent_id?: string,
   posx: number,
   posy: number,
-  parallel_connections: Array<Node>,
-  serial_connection: Node | undefined,
+  parallel_connections: Array<PortData>,
+  serial_connection: PortData | undefined,
 };
 
 export interface BlockNodeParams {

@@ -204,7 +204,7 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
 
   /* Generando puerto en paralelo */
   generateAveragePort = () => {
-    return this.node.data.average_connections.map((averagePort) => (
+    return this.node.data.connections.map((averagePort) => (
       <div key={_.uniqueId("AveragePort")} className="Port-Container">
         <button
           data-tip="Remover este puerto"

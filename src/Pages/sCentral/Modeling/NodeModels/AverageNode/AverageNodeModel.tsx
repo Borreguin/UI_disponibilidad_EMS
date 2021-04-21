@@ -1,13 +1,8 @@
 import {
   NodeModel,
   NodeModelGenerics,
-  PortModelAlignment,
 } from "@projectstorm/react-diagrams";
-import { SRPortModel } from "../../../../../components/Diagrams/Nodes/SRNode/SRPortModel";
-import { static_menu } from "../../../../../components/SideBars/menu_type";
-import { bloqueleaf } from "../../../types";
 import { SerialOutPortModel } from "./SerialOutputPort";
-import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { AverageOutPortModel as AverageOutPortModel } from "./AverageOutputPort";
@@ -28,14 +23,14 @@ export type PortData = {
 };
 
 export type AverageNode = {
+  public_id: string;
   name: string;
   type: string;
   editado: boolean;
-  public_id: string;
   parent_id?: string;
   posx: number;
   posy: number;
-  average_connections: Array<PortData>;
+  connections: Array<PortData>;
   serial_connection: PortData | undefined;
 };
 
@@ -59,7 +54,7 @@ export class AverageNodeModel extends NodeModel<
     this.addPort(new SerialOutPortModel("SerialOutPut"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.average_connections.forEach((parallel) => {
+    this.data.connections.forEach((parallel) => {
       this.addPort(new AverageOutPortModel(parallel.public_id));
     });
     this.setPosition(this.data.posx, this.data.posy);
@@ -89,7 +84,8 @@ export class AverageNodeModel extends NodeModel<
     }
     let operation = {
       public_id: this.data.public_id,
-      operation_type: this.data.name,
+      name: this.data.name,
+      type: this.data.type,
       operator_ids: operator_ids,
       position_x_y: [this.getPosition().x, this.getPosition().y],
     };
@@ -141,7 +137,7 @@ export class AverageNodeModel extends NodeModel<
   }
 
   addAveragePort = () => {
-    let newH = Object.assign([], this.data.average_connections);
+    let newH = Object.assign([], this.data.connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
     let p_port = {
       name: "",
@@ -149,7 +145,7 @@ export class AverageNodeModel extends NodeModel<
     };
     newH.push(p_port);
     // edititing the node:
-    this.data.average_connections = newH;
+    this.data.connections = newH;
     this.addPort(new AverageOutPortModel(p_port.public_id));
     return { data: this.data };
   };
@@ -165,13 +161,13 @@ export class AverageNodeModel extends NodeModel<
     // removiendo el puerto
     this.removePort(port);
     // actualizando la metadata del nodo:
-    this.data.average_connections.forEach((port) => {
+    this.data.connections.forEach((port) => {
       if (port.public_id !== id_port) {
         newH.push(port);
       }
     });
     // edititing the node:
-    this.data.average_connections = newH;
+    this.data.connections = newH;
     return { data: this.data };
   };
 }

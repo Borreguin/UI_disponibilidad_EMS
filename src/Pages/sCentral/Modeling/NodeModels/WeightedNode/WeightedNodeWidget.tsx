@@ -204,7 +204,7 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
 
   /* Generando puerto en paralelo */
   generateWeightedPort = () => {
-    return this.node.data.weighted_connections.map((port) => (
+    return this.node.data.connections.map((port) => (
       <div key={_.uniqueId("WeightedPort")} className="Port-Container">
         <button
           data-tip="Remover este puerto"

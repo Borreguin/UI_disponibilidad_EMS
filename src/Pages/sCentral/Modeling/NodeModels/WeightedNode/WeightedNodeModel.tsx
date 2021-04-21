@@ -15,7 +15,7 @@ import { SCT_API_URL } from "../../../Constantes";
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
 
-export type WeightedPortData = {
+export type PortData = {
   name: string;
   public_id: string;
   weight?: number;
@@ -29,8 +29,8 @@ export type WeightedNode = {
   parent_id?: string;
   posx: number;
   posy: number;
-  weighted_connections: Array<WeightedPortData>;
-  serial_connection: WeightedPortData | undefined;
+  connections: Array<PortData>;
+  serial_connection: PortData | undefined;
 };
 
 export interface WeightedNodeParams {
@@ -53,7 +53,7 @@ export class WeightedNodeModel extends NodeModel<
     this.addPort(new SerialOutPortModel("SerialOutPut"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.weighted_connections.forEach((parallel) => {
+    this.data.connections.forEach((parallel) => {
       this.addPort(new WeightedOutPortModel(parallel.public_id));
     });
     this.setPosition(this.data.posx, this.data.posy);
@@ -90,7 +90,7 @@ export class WeightedNodeModel extends NodeModel<
     let operator_ids = [];
     for (var id_port in ports) {
       let port = ports[id_port];
-      if (port.getType() === "AverageOutputPort") {
+      if (port.getType() === "WeightedPort") {
         let links = port.getLinks();
         for (var id_link in links) {
           let link = links[id_link];
@@ -106,7 +106,8 @@ export class WeightedNodeModel extends NodeModel<
     }
     let operation = {
       public_id: this.data.public_id,
-      operation_type: this.data.name,
+      name: this.data.name,
+      type: this.data.type,
       operator_ids: operator_ids,
       position_x_y: [this.getPosition().x, this.getPosition().y],
     };
@@ -135,7 +136,7 @@ export class WeightedNodeModel extends NodeModel<
   };
 
   addWeightedPort = () => {
-    let newH = Object.assign([], this.data.weighted_connections);
+    let newH = Object.assign([], this.data.connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
     let p_port = {
       name: "",
@@ -143,7 +144,7 @@ export class WeightedNodeModel extends NodeModel<
     };
     newH.push(p_port);
     // edititing the node:
-    this.data.weighted_connections = newH;
+    this.data.connections = newH;
     this.addPort(new WeightedOutPortModel(p_port.public_id));
     return {data:this.data}
   }
@@ -159,13 +160,13 @@ export class WeightedNodeModel extends NodeModel<
     // removiendo el puerto
     this.removePort(port);
     // actualizando la metadata del nodo:
-    this.data.weighted_connections.forEach((port) => {
+    this.data.connections.forEach((port) => {
       if (port.public_id !== id_port) {
         newH.push(port);
       }
     });
     // edititing the node:
-    this.data.weighted_connections = newH;
+    this.data.connections = newH;
     return { data: this.data };
   }
 

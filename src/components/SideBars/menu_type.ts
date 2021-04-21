@@ -21,7 +21,32 @@ export type static_menu = {
     public_id: string,
     icon?: IconDefinition,
     blocks?: Array<block>,
-    object?: Object
+    object?: properties
+}
+
+export type properties = {
+    public_id: string,
+    document: string,
+    name: string,
+    position_x_y: Array<Number>,
+    block_leafs: Array<block_leaf>,
+    operation_blocks: Array<operation_block>
+}
+
+export type block_leaf = {
+    public_id: string,
+    calculation_type: string,
+    document: string,
+    name: string,
+    position_x_y: Array<Number>
+}
+
+export type operation_block = {
+    public_id: string,
+    name: string,
+    type: string,
+    operator_ids: Array<string>,
+    position_x_y: Array<Number>
 }
 
 export type block = {
