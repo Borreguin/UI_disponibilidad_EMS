@@ -21,8 +21,8 @@ import { DefaultState } from "../../DefaultState";
 import { BlockRootFactory } from "../NodeModels/BlockRoot/BlockRootFactory";
 import { AverageNodeFactory } from "../NodeModels/AverageNode/AverageNodeFactory";
 import { AverageNodeModel } from "../NodeModels/AverageNode/AverageNodeModel";
-import { WeightedAverageNodeFactory } from "../NodeModels/WeightedAverageNode/WeightedAverageNodeFactory";
-import { WeightedAverageNodeModel } from "../NodeModels/WeightedAverageNode/WeightedAverageNodeModel";
+import { WeightedNodeFactory } from "../NodeModels/WeightedNode/WeightedNodeFactory";
+import { WeightedNodeModel } from "../NodeModels/WeightedNode/WeightedNodeModel";
 import { TrayWidget } from "../NodeModels/DragAndDropWidget/TrayWidget";
 import { TrayItemWidget } from "../NodeModels/DragAndDropWidget/TrayItemWidget";
 import "../NodeModels/DragAndDropWidget/styles.css";
@@ -48,10 +48,8 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     // 1.a) Register factories: Puertos y Nodos
     engine.getNodeFactories().registerFactory(new BlockFactory());
     engine.getNodeFactories().registerFactory(new BlockRootFactory());
-
     engine.getNodeFactories().registerFactory(new AverageNodeFactory());
-
-    engine.getNodeFactories().registerFactory(new WeightedAverageNodeFactory());
+    engine.getNodeFactories().registerFactory(new WeightedNodeFactory());
 
     /* 
             Esta grid permite el manejo de bloques leafs.
@@ -124,7 +122,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
             color="rgb(192,255,0)"
           />
           <TrayItemWidget
-            model={{ type: "WeightedAverageNode" }}
+            model={{ type: "WeightedNode" }}
             name="Promedio ponderado"
             color="rgb(0,192,255)"
           />
@@ -135,13 +133,8 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
             var data = JSON.parse(
               event.dataTransfer.getData("storm-diagram-node")
             );
-            /*var nodesCount = _.keys(
-                        this.props.app
-                            .getDiagramEngine()
-                            .getModel()
-                            .getNodes()
-                    ).length;*/
-            console.log("me working", engine.getModel().getNodes(), data);
+            
+            // console.log(engine.getModel().getNodes(), data);
             var node = null;
             if (data.type === "AverageNode") {
               // Nodo de tipo promedio
@@ -158,18 +151,21 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
               // añadiendo mínimo 2 puertos paralelos:
               node.addAveragePort();
               node.addAveragePort();
-            } else if (data.type === "WeightedAverageNode") {
+            } else if (data.type === "WeightedNode") {
               // Nodo de tipo promedio ponderado 
               let w_average_data = {
-                name: "PROMEDIO PONDERADO",
-                type: "WeightedAverageNode",
+                name: "PONDERADO",
+                type: "WeightedNode",
                 editado: false,
-                public_id: _.uniqueId("WeightedAverageNode_"),
+                public_id: _.uniqueId("WeightedNode_"),
                 parent_id: root_data["public_id"],
-                average_connections: [],
+                weighted_connections: [],
                 serial_connection: [],
               };
-              node = new WeightedAverageNodeModel({ node: w_average_data });
+              node = new WeightedNodeModel({ node: w_average_data });
+              // añadiendo mínimo 2 puertos paralelos:
+              node.addWeightedPort();
+              node.addWeightedPort();
               
             }
             console.log(node);

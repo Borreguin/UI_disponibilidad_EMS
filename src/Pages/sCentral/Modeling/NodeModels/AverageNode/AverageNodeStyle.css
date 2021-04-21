@@ -1,69 +1,9 @@
-.sr-port {
-  margin-top: 4px;
-  min-width: 12px;
-  height: 16px;
-  z-index: 10;
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-  cursor: pointer;
-  float: right;
-  margin-left: 2px;
-}
-.out-serial-port {
-  height: 24px;
-  float: right;
-  cursor: pointer;
-  min-width: 90px;
-}
-.out-serial-port:hover{
-  background-color: rgb(37, 112, 182);
-
-}
-
-.in-port{
-  height: 24px;
-  float: left;
-  width: 80px;
-}
-.in-port:hover{
-  background-color:  rgb(37, 112, 182);
-}
-
-
-.disconnect {
-  background: rgba(83, 83, 85, 0.781);
-}
-
-.connect {
-  background: rgba(135, 218, 135, 0.281);
-}
-
-.sr-port:hover {
-  background: rgba(167, 89, 16, 0.753);
-}
-
-.sr-port-block {
-  margin-left: 4px;
-  min-width: 200px;
-  font-size: 11pt;
-  font-family: Courier, monospace !important;
-}
-
-.sr-port-label {
-  max-width: 80px;
-}
-
-.sr-block-tipo {
-  background-color: rgba(158, 145, 145, 0.534);
-  padding: 2%;
-  font-size: 9pt;
-}
 
 .sr-average {
   box-sizing: border-box;
   white-space: nowrap;
   pointer-events: all;
-  background-color: hsla(211, 13%, 35%, 0.453);
+  background-color: hsla(146, 13%, 35%, 0.933);
   color: white;
   border-radius: 1px;
   border: black solid 1px;

@@ -138,10 +138,6 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     }
   };
 
-  test = () => {
-    console.log(this.bck_node);
-  };
-
   generatePort(port) {
     return <DefaultPortLabel port={port} engine={this.props.engine} />;
   }

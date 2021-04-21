@@ -76,8 +76,6 @@ class SCManage extends Component {
 
   // Manejar el botón en el menú cuando se selecciona:
   handle_click_menu_button = (selected_static_menu, selected_block) => {
-    console.log("check this", selected_static_menu)
-    console.log("and this", selected_block);
     // obtener el sidebar usando los últimos cambios
     let sidebar = this._root_block_to_sidebar_menu(
       this.state.root_block,
@@ -104,9 +102,6 @@ class SCManage extends Component {
     let first_blocks = [];
     let comp_roots = [];
     let click_inside = false;
-    console.log("r_bloque", r_bloque);
-    console.log("selected_static_menu", selected_static_menu);
-    console.log("selected_block", selected_block);
     // creando la estructura del submenu superior e inferior:
     if (
       r_bloque["block_leafs"] !== undefined &&

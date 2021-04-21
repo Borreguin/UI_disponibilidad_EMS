@@ -1,25 +1,18 @@
 import * as React from "react";
 import { AverageNodeModel } from "./AverageNodeModel";
 import {
-  DefaultPortLabel,
   DiagramEngine,
-  PortModelAlignment,
   PortWidget,
 } from "@projectstorm/react-diagrams";
-import { SerialOutPortModel } from "./SerialOutputPort";
 import "./AverageNodeStyle.css";
 import {
   faTrash,
   faSave,
-  faToggleOn,
-  faToggleOff,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
-import { AverageOutPortModel as AverageOutPortModel } from "./AverageOutputPort";
 
 export interface AverageNodeWidgetProps {
   node: AverageNodeModel;
@@ -72,8 +65,10 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
   
     // identificando si es posible eliminar el puerto:
     if (Object.keys(this.props.node.getPorts()).length <= 4) {
-      let msg = { msg: "No se puede eliminar este puerto" };
+      let msg = { msg: "No se puede eliminar este puerto, se desconecta solamente." };
       this._handle_message(msg);
+      let port = this.props.node.getPort(id_port);
+      this._disconnect_port(port);
       return;
     }
     // eliminando el puerto y links
@@ -99,7 +94,25 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
     this.node.data.editado = !this.node.data.editado;
     //this.is_edited();
     // actualizar posición del nodo
-    this.node.updatePosition();
+    this.node.updateBlock();
+    this.props.engine.repaintCanvas();
+  };
+
+  _delete_node = () => {
+    this.node.data.editado = !this.node.data.editado;
+    let node = this.props.engine.getModel().getNode(this.node.getID());
+    let ports = node.getPorts()
+    for (var p in ports) {
+      let port = ports[p];
+      let links = port.getLinks();
+      for (var id_l in links) {
+        let link = links[id_l];
+        this.props.node.getLink(id_l).remove();
+        this.props.engine.getModel().removeLink(link);
+      }
+    }
+    this.node.delete();
+    this.props.engine.getModel().removeNode(node);
     this.props.engine.repaintCanvas();
   };
 
@@ -130,6 +143,13 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
         </div>
         <ReactTooltip />
         <div className="BtnContainer">
+          {/* Permite eliminar el elemento*/ }
+          <FontAwesomeIcon
+            icon={faTrash}
+            size="2x"
+            className="removeIcon"
+            onClick={this._delete_node}
+          />
           {/* Permite guardar en base de datos la posición del elemento */}
           <FontAwesomeIcon
             icon={this.node.data.editado ? faCheck : faSave}

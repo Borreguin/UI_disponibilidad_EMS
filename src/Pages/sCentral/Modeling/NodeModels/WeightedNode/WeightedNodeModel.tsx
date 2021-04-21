@@ -1,19 +1,12 @@
-import {
-  NodeModel,
-  NodeModelGenerics,
-  PortModelAlignment,
-} from "@projectstorm/react-diagrams";
-import { SRPortModel } from "../../../../../components/Diagrams/Nodes/SRNode/SRPortModel";
-import { static_menu } from "../../../../../components/SideBars/menu_type";
-import { bloqueleaf } from "../../../types";
+import { NodeModel, NodeModelGenerics } from "@projectstorm/react-diagrams";
 import { SerialOutPortModel } from "./SerialOutputPort";
 import { DefaultPortModel } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
-import { AverageOutPortModel as AverageOutPortModel } from "./AverageOutputPort";
+import { WeightedOutPortModel } from "./WeightedOutputPort";
 import { SCT_API_URL } from "../../../Constantes";
 /*
-    ---- Define el modelo del nodo (Average Block) ----
+    ---- Define el modelo del nodo (Weighted Average Block) ----
     Tipo de puertos a colocar en el nodo: 
         El número de puertos debe ser coherente con el widget
     Datos anexos al nodo:
@@ -22,12 +15,13 @@ import { SCT_API_URL } from "../../../Constantes";
         Añadir puertos, quitar puertos, iniciar, cambiar info
 */
 
-export type PortData = {
+export type WeightedPortData = {
   name: string;
   public_id: string;
+  weight?: number;
 };
 
-export type AverageNode = {
+export type WeightedNode = {
   name: string;
   type: string;
   editado: boolean;
@@ -35,39 +29,62 @@ export type AverageNode = {
   parent_id?: string;
   posx: number;
   posy: number;
-  average_connections: Array<PortData>;
-  serial_connection: PortData | undefined;
+  weighted_connections: Array<WeightedPortData>;
+  serial_connection: WeightedPortData | undefined;
 };
 
-export interface AverageNodeParams {
+export interface WeightedNodeParams {
   PORT: SerialOutPortModel;
-  node: AverageNode;
+  node: WeightedNode;
 }
 
 // Aquí se definen las funciones del nodo
 
-export class AverageNodeModel extends NodeModel<
-  AverageNodeParams & NodeModelGenerics
+export class WeightedNodeModel extends NodeModel<
+  WeightedNodeParams & NodeModelGenerics
 > {
-  data: AverageNode;
+  data: WeightedNode;
   edited: boolean;
   valid: boolean;
 
   constructor(params: { node: any }) {
-    super({ type: "AverageNode", id: params.node.public_id });
+    super({ type: "WeightedNode", id: params.node.public_id });
     this.data = params.node;
     this.addPort(new SerialOutPortModel("SerialOutPut"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.average_connections.forEach((parallel) => {
-      this.addPort(new AverageOutPortModel(parallel.public_id));
+    this.data.weighted_connections.forEach((parallel) => {
+      this.addPort(new WeightedOutPortModel(parallel.public_id));
     });
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
   }
 
-  // TODO: actualizar mensajes al finalizar
+  // Permite validar que el elemento ha sido correctamente conectado
+  validate = () => {
+    let valid = true;
+    for (var type_port in this.getPorts()) {
+      // todos los nodos deben estar conectados
+      // a excepción del puerto SerialOutPut ya que es opcional
+      if (type_port !== "SerialOutPut") {
+        var port = this.getPorts()[type_port];
+        valid = valid && Object.keys(port.links).length === 1;
+      }
+    }
+    this.valid = valid;
+  };
+
+  performanceTune = () => {
+    this.validate();
+    return true;
+  };
+
+  setNodeInfo(data: WeightedNode) {
+    this.data = data;
+  }
+
+  // TODO: actualizar la posicion de un elemento interno
   updateBlock = () => {
     let ports = this.getPorts();
     let operator_ids = [];
@@ -114,47 +131,24 @@ export class AverageNodeModel extends NodeModel<
     let path = SCT_API_URL + "/block-root/" + this.data.parent_id + "/operation/" + this.data.public_id;
     fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" } })
       .then((res) => res.json())
-      .then((json) => { console.log(json) });
+      .then((json) => { console.log(json) });   
   };
 
-  // Permite validar que el elemento ha sido correctamente conectado
-  validate = () => {
-    let valid = true;
-    for (var type_port in this.getPorts()) {
-      // todos los nodos deben estar conectados
-      // a excepción del puerto SerialOutPut ya que es opcional
-      if (type_port !== "SerialOutPut") {
-        var port = this.getPorts()[type_port];
-        valid = valid && Object.keys(port.links).length === 1;
-      }
-    }
-    this.valid = valid;
-  };
-
-  performanceTune = () => {
-    this.validate();
-    return true;
-  };
-
-  setNodeInfo(data: AverageNode) {
-    this.data = data;
-  }
-
-  addAveragePort = () => {
-    let newH = Object.assign([], this.data.average_connections);
+  addWeightedPort = () => {
+    let newH = Object.assign([], this.data.weighted_connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
     let p_port = {
       name: "",
-      public_id: "PAverage_" + this.data.public_id + "_" + next_id,
+      public_id: "PWeighted_" + this.data.public_id + "_" + next_id,
     };
     newH.push(p_port);
     // edititing the node:
-    this.data.average_connections = newH;
-    this.addPort(new AverageOutPortModel(p_port.public_id));
-    return { data: this.data };
-  };
+    this.data.weighted_connections = newH;
+    this.addPort(new WeightedOutPortModel(p_port.public_id));
+    return {data:this.data}
+  }
 
-  deleteAveragePort = (id_port) => {
+  deleteWeightedPort = (id_port) => {
     let newH = [];
     // eliminando los links conectados a este puerto
     var port = this.getPort(id_port);
@@ -165,13 +159,14 @@ export class AverageNodeModel extends NodeModel<
     // removiendo el puerto
     this.removePort(port);
     // actualizando la metadata del nodo:
-    this.data.average_connections.forEach((port) => {
+    this.data.weighted_connections.forEach((port) => {
       if (port.public_id !== id_port) {
         newH.push(port);
       }
     });
     // edititing the node:
-    this.data.average_connections = newH;
+    this.data.weighted_connections = newH;
     return { data: this.data };
-  };
+  }
+
 }

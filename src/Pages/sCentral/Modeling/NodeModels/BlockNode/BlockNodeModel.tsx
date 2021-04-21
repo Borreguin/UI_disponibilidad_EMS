@@ -82,14 +82,21 @@ export class BlockNodeModel extends NodeModel<
   // Permite validar que el elemento ha sido correctamente conectado
   validate = () => {
     let valid = true;
-    for (var type_port in this.getPorts()) {
+    let n_parallel_ports = 0;
+    for (var id_port in this.getPorts()) {
       // todos los nodos deben estar conectados 
       // a excepción del puerto SerialOutPut ya que es opcional
-      if (type_port !== "SerialOutPut") {
-        var port = this.getPorts()[type_port];
+      var port = this.getPorts()[id_port];
+      if (id_port !== "SerialOutPut") {
         valid = valid && Object.keys(port.links).length === 1;
       }
+      // contando conexiones paralelas
+      if (port.getType() === "ParallelOutputPort") {
+        n_parallel_ports += 1;
+      }
     }
+    // Para el caso de conexiones paralelas, no hay ninguno o hay más de dos conexiones
+    valid = valid && (n_parallel_ports === 0 || n_parallel_ports >= 2);
     this.valid = valid;
   }
 

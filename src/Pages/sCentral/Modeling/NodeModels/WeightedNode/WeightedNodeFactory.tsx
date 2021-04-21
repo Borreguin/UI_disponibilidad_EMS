@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { WeightedAverageNodeModel as WeightedAverageNodeModel } from './WeightedAverageNodeModel';
-import { WeightedAverageNodeWidget } from './WeightedAverageNodeWidget'
+import { WeightedNodeModel as WeightedNodeModel } from './WeightedNodeModel';
+import { WeightedNodeWidget } from './WeightedNodeWidget'
 
 /*
 	Esta clase realiza la construción del nodo, proveyendola de sus componentes:
@@ -12,17 +12,17 @@ import { WeightedAverageNodeWidget } from './WeightedAverageNodeWidget'
 
 	NOTA: Esta función puede permitir actualizar los nodos internos
 */
-export class WeightedAverageNodeFactory extends AbstractReactFactory<WeightedAverageNodeModel, DiagramEngine> {
+export class WeightedNodeFactory extends AbstractReactFactory<WeightedNodeModel, DiagramEngine> {
 	constructor() {
-		super('WeightedAverageNode');
+		super('WeightedNode');
 	}
 	// genera el widget
-	generateReactWidget(event: { model: WeightedAverageNodeModel; }): JSX.Element {
-		return <WeightedAverageNodeWidget engine={this.engine} node={event.model} />;
+	generateReactWidget(event: { model: WeightedNodeModel; }): JSX.Element {
+		return <WeightedNodeWidget engine={this.engine} node={event.model} />;
 	}
 	// genera el modelo
 	generateModel(node: any) {
-		return new WeightedAverageNodeModel({node:node});
+		return new WeightedNodeModel({node:node});
 	}
 
 }

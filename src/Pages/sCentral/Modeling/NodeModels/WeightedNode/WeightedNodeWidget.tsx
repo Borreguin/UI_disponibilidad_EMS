@@ -1,21 +1,22 @@
 import * as React from "react";
-import { WeightedAverageNodeModel } from "./WeightedAverageNodeModel";
+import { WeightedNodeModel } from "./WeightedNodeModel";
 import {
   DiagramEngine,
   PortWidget,
 } from "@projectstorm/react-diagrams";
-import "./WeightedAverageNodeStyle.css";
+import "./WeightedNodeStyle.css";
 import {
   faSave,
   faCheck,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTooltip from "react-tooltip";
-import { WeightedAverageOutPortModel } from "./WeightedAverageOutputPort";
+import { WeightedOutPortModel } from "./WeightedOutputPort";
 
-export interface WeightedAverageNodeWidgetProps {
-  node: WeightedAverageNodeModel;
+export interface WeightedNodeWidgetProps {
+  node: WeightedNodeModel;
   engine: DiagramEngine;
   size?: number;
   handle_messages?: Function;
@@ -28,9 +29,9 @@ export interface WeightedAverageNodeWidgetProps {
  * 	node; 	    los tributos cambiados del nodo si se requiere
  */
 
-export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNodeWidgetProps> {
-  bck_node: WeightedAverageNodeModel; // original node
-  node: WeightedAverageNodeModel; // edited node
+export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps> {
+  bck_node: WeightedNodeModel; // original node
+  node: WeightedNodeModel; // edited node
   state = {
     edited: false,
   };
@@ -50,46 +51,30 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
     }
   }
 
-  _addWeightedAveragePort = () => {
-    let newH = Object.assign([], this.node.data.average_connections);
-    let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
-    let p_port = {
-      nombre: "Sin conexión",
-      public_id: "PAverage_" + this.node.data.public_id + "_" + next_id,
-    };
-    newH.push(p_port);
+  _addWeightedPort = () => {
     // making a backup of the last node:
     this.bck_node = _.cloneDeep(this.node);
-    // edititing the node:
-    this.node.data.average_connections = newH;
-    this.props.node.addPort(new WeightedAverageOutPortModel(p_port.public_id));
+    // añadiendo puerto:
+    var resp = this.node.addWeightedPort();
+    this.node.data = resp.data;
+    // actualizando estado de editado
     this.is_edited();
+    this.props.engine.repaintCanvas();
   };
 
-  _deleteWeightedAveragePort = (id_port) => {
-    // lista nueva de puertos
-    let newH = [];
-    // identificando el puerto a eliminar
-    var port = this.props.node.getPort(id_port);
-    // eliminando los links conectados a este puerto
-    var links = this.props.node.getPort(id_port).getLinks();
-    for (var link in links) {
-      this.props.node.getLink(link).remove();
+  _deleteWeightedPort = (id_port) => {
+    // identificando si es posible eliminar el puerto:
+    if (Object.keys(this.props.node.getPorts()).length <= 4) {
+      let msg = { msg: "No se puede eliminar este puerto" };
+      this._handle_message(msg);
+      let port = this.props.node.getPort(id_port);
+      this._disconnect_port(port);
+      return;
     }
-    // removiendo el puerto
-    this.props.node.removePort(port);
-    // actualizando la metadata del nodo:
-    this.node.data.average_connections.forEach((port) => {
-      if (port.public_id !== id_port) {
-        newH.push(port);
-      }
-    });
-    this.node.data.average_connections = newH;
-    // cambiando el estado de editado:
+    // eliminando el puerto y links
+    var resp = this.node.deleteWeightedPort(id_port);
+    this.node.data = resp.data;
     this.is_edited();
-    let msg = { msg: "Se ha eliminado el puerto" };
-    this._handle_message(msg);
-    // actualizando el Canvas
     this.props.engine.repaintCanvas();
   };
 
@@ -109,7 +94,25 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
     this.node.data.editado = !this.node.data.editado;
     //this.is_edited();
     // actualizar posición del nodo
-    this.node.updatePosition();
+    this.node.updateBlock();
+    this.props.engine.repaintCanvas();
+  };
+
+  _delete_node = () => {
+    this.node.data.editado = !this.node.data.editado;
+    let node = this.props.engine.getModel().getNode(this.node.getID());
+    let ports = node.getPorts()
+    for (var p in ports) {
+      let port = ports[p];
+      let links = port.getLinks();
+      for (var id_l in links) {
+        let link = links[id_l];
+        this.props.node.getLink(id_l).remove();
+        this.props.engine.getModel().removeLink(link);
+      }
+    }
+    this.node.delete();
+    this.props.engine.getModel().removeNode(node);
     this.props.engine.repaintCanvas();
   };
 
@@ -140,6 +143,13 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
         </div>
         <ReactTooltip />
         <div className="BtnContainer">
+          {/* Permite eliminar el elemento*/ }
+          <FontAwesomeIcon
+            icon={faTrash}
+            size="2x"
+            className="removeIcon"
+            onClick={this._delete_node}
+          />
           {/* Permite guardar en base de datos la posición del elemento */}
           <FontAwesomeIcon
             icon={this.node.data.editado ? faCheck : faSave}
@@ -193,25 +203,25 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
   };
 
   /* Generando puerto en paralelo */
-  generateAveragePort = () => {
-    return this.node.data.average_connections.map((averagePort) => (
-      <div key={_.uniqueId("AveragePort")} className="Port-Container">
+  generateWeightedPort = () => {
+    return this.node.data.weighted_connections.map((port) => (
+      <div key={_.uniqueId("WeightedPort")} className="Port-Container">
         <button
           data-tip="Remover este puerto"
           className="widget-delete"
-          onClick={() => this._deleteWeightedAveragePort(averagePort.public_id)}
+          onClick={() => this._deleteWeightedPort(port.public_id)}
         >
           -
         </button>
         <ReactTooltip />
         <div className="ParallelLabel">
-          {averagePort.name}{" "}
-          <span className="badge badge-warning right">PromOut</span>
+          {port.name}{" "}
+          <span className="badge badge-warning right">WeigtOut</span>
         </div>
 
         <PortWidget
-          className="AveragePort"
-          port={this.props.node.getPort(averagePort.public_id)}
+          className="WeightedPort"
+          port={this.props.node.getPort(port.public_id)}
           engine={this.props.engine}
         ></PortWidget>
       </div>
@@ -230,15 +240,15 @@ export class WeightedAverageNodeWidget extends React.Component<WeightedAverageNo
         }}
         key={this.props.node.getID()}
       >
-        <div className={this.props.node.valid? "sr-average": "sr-average in_error"} >
+        <div className={this.props.node.valid? "sr-weigthed": "sr-weigthed in_error"} >
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
 
-          <button className="widget-add" onClick={this._addWeightedAveragePort}>
+          <button className="widget-add" onClick={this._addWeightedPort}>
             +
           </button>
 
-          {this.generateAveragePort()}
+          {this.generateWeightedPort()}
         </div>
       </div>
     );

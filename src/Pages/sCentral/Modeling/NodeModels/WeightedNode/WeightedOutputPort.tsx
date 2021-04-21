@@ -6,10 +6,10 @@ import {
 } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 
-export class WeightedAverageOutPortModel extends PortModel {
+export class WeightedOutPortModel extends PortModel {
   constructor(name: string) {
     super({
-      type: "AverageOutputPort",
+      type: "WeightedPort",
       name: name,
       alignment: PortModelAlignment.RIGHT,
       connected_to: name,
