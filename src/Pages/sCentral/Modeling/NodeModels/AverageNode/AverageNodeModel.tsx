@@ -64,6 +64,11 @@ export class AverageNodeModel extends NodeModel<
 
   // TODO: actualizar mensajes al finalizar
   updateBlock = () => {
+    if (!this.validate()) {
+      // TODO: Si el nodo no es válido
+      return;
+    }
+    
     let ports = this.getPorts();
     let operator_ids = [];
     for (var id_port in ports) {
@@ -125,6 +130,7 @@ export class AverageNodeModel extends NodeModel<
       }
     }
     this.valid = valid;
+    return valid;
   };
 
   performanceTune = () => {

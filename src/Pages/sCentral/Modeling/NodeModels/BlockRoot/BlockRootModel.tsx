@@ -69,6 +69,7 @@ export class BlockRootModel extends NodeModel<
       valid = valid && Object.keys(port.links).length === 1;
     }
     this.valid = valid;
+    return valid;
   }
 
   performanceTune = () => {

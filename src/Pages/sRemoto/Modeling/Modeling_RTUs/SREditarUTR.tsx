@@ -25,6 +25,7 @@ type SREditarUTRState = {
 
 export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
   selected_entity: string;
+  selected_utr_id: string;
   constructor(props) {
     super(props);
     this.state = {
@@ -45,6 +46,7 @@ export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
       },
     };
     this.selected_entity = "";
+    this.selected_utr_id = "";
   }
 
   // Función que permite iniciar el componente
@@ -105,6 +107,8 @@ export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
   _handle_rtu_select = (e) => {
     let id_utr = e.target.value;
     let selected_utr = this.state.utr_form;
+    // variable a ser compartida de manera global
+    this.selected_utr_id = id_utr;
     this.state.utrs.forEach((_rtu) => {
       if (_rtu.id_utr === id_utr) {
         selected_utr.id_utr = _rtu.id_utr;
@@ -139,6 +143,7 @@ export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
   _rtu_options = () => {
     let options = [];
     this.state.utrs.forEach((utr, ix) => {
+      if (ix === 0) { this.selected_utr_id = utr.id_utr };
       options.push(<option key={ix}>{utr.id_utr}</option>);
     });
     this.setState({ options: options });
@@ -343,7 +348,7 @@ export class SREditarUTR extends Component<SREditarUTRProps, SREditarUTRState> {
               data-html={true}
               onClick={this._send_rtu_form}
             >
-              {"Editar UTR en " + this.props.selected.entidad_nombre}
+              {"Editar UTR " + this.selected_utr_id}
             </Button>
             <ReactTooltip />
           </Form.Group>

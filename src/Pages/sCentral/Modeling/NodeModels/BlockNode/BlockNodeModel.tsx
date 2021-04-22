@@ -84,6 +84,10 @@ export class BlockNodeModel extends NodeModel<
     .catch(console.log);
   };
 
+  updateOperations = () => {
+        
+  }
+
   // Permite validar que el elemento ha sido correctamente conectado
   validate = () => {
     let valid = true;
@@ -103,6 +107,7 @@ export class BlockNodeModel extends NodeModel<
     // Para el caso de conexiones paralelas, no hay ninguno o hay más de dos conexiones
     valid = valid && (n_parallel_ports === 0 || n_parallel_ports >= 2);
     this.valid = valid;
+    return valid;
   }
 
   performanceTune = () => {

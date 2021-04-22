@@ -215,7 +215,7 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
         </button>
         <ReactTooltip />
         <div className="ParallelLabel">
-          {averagePort.name}{" "}
+          {/*averagePort.name*/}{" "}
           <span className="badge badge-warning right">PromOut</span>
         </div>
 

@@ -117,6 +117,8 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     //this.is_edited();
     // actualizar posición del nodo
     this.node.updatePosition();
+    // Guarda la configuración actual del nodo:
+    this.node.updateOperations();
     this.props.engine.repaintCanvas();
   };
 

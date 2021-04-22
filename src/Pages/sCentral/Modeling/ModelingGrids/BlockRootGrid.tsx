@@ -5,6 +5,7 @@ import createEngine, {
   DefaultNodeModel,
   DefaultLinkModel,
   PortModelAlignment,
+  DiagramEngine,
 } from "@projectstorm/react-diagrams";
 import {
   CanvasWidget,
@@ -27,6 +28,8 @@ import { TrayWidget } from "../NodeModels/DragAndDropWidget/TrayWidget";
 import { TrayItemWidget } from "../NodeModels/DragAndDropWidget/TrayItemWidget";
 import "../NodeModels/DragAndDropWidget/styles.css";
 import * as _ from "lodash";
+import { Button } from "react-bootstrap";
+import { right } from "@popperjs/core";
 
 type BlockRootGridProps = {
   static_menu: static_menu;
@@ -65,6 +68,17 @@ type BlockRootGridProps = {
 */
 
 class BlockRootGrid extends Component<BlockRootGridProps> {
+  engine: DiagramEngine;
+  model: DiagramModel;
+  test: string;
+  constructor(props) {
+    super(props);
+    this.engine = null;
+    this.model = null;
+    this.test = "";
+  }
+  
+  // Evita actualización innecesaria
   shouldComponentUpdate(nexProps, nextState) {
     return false;
   }
@@ -106,22 +120,90 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
 
   create_block_operations = () => {
     let operation_blocks = this.props.static_menu.object.operation_blocks;
-    let operations = [];
+    let nodes = [];
     operation_blocks.forEach((operation) => {
+      let connections = [];
+      operation.operator_ids.forEach((operador_id) => {
+        connections.push({ name: operador_id, public_id: operador_id })
+      })
       let operation_data = {
+        public_id: operation.public_id,
         name: operation.name,
         type: operation.type,
         editado: false,
-        public_id: operation.public_id,
         parent_id: this.props.static_menu.public_id,
+        posx: operation.position_x_y[0],
+        posy: operation.position_x_y[1],
+        connections: connections,
+        serial_connection: [],
+      };
+      let node = null;
+      switch (operation.type) {
+        case "AverageNode":
+          node = new AverageNodeModel({ node: operation_data });
+          nodes.push(node);
+          break;
+        case "WeightedNode":
+          node = new WeightedNodeModel({ node: operation_data });
+          nodes.push(node);
+          break;
+      }
+    });
+    return nodes;
+  };
+
+  create_selected_node = (type:string, parent_id:string) => {
+    // Se crea un nodo dependiendo el botón seleccionado:
+    var node = null;
+    let data = null;
+    switch (type) {
+      case "AverageNode":
+        // Nodo de tipo promedio
+      data = {
+        name: "PROMEDIO",
+        type: type,
+        editado: false,
+        public_id: _.uniqueId("AverageNode_"),
+        parent_id: parent_id,
         connections: [],
         serial_connection: [],
       };
-    });
-    
-
+      node = new AverageNodeModel({ node: data });
+      // añadiendo mínimo 2 puertos promedio:
+      node.addAveragePort();
+      node.addAveragePort()
+        break;
+      
+      case "WeightedNode":
+        data = {
+          name: "PONDERADO",
+          type: type,
+          editado: false,
+          public_id: _.uniqueId("WeightedNode_"),
+          parent_id: parent_id,
+          connections: [],
+          serial_connection: [],
+        };
+        node = new WeightedNodeModel({ node: data });
+        // añadiendo mínimo 2 puertos ponderados:
+        node.addWeightedPort();
+        node.addWeightedPort();
+        break;
+    };
+    return node;
   }
 
+  save_graph_as_serial = () => {
+    console.log(this.model.serialize());
+    //console.log(JSON.stringify(this.model.serialize()));
+    //this.test = JSON.stringify(this.model.serialize());
+  }
+
+  load_graph_as_serial = () => {
+    var model2 = new DiagramModel();
+	  model2.deserializeModel(JSON.parse(this.test), this.engine);
+    this.engine.setModel(model2);
+  }
 
   render() {
     //1) setup the diagram engine
@@ -147,10 +229,15 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     this.create_node_blocks().forEach((node) => model.addNode(node));
 
     // Añadir operaciones especiales 
-    console.log("this.props.static_menu", this.props.static_menu);
+    this.create_block_operations().forEach((node) => model.addNode(node));
+
     engine.setModel(model);
     // Use this custom "DefaultState" instead of the actual default state we get with the engine
     engine.getStateMachine().pushState(new DefaultState());
+
+    // el diagrama ha quedado actualizado:
+    this.engine = engine;
+    this.model = model;
 
     return (
       <>
@@ -158,13 +245,21 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
           <TrayItemWidget
             model={{ type: "AverageNode" }}
             name="Promedio"
-            color="rgb(192,255,0)"
           />
           <TrayItemWidget
             model={{ type: "WeightedNode" }}
             name="Promedio ponderado"
-            color="rgb(0,192,255)"
           />
+          <Button
+            style={{ float: "right" }}
+            variant="outline-warning"
+            onClick={this.save_graph_as_serial}
+          >Guardar</Button>
+          <Button
+            style={{ float: "right" }}
+            variant="outline-success"
+            onClick={ this.load_graph_as_serial}
+          >Actualizar</Button>
         </TrayWidget>
         <div
           className="Layer"
@@ -172,45 +267,10 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
             var data = JSON.parse(
               event.dataTransfer.getData("storm-diagram-node")
             );
-
-            // console.log(engine.getModel().getNodes(), data);
-            var node = null;
-            if (data.type === "AverageNode") {
-              // Nodo de tipo promedio
-              let Average_data = {
-                name: "PROMEDIO",
-                type: "AverageNode",
-                editado: false,
-                public_id: _.uniqueId("AverageNode_"),
-                parent_id: parent_id,
-                connections: [],
-                serial_connection: [],
-              };
-              node = new AverageNodeModel({ node: Average_data });
-              // añadiendo mínimo 2 puertos paralelos:
-              node.addAveragePort();
-              node.addAveragePort();
-            } else if (data.type === "WeightedNode") {
-              // Nodo de tipo promedio ponderado
-              let w_average_data = {
-                name: "PONDERADO",
-                type: "WeightedNode",
-                editado: false,
-                public_id: _.uniqueId("WeightedNode_"),
-                parent_id: parent_id,
-                connections: [],
-                serial_connection: [],
-              };
-              node = new WeightedNodeModel({ node: w_average_data });
-              // añadiendo mínimo 2 puertos paralelos:
-              node.addWeightedPort();
-              node.addWeightedPort();
-            }
-            console.log(node);
+            let node = this.create_selected_node(data.type, parent_id);
             var point = engine.getRelativeMousePoint(event);
             node.setPosition(point);
             model.addNode(node);
-            console.log("me working 2", engine.getModel().getNodes());
             engine.repaintCanvas();
           }}
           onDragOver={(event) => {

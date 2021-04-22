@@ -73,6 +73,7 @@ export class WeightedNodeModel extends NodeModel<
       }
     }
     this.valid = valid;
+    return valid;
   };
 
   performanceTune = () => {
