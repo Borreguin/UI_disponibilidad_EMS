@@ -5,6 +5,7 @@ import {
   PortModelAlignment,
 } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
+import { canLinkToInportPort } from "../_common/common_functions";
 
 export class InPortModel extends PortModel {
   constructor(name: string) {
@@ -17,22 +18,8 @@ export class InPortModel extends PortModel {
   }
 
   canLinkToPort(port: PortModel) {
-    // Esta función comprueba si se puede realizar las conexiones:
-    // 1. Input -> SerialOut
-    // 2. Input -> PARALELO
-    // 3. Input -> Output (conexión con root) 
-    // 4. Input -> PROMEDIO (conexión para operación: promedio)
-    // 5. Input -> PONDERADO (conexión para operación: ponderado)
-    const isSerialOutPort = port.getType() === "SERIE";
-    const isParallelOutPort = port.getType() === "PARALELO";
-    const isOutPut = port.getType() === "ROOT";
-    const isAverageOutPut = port.getType() === "PROMEDIO";
-    const isWeightedOutPut = port.getType() === "PONDERADO";
-    const isFreeConnect = Object.keys(port.links).length === 0;
-    const connect = isFreeConnect &&
-      (isSerialOutPort || isParallelOutPort || isOutPut || isAverageOutPut || isWeightedOutPut);
-    
-    return connect;
+    // función común para todos para nodos:
+    return canLinkToInportPort(port);
   }
 
   createLinkModel(): LinkModel {
