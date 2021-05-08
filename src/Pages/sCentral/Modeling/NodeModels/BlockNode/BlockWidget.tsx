@@ -165,7 +165,7 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     );
   }
 
-  /*Generación del puerto de entrada (inport) y conexión de salida de serial (SerialOutPut) */
+  /*Generación del puerto de entrada (inport) y conexión de salida de serial (SERIE) */
   generateInAndOutSerialPort = () => {
     return (
       <div className="Port-Container">
@@ -185,17 +185,17 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
           <ReactTooltip />
           <span className="badge badge-warning badge-space">InPut</span>
         </div>
-        <div className="out-serial-port" key={_.uniqueId("SerialOutputPort")}>
+        <div className="out-serial-port" key={_.uniqueId("SERIEPort")}>
           <span className="badge badge-warning badge-space">SerOut</span>
           <PortWidget
             className="SerialOutPort"
-            port={this.props.node.getPort("SerialOutPut")}
+            port={this.props.node.getPort("SERIE")}
             engine={this.props.engine}
           ></PortWidget>
           <button
             data-tip="Desconectar este puerto"
             className="widget-delete"
-            onClick={() => this._disconnect_port(this.props.node.getPort("SerialOutPut"))}
+            onClick={() => this._disconnect_port(this.props.node.getPort("SERIE"))}
           >
             .
           </button>

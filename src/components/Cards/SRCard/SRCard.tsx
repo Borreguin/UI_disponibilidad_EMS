@@ -94,7 +94,7 @@ class SRCard extends Component<SRCardProps> {
   };
   _update_activo = async () => {
     this.lcl_node.activado = !this.lcl_node.activado;
-    let path = SRM_API_URL + "/admin-sRemoto/nodo/id/" + this.bck_node.id_node;
+    let path = `${SRM_API_URL}/admin-sRemoto/nodo/id/${this.bck_node.id_node}`;
     if (this.lcl_node.activado) {
       path = path + "/activado";
     } else { 

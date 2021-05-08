@@ -4,7 +4,7 @@ import * as _ from "lodash";
 export class SerialOutPortModel extends PortModel {
 	constructor(name: string) {
 		super({
-			type: 'SerialOutPut',
+			type: 'SERIE',
 			name: name,
 			alignment: PortModelAlignment.RIGHT,
 			connected_to: name
@@ -14,7 +14,7 @@ export class SerialOutPortModel extends PortModel {
 	
 	canLinkToPort(port: PortModel) { 
 		// Esta función comprueba si se puede realizar las conexiones: 
-		// 1. SerialOutPut -> InPut 
+		// 1. SERIE -> InPut 
 		const isInPort = (port.getType() === "InPort");  
 		const isFreeConnect = (Object.keys(port.links).length === 0);
 		const connect = isFreeConnect && isInPort; 

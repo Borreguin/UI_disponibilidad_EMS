@@ -98,30 +98,47 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     return new BlockRootModel({ root: Root });
   };
 
-  create_node_blocks = () => {
+  create_nodes = () => {
     const { static_menu } = this.props;
-    let node_blocks = [];
+    let nodes = [];
     static_menu.blocks.forEach((block) => {
-      // Estructura de bloque tipo nodo:
-      let Node = {
+      console.log(block.object.document);
+      let data = {
         name: block.name,
         editado: false,
         public_id: block.public_id,
         parent_id: static_menu.public_id,
         posx: block.object["position_x_y"][0],
         posy: block.object["position_x_y"][1],
-        parallel_connections: [],
-      };
-      let node = new BlockNodeModel({ node: Node });
-      node_blocks.push(node);
+      }
+
+      var node = null;
+      switch (block.object.document) {
+        case "BloqueLeaf":
+          data["parallel_connections"] = [];
+          node = new BlockNodeModel({ node: data })
+          break;
+        case "AverageNode":
+          data["connections"] = [];
+          node = new AverageNodeModel({ node: data });
+          break;
+        case "WeightedNode":
+          data["connections"] = [];
+          node = new WeightedNodeModel({ node: data });
+          break;
+      }
+      if (node !== null) {
+        nodes.push(node);
+      }
     });
-    return node_blocks;
+    return nodes;
   };
 
+  /*
   create_block_operations = () => {
-    let operation_blocks = this.props.static_menu.object.operation_blocks;
+    let operations = this.props.static_menu.object.operations;
     let nodes = [];
-    operation_blocks.forEach((operation) => {
+    operations.forEach((operation) => {
       let connections = [];
       operation.operator_ids.forEach((operador_id) => {
         connections.push({ name: operador_id, public_id: operador_id })
@@ -150,7 +167,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
       }
     });
     return nodes;
-  };
+  };*/
 
   create_selected_node = (type:string, parent_id:string) => {
     // Se crea un nodo dependiendo el botón seleccionado:
@@ -161,7 +178,6 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
         // Nodo de tipo promedio
       data = {
         name: "PROMEDIO",
-        type: type,
         editado: false,
         public_id: _.uniqueId("AverageNode_"),
         parent_id: parent_id,
@@ -177,7 +193,6 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
       case "WeightedNode":
         data = {
           name: "PONDERADO",
-          type: type,
           editado: false,
           public_id: _.uniqueId("WeightedNode_"),
           parent_id: parent_id,
@@ -201,8 +216,8 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
 
   load_graph_as_serial = () => {
     var model2 = new DiagramModel();
-	  model2.deserializeModel(JSON.parse(this.test), this.engine);
-    this.engine.setModel(model2);
+	  //model2.deserializeModel(JSON.parse(this.test), this.engine);
+    //this.engine.setModel(model2);
   }
 
   render() {
@@ -225,11 +240,8 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     // Añadir el bloque root (inicio de operaciones):
     model.addNode(this.create_root_block());
 
-    // Añadir bloques tipo nodo:
-    this.create_node_blocks().forEach((node) => model.addNode(node));
-
-    // Añadir operaciones especiales 
-    this.create_block_operations().forEach((node) => model.addNode(node));
+    // Añadir nodos de acuerdo a cada tipo
+    this.create_nodes().forEach((node) => model.addNode(node));
 
     engine.setModel(model);
     // Use this custom "DefaultState" instead of the actual default state we get with the engine

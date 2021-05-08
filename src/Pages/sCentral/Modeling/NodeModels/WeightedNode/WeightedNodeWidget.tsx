@@ -162,7 +162,7 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
     );
   }
 
-  /*Generación del puerto de entrada (inport) y conexión de salida de serial (SerialOutPut) */
+  /*Generación del puerto de entrada (inport) y conexión de salida de serial (SERIE) */
   generateInAndOutSerialPort = () => {
     return (
       <div className="Port-Container">
@@ -182,17 +182,17 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
           <ReactTooltip />
           <span className="badge badge-warning badge-space">InPut</span>
         </div>
-        <div className="out-serial-port" key={_.uniqueId("SerialOutputPort")}>
+        <div className="out-serial-port" key={_.uniqueId("SERIEPort")}>
           <span className="badge badge-warning badge-space">SerOut</span>
           <PortWidget
             className="SerialOutPort"
-            port={this.props.node.getPort("SerialOutPut")}
+            port={this.props.node.getPort("SERIE")}
             engine={this.props.engine}
           ></PortWidget>
           <button
             data-tip="Desconectar este puerto"
             className="widget-delete"
-            onClick={() => this._disconnect_port(this.props.node.getPort("SerialOutPut"))}
+            onClick={() => this._disconnect_port(this.props.node.getPort("SERIE"))}
           >
             .
           </button>
@@ -205,7 +205,7 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
   /* Generando puerto en paralelo */
   generateWeightedPort = () => {
     return this.node.data.connections.map((port) => (
-      <div key={_.uniqueId("WeightedPort")} className="Port-Container">
+      <div key={_.uniqueId("PONDERADO")} className="Port-Container">
         <button
           data-tip="Remover este puerto"
           className="widget-delete"

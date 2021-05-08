@@ -50,7 +50,7 @@ export class WeightedNodeModel extends NodeModel<
   constructor(params: { node: any }) {
     super({ type: "WeightedNode", id: params.node.public_id });
     this.data = params.node;
-    this.addPort(new SerialOutPortModel("SerialOutPut"));
+    this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
     this.data.connections.forEach((parallel) => {
@@ -66,8 +66,8 @@ export class WeightedNodeModel extends NodeModel<
     let valid = true;
     for (var type_port in this.getPorts()) {
       // todos los nodos deben estar conectados
-      // a excepción del puerto SerialOutPut ya que es opcional
-      if (type_port !== "SerialOutPut") {
+      // a excepción del puerto SERIE ya que es opcional
+      if (type_port !== "SERIE") {
         var port = this.getPorts()[type_port];
         valid = valid && Object.keys(port.links).length === 1;
       }
@@ -91,7 +91,7 @@ export class WeightedNodeModel extends NodeModel<
     let operator_ids = [];
     for (var id_port in ports) {
       let port = ports[id_port];
-      if (port.getType() === "WeightedPort") {
+      if (port.getType() === "PONDERADO") {
         let links = port.getLinks();
         for (var id_link in links) {
           let link = links[id_link];

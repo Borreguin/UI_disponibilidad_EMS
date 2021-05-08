@@ -57,11 +57,7 @@ export class Modal_delete_internal_block extends Component<
   // INTERNAL FUNCTIONS:
   // Elimina un bloque interno de un bloque root
   _onclick_delete = () => {
-    let path =
-      SCT_API_URL + "/block-leaf/block-root/" +
-      this.props.static_menu.public_id +
-      "/block-leaf/" +
-      this.props.block.public_id;
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.props.static_menu.public_id}/block-leaf/${this.props.block.public_id}`;
     this.setState({ message: "Eliminando bloque interno" });
     // Creando el nuevo root block mediante la API
     fetch(path, {

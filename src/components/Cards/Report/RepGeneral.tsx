@@ -117,7 +117,7 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
       },
       calculating: true,
     });
-    let path = SRM_API_URL + "/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+    let path = `${SRM_API_URL}/disp-sRemoto/disponibilidad/nodos/${this._range_time()}`;
     let payload = {
       method: method,
       headers: { "Content-Type": "application/json" },
@@ -153,7 +153,7 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
     );
     if (confirm) {
       this.setState({calculating: true });
-      let path = SRM_API_URL + "/disp-sRemoto/disponibilidad/nodos/" + this._range_time();
+      let path = `${SRM_API_URL}/disp-sRemoto/disponibilidad/nodos/${this._range_time()}`;
       await fetch(path, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -273,11 +273,3 @@ class RepGeneral extends Component<RepGeneralProps, RepGeneralState> {
 
 export default RepGeneral;
 
-/*
-<div className="entity-seccion">
-            <EntityCards
-              entidades={this.lcl_node.entidades}
-              onEntityChange={this.handle_entities_change}
-            />
-          </div>
-*/

@@ -30,7 +30,7 @@ export type properties = {
     name: string,
     position_x_y: Array<Number>,
     block_leafs: Array<block_leaf>,
-    operation_blocks: Array<operation_block>
+    operations: Array<operation>
 }
 
 export type block_leaf = {
@@ -41,18 +41,19 @@ export type block_leaf = {
     position_x_y: Array<Number>
 }
 
-export type operation_block = {
+export type operation = {
     public_id: string,
     name: string,
     type: string,
     operator_ids: Array<string>,
-    position_x_y: Array<Number>
+    position_x_y: Array<Number>,
+    operation: operation,
 }
 
 export type block = {
     name: string,
     public_id: string,
-    object?: Object
+    object?: properties
 }
 
 export type navData = {

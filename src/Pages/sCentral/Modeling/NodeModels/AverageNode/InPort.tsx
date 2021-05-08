@@ -19,15 +19,15 @@ export class InPortModel extends PortModel {
   canLinkToPort(port: PortModel) {
     // Esta función comprueba si se puede realizar las conexiones:
     // 1. Input -> SerialOut
-    // 2. Input -> ParallelOutputPort
-    // 3. Input -> Output (conexión con root) 
-    // 4. Input -> AverageOutputPort (conexión para operación: promedio)
-    // 5. Input -> WeightedPort (conexión para operación: ponderado)
-    const isSerialOutPort = port.getType() === "SerialOutPut";
-    const isParallelOutPort = port.getType() === "ParallelOutputPort";
-    const isOutPut = port.getType() === "OutBlockPort";
-    const isAverageOutPut = port.getType() === "AverageOutputPort";
-    const isWeightedOutPut = port.getType() === "WeightedPort";
+    // 2. Input -> PARALELO
+    // 3. Input -> ROOT (conexión con root) 
+    // 4. Input -> PROMEDIO (conexión para operación: promedio)
+    // 5. Input -> PONDERADO (conexión para operación: ponderado)
+    const isSerialOutPort = port.getType() === "SERIE";
+    const isParallelOutPort = port.getType() === "PARALELO";
+    const isOutPut = port.getType() === "ROOT";
+    const isAverageOutPut = port.getType() === "PROMEDIO";
+    const isWeightedOutPut = port.getType() === "PONDERADO";
     const isFreeConnect = Object.keys(port.links).length === 0;
     const connect = isFreeConnect &&
       (isSerialOutPort || isParallelOutPort || isOutPut || isAverageOutPut || isWeightedOutPut);

@@ -3,7 +3,7 @@ import {
   NodeModelGenerics,
 } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
-import { OutPortModel } from "./OutPort";
+import { OutPortModel } from "./RootPort";
 import { SCT_API_URL } from "../../../Constantes";
 /*
     ---- Define el modelo del root  ----
@@ -42,7 +42,7 @@ export class BlockRootModel extends NodeModel<
   constructor(params: { root: any }) {
     super({ type: "BlockRoot", id: params.root.public_id });
     this.data = params.root;
-    this.addPort(new OutPortModel("OutBlockport"));
+    this.addPort(new OutPortModel("ROOT"));
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;

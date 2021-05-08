@@ -61,7 +61,7 @@ export class Modal_add_internal_block extends Component<
   _onclick_create = () => {
     
     if (this._check_form()) {
-      let path = SCT_API_URL + "/block-leaf/block-root/" + this.props.static_menu.public_id ;
+      let path = `${SCT_API_URL}/block-leaf/block-root/${this.props.static_menu.public_id}`;
       let payload = JSON.stringify(this.state.form);
       this.setState({ message: "Creando bloque interno" });
       // Creando el nuevo root block mediante la API

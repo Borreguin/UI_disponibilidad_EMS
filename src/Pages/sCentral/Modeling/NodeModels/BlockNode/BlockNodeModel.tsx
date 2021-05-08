@@ -58,7 +58,7 @@ export class BlockNodeModel extends NodeModel<
   constructor(params: { node: any }) {
     super({ type: "BlockNode", id: params.node.public_id });
     this.data = params.node;
-    this.addPort(new SerialOutPortModel("SerialOutPut"));
+    this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
     this.data.parallel_connections.forEach((parallel) => {
@@ -94,13 +94,13 @@ export class BlockNodeModel extends NodeModel<
     let n_parallel_ports = 0;
     for (var id_port in this.getPorts()) {
       // todos los nodos deben estar conectados 
-      // a excepción del puerto SerialOutPut ya que es opcional
+      // a excepción del puerto SERIE ya que es opcional
       var port = this.getPorts()[id_port];
-      if (id_port !== "SerialOutPut") {
+      if (id_port !== "SERIE") {
         valid = valid && Object.keys(port.links).length === 1;
       }
       // contando conexiones paralelas
-      if (port.getType() === "ParallelOutputPort") {
+      if (port.getType() === "PARALELO") {
         n_parallel_ports += 1;
       }
     }

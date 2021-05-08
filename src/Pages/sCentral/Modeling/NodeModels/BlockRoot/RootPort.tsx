@@ -9,7 +9,7 @@ import * as _ from "lodash";
 export class OutPortModel extends PortModel {
   constructor(name: string) {
     super({
-      type: "OutBlockPort",
+      type: "ROOT",
       name: name,
       alignment: PortModelAlignment.RIGHT,
       connected_to: name,

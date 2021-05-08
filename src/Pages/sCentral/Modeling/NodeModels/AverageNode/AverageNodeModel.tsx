@@ -5,7 +5,7 @@ import {
 import { SerialOutPortModel } from "./SerialOutputPort";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
-import { AverageOutPortModel as AverageOutPortModel } from "./AverageOutputPort";
+import { AverageOutPortModel } from "./AverageOutputPort";
 import { SCT_API_URL } from "../../../Constantes";
 /*
     ---- Define el modelo del nodo (Average Block) ----
@@ -51,7 +51,7 @@ export class AverageNodeModel extends NodeModel<
   constructor(params: { node: any }) {
     super({ type: "AverageNode", id: params.node.public_id });
     this.data = params.node;
-    this.addPort(new SerialOutPortModel("SerialOutPut"));
+    this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
     this.data.connections.forEach((parallel) => {
@@ -63,17 +63,13 @@ export class AverageNodeModel extends NodeModel<
   }
 
   // TODO: actualizar mensajes al finalizar
-  updateBlock = () => {
-    if (!this.validate()) {
-      // TODO: Si el nodo no es válido
-      return;
-    }
+  /*updateBlock = () => {
     
     let ports = this.getPorts();
     let operator_ids = [];
     for (var id_port in ports) {
       let port = ports[id_port];
-      if (port.getType() === "AverageOutputPort") {
+      if (port.getType() === "PROMEDIO") {
         let links = port.getLinks();
         for (var id_link in links) {
           let link = links[id_link];
@@ -87,16 +83,30 @@ export class AverageNodeModel extends NodeModel<
         }
       }
     }
+
+    let op1= {
+      public_id: this.data.public_id,
+      name: this.data.name,
+      type: this.data.type,
+      operator_ids: operator_ids,
+    };
+    let op2= {
+      public_id: this.data.public_id,
+      name: this.data.name,
+      type: this.data.type,
+      operator_ids: operator_ids,
+    };
+
     let operation = {
       public_id: this.data.public_id,
       name: this.data.name,
       type: this.data.type,
       operator_ids: operator_ids,
       position_x_y: [this.getPosition().x, this.getPosition().y],
+      operations: [op1, op2]
     };
 
-    let path =
-      SCT_API_URL + "/block-root/" + this.data.parent_id + "/operation";
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
     fetch(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -108,14 +118,65 @@ export class AverageNodeModel extends NodeModel<
       })
       .catch(console.log);
     // TODO: update result in graph
-  };
+  }; */
+
+  create_block = () => {
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
+    let payload = JSON.stringify({
+      name: "PROMEDIO",
+      document: "AverageNode",
+      calculation_type: "PROMEDIO",
+      position_x_y: [this.getPosition().x, this.getPosition().y]
+    });
+    fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
+      })
+      .catch(console.log);
+    // TODO: update result in graph
+  }
+
+  update_operations = () => {
+    
+    let ports = this.getPorts();
+    let operator_ids = [];
+    for (var id_port in ports) {
+      let port = ports[id_port];
+      console.log(port.getType());
+      if (port.getType() === "PROMEDIO") {
+        console.log(port.getType());
+        let links = port.getLinks();
+        for (var id_link in links) {
+          let link = links[id_link];
+          let sPort = link.getSourcePort();
+          let tPort = link.getTargetPort();
+          if (sPort.getType() === "InPort") {
+            operator_ids.push(sPort.getParent().getID());
+          } else {
+            operator_ids.push(tPort.getParent().getID());
+          }
+        }
+      }
+    }
+
+
+  }
+
+  
 
   // TODO: actualizar mensaje
   delete = () => {
-    let path = SCT_API_URL + "/block-root/" + this.data.parent_id + "/operation/" + this.data.public_id;
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}/block-leaf/${this.data.public_id}`;
     fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" } })
       .then((res) => res.json())
-      .then((json) => { console.log(json) });
+      .then((json) => {
+        console.log(json);
+      });
   };
 
   // Permite validar que el elemento ha sido correctamente conectado
@@ -123,8 +184,8 @@ export class AverageNodeModel extends NodeModel<
     let valid = true;
     for (var type_port in this.getPorts()) {
       // todos los nodos deben estar conectados
-      // a excepción del puerto SerialOutPut ya que es opcional
-      if (type_port !== "SerialOutPut") {
+      // a excepción del puerto SERIE ya que es opcional
+      if (type_port !== "SERIE") {
         var port = this.getPorts()[type_port];
         valid = valid && Object.keys(port.links).length === 1;
       }
