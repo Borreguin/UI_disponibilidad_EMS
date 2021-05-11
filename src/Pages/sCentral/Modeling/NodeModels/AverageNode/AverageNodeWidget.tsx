@@ -87,10 +87,12 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
   _update_node = () => {
     this.node.data.editado = !this.node.data.editado;
     // crear si no existe:
-    if (!this.node.create_if_not_exist()) {
+    if (this.node.create_if_not_exist()) {
       // actualizar posición del nodo
+      console.log("update position");
       this.node.updatePosition();
     }
+    console.log("continue");
     // generar topología
     this.node.generate_topology();
     this.props.engine.repaintCanvas();

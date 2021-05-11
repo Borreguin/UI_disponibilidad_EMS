@@ -87,12 +87,9 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
 
   _update_node = () => {
     this.node.data.editado = !this.node.data.editado;
-    // crear si no existe:
-    if (!this.node.create_if_not_exist()) {
-      // actualizar posición del nodo
-      this.node.updatePosition();
-    }
-    
+    // crear si no existe, caso contrario actualizar la posición del nodo
+    this.node.create_if_not_exist().then(() => this.node.updatePosition());
+    console.log("continue");
     this.props.engine.repaintCanvas();
   };
 

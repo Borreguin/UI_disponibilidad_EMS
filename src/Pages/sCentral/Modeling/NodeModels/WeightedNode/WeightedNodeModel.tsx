@@ -91,6 +91,7 @@ export class WeightedNodeModel extends NodeModel<
         })
         .catch(console.log);
     }
+    console.log("finish");
     return false;
   };
 
