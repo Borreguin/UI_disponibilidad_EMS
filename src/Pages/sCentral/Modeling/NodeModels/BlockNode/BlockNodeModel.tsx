@@ -14,6 +14,7 @@ import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { ParallelOutPortModel } from "./ParallelOutputPort";
 import { SCT_API_URL } from "../../../Constantes";
+import { common_get_node_connected_serie, common_get_serie_port, update_leaf_position } from "../_common/common_functions";
 /*
     ---- Define el modelo del nodo (Leaf Block) ----
     Tipo de puertos a colocar en el nodo: 
@@ -30,15 +31,15 @@ export type PortData = {
 };
 
 export type Node = {
-  name: string,
-  type: string,
-  editado: boolean,
-  public_id: string,
-  parent_id?: string,
-  posx: number,
-  posy: number,
-  parallel_connections: Array<PortData>,
-  serial_connection: PortData | undefined,
+  name: string;
+  type: string;
+  editado: boolean;
+  public_id: string;
+  parent_id?: string;
+  posx: number;
+  posy: number;
+  parallel_connections: Array<PortData>;
+  serial_connection: PortData | undefined;
 };
 
 export interface BlockNodeParams {
@@ -64,36 +65,23 @@ export class BlockNodeModel extends NodeModel<
     this.data.parallel_connections.forEach((parallel) => {
       this.addPort(new ParallelOutPortModel(parallel.public_id));
     });
-      this.setPosition(this.data.posx, this.data.posy);
+    this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
   }
-  
-  
+
   updatePosition = () => {
-    let path = SCT_API_URL + "/block-leaf/block-root/" + this.data.parent_id + "/block-leaf/" + this.data.public_id + "/position";
-    let body = {pos_x: this.getPosition().x, pos_y: this.getPosition().y};
-    fetch(path, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then((res) => res.json())
-    .then((json) => {
-      console.log(json);
-    })
-    .catch(console.log);
+    update_leaf_position(this.data.parent_id, this.data.public_id, this.getPosition().x, this.getPosition().y);
   };
 
-  updateOperations = () => {
-        
-  }
+  updateOperations = () => {};
 
   // Permite validar que el elemento ha sido correctamente conectado
   validate = () => {
     let valid = true;
     let n_parallel_ports = 0;
     for (var id_port in this.getPorts()) {
-      // todos los nodos deben estar conectados 
+      // todos los nodos deben estar conectados
       // a excepción del puerto SERIE ya que es opcional
       var port = this.getPorts()[id_port];
       if (id_port !== "SERIE") {
@@ -108,17 +96,80 @@ export class BlockNodeModel extends NodeModel<
     valid = valid && (n_parallel_ports === 0 || n_parallel_ports >= 2);
     this.valid = valid;
     return valid;
-  }
+  };
+
+  // Esta función permite generar la topología a realizar dentro del bloque:
+  // Se maneja dos tipode conexiones: Paralela, Serie
+  generate_topology = () => {
+    if (!this.validate()) {
+      return null;
+    }
+    let topology = {};
+    let p_nodes = this.get_nodes_connected_parallel();
+    if (p_nodes) {
+      let ids = [];
+      p_nodes.forEach((port) => ids.push(port.getID()));
+      topology["PARALELO"] = ids;
+    }
+    let s_node = this.get_node_connected_serie();
+    if (p_nodes && s_node) {
+      // conexiones paralelas y serie
+      topology = {
+        SERIE: [
+          topology,
+          s_node.getID()
+        ]
+      }
+    } else if (s_node) {
+      // solamente conexion serie
+      topology["SERIE"] = [s_node.getID()];
+    }
+    return topology;
+  };
+
+  // obtener puertos paralelos:
+  get_parallel_ports = () => {
+    return _.filter(this.ports, (portModel) => {
+      return portModel.getType() === "PARALELO";
+    });
+  };
+
+  // obtener puerto serie:
+  get_serie_port = () => {
+    return common_get_serie_port(this.ports);
+  };
+
+  get_nodes_connected_parallel = () => {
+    let ports = this.get_parallel_ports();
+    if (ports.length < 2) {
+      return null;
+    }
+    // busancdo los nodos conectados de manera paralela
+    let nodes = [];
+    for (let id_port in ports) {
+      let links = ports[id_port].links;
+      for (let id_link in links) {
+        if (links[id_link].getSourcePort().getType() !== "PARALELO") {
+          nodes.push(links[id_link].getSourcePort().getNode());
+        } else {
+          nodes.push(links[id_link].getTargetPort().getNode());
+        }
+      }
+    }
+    return nodes;
+  };
+
+  // get node connected in SERIE port:
+  get_node_connected_serie = () => {
+    return common_get_node_connected_serie(this.ports);
+  };
 
   performanceTune = () => {
     this.validate();
     return true;
-  }
-
+  };
 
   setNodeInfo(_node: Node) {
     this.data = _node;
   }
-
-  
 }

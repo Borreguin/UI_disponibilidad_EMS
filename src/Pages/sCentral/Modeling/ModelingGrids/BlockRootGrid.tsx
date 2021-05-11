@@ -221,6 +221,8 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
   }
 
   render() {
+
+
     //1) setup the diagram engine
     // IMPORTANTE: No se registra la manera por defecto de eliminar elementos
     let engine = createEngine({ registerDefaultDeleteItemsAction: false });

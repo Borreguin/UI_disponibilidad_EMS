@@ -1,12 +1,14 @@
-import {
-  NodeModel,
-  NodeModelGenerics,
-} from "@projectstorm/react-diagrams";
+import { NodeModel, NodeModelGenerics } from "@projectstorm/react-diagrams";
 import { SerialOutPortModel } from "./SerialOutputPort";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { AverageOutPortModel } from "./AverageOutputPort";
 import { SCT_API_URL } from "../../../Constantes";
+import {
+  common_get_node_connected_serie,
+  common_get_serie_port,
+  update_leaf_position,
+} from "../_common/common_functions";
 /*
     ---- Define el modelo del nodo (Average Block) ----
     Tipo de puertos a colocar en el nodo: 
@@ -54,13 +56,47 @@ export class AverageNodeModel extends NodeModel<
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.connections.forEach((parallel) => {
-      this.addPort(new AverageOutPortModel(parallel.public_id));
+    this.data.connections.forEach((port) => {
+      this.addPort(new AverageOutPortModel(port.public_id));
     });
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
   }
+
+  create_if_not_exist = async() => {
+    if (this.getID().includes("AverageNode")) {
+      // Este es un nodo nuevo:
+      let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
+      let payload = JSON.stringify({
+        name: "PROMEDIO",
+        document: this.getType(),
+        calculation_type: "PROMEDIO",
+        position_x_y: [this.getPosition().x, this.getPosition().y],
+      });
+      await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          console.log("create", json);
+          return true;
+        })
+        .catch(console.log);
+    }
+    return false;
+  };
+
+  updatePosition = () => {
+    update_leaf_position(
+      this.data.parent_id,
+      this.data.public_id,
+      this.getPosition().x,
+      this.getPosition().y
+    );
+  };
 
   // TODO: actualizar mensajes al finalizar
   /*updateBlock = () => {
@@ -126,7 +162,7 @@ export class AverageNodeModel extends NodeModel<
       name: "PROMEDIO",
       document: "AverageNode",
       calculation_type: "PROMEDIO",
-      position_x_y: [this.getPosition().x, this.getPosition().y]
+      position_x_y: [this.getPosition().x, this.getPosition().y],
     });
     fetch(path, {
       method: "POST",
@@ -139,10 +175,9 @@ export class AverageNodeModel extends NodeModel<
       })
       .catch(console.log);
     // TODO: update result in graph
-  }
-
+  };
+  /*
   update_operations = () => {
-    
     let ports = this.getPorts();
     let operator_ids = [];
     for (var id_port in ports) {
@@ -163,16 +198,15 @@ export class AverageNodeModel extends NodeModel<
         }
       }
     }
-
-
-  }
-
-  
+  };*/
 
   // TODO: actualizar mensaje
   delete = () => {
     let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}/block-leaf/${this.data.public_id}`;
-    fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" } })
+    fetch(path, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    })
       .then((res) => res.json())
       .then((json) => {
         console.log(json);
@@ -192,6 +226,69 @@ export class AverageNodeModel extends NodeModel<
     }
     this.valid = valid;
     return valid;
+  };
+
+  // Esta función permite generar la topología a realizar dentro del bloque:
+  // Se maneja dos tipode conexiones: promedio, Serie
+  generate_topology = () => {
+    if (!this.validate()) {
+      return null;
+    }
+    let topology = {};
+    let a_nodes = this.get_nodes_connected_average();
+    if (a_nodes) {
+      let ids = [];
+      a_nodes.forEach((port) => ids.push(port.getID()));
+      topology["PROMEDIO"] = ids;
+    }
+    let s_node = this.get_node_connected_serie();
+    if (a_nodes && s_node) {
+      // conexiones promedio y serie
+      topology = {
+        SERIE: [topology, s_node.getID()],
+      };
+    } else if (s_node) {
+      // solamente conexion serie
+      topology["SERIE"] = [s_node.getID()];
+    }
+    return topology;
+  };
+
+  // obtener puertos PROMEDIOs:
+  get_average_ports = () => {
+    return _.filter(this.ports, (portModel) => {
+      return portModel.getType() === "PROMEDIO";
+    });
+  };
+
+  // obtener puerto serie:
+  get_serie_port = () => {
+    return common_get_serie_port(this.ports);
+  };
+
+  get_nodes_connected_average = () => {
+    let ports = this.get_average_ports();
+    if (ports.length < 2) {
+      return null;
+    }
+    // buscando los nodos conectados para operación promedio
+    let nodes = [];
+    for (let id_port in ports) {
+      let links = ports[id_port].links;
+      for (let id_link in links) {
+        if (links[id_link].getSourcePort().getType() !== "PROMEDIO") {
+          nodes.push(links[id_link].getSourcePort().getNode());
+        } else {
+          nodes.push(links[id_link].getTargetPort().getNode());
+        }
+      }
+    }
+    return nodes;
+  };
+
+  // get node connected in SERIE port:
+  get_node_connected_serie = () => {
+    return common_get_node_connected_serie(this.ports);
   };
 
   performanceTune = () => {

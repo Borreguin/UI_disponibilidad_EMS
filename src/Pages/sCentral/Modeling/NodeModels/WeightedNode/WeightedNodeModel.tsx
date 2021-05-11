@@ -5,6 +5,7 @@ import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { WeightedOutPortModel } from "./WeightedOutputPort";
 import { SCT_API_URL } from "../../../Constantes";
+import { common_get_node_connected_serie, common_get_serie_port, update_leaf_position } from "../_common/common_functions";
 /*
     ---- Define el modelo del nodo (Weighted Average Block) ----
     Tipo de puertos a colocar en el nodo: 
@@ -33,6 +34,11 @@ export type WeightedNode = {
   serial_connection: PortData | undefined;
 };
 
+export type WeightedItem = {
+  public_id: string;
+  weight: number;
+}
+
 export interface WeightedNodeParams {
   PORT: SerialOutPortModel;
   node: WeightedNode;
@@ -46,6 +52,7 @@ export class WeightedNodeModel extends NodeModel<
   data: WeightedNode;
   edited: boolean;
   valid: boolean;
+  weight: Array<WeightedItem>;
 
   constructor(params: { node: any }) {
     super({ type: "WeightedNode", id: params.node.public_id });
@@ -59,7 +66,39 @@ export class WeightedNodeModel extends NodeModel<
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
+    this.weight = [];
   }
+
+  create_if_not_exist = async() => {
+    if (this.getID().includes("WeightedNode")) {
+      // Este es un nodo nuevo:
+      let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
+      let payload = JSON.stringify({
+        name: "PONDERADO",
+        document: this.getType(),
+        calculation_type: "PONDERADO",
+        position_x_y: [this.getPosition().x, this.getPosition().y],
+      });
+      await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          console.log("create", json);
+          return true;
+        })
+        .catch(console.log);
+    }
+    return false;
+  };
+
+
+  // Actualiza la posición del elemento
+  updatePosition = () => {
+    update_leaf_position(this.data.parent_id, this.data.public_id, this.getPosition().x, this.getPosition().y);
+  };
 
   // Permite validar que el elemento ha sido correctamente conectado
   validate = () => {
@@ -126,6 +165,71 @@ export class WeightedNodeModel extends NodeModel<
       })
       .catch(console.log);
     // TODO: update result in graph
+  };
+
+  // Esta función permite generar la topología a realizar dentro del bloque:
+  // Se maneja dos tipode conexiones: Paralela, Serie
+  generate_topology = () => {
+    if (!this.validate()) {
+      return null;
+    }
+    let topology = {};
+    let p_nodes = this.get_nodes_connected_weighted();
+    if (p_nodes) {
+      let ids = [];
+      p_nodes.forEach((port) => ids.push(port.getID()));
+      topology["PONDERADO"] = ids;
+    }
+    let s_node = this.get_node_connected_serie();
+    if (p_nodes && s_node) {
+      // conexiones paralelas y serie
+      topology = {
+        SERIE: [
+          topology,
+          s_node.getID()
+        ]
+      }
+    } else if (s_node) {
+      // solamente conexion serie
+      topology["SERIE"] = [s_node.getID()];
+    }
+    return topology;
+  };
+
+  get_weighted_ports = () => {
+    return _.filter(this.ports, (portModel) => {
+      return portModel.getType() === "PONDERADO";
+    });
+  }
+
+  get_nodes_connected_weighted = () => {
+    let ports = this.get_weighted_ports();
+    if (ports.length < 2) {
+      return null;
+    }
+    // buscando los nodos conectados de manera PONDERADA
+    let nodes = [];
+    for (let id_port in ports) {
+      let links = ports[id_port].links;
+      for (let id_link in links) {
+        if (links[id_link].getSourcePort().getType() !== "PONDERADO") {
+          nodes.push(links[id_link].getSourcePort().getNode());
+        } else {
+          nodes.push(links[id_link].getTargetPort().getNode());
+        }
+      }
+    }
+    return nodes;
+  };
+
+  // obtener puerto serie:
+  get_serie_port = () => {
+    return common_get_serie_port(this.ports);
+  };
+
+   // get node connected in SERIE port:
+   get_node_connected_serie = () => {
+    return common_get_node_connected_serie(this.ports);
   };
 
   // TODO: actualizar mensaje

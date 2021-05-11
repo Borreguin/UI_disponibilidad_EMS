@@ -157,7 +157,7 @@ export class SRNodeWidget extends React.Component<SRNodeWidgetProps> {
 		
 		const { node } = this.props;
 		return (
-			<div className="node css-nlpftr" onClick={() => { this.props.node.setSelected(true)}} >
+			<div className="node css-nlpftr"  >
 				<div className="sr-node">
 					<div className="to-drag"/>
 					<div className="sr-node-title" >

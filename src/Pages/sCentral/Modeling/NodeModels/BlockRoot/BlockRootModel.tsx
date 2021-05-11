@@ -59,7 +59,9 @@ export class BlockRootModel extends NodeModel<
     }).then((res) => res.json())
     .then((json) => {
     })
-    .catch(console.log);
+      .catch(console.log);
+    let topology = this.generate_topology();
+    console.log(topology);
   };
 
   validate = () => {
@@ -71,6 +73,48 @@ export class BlockRootModel extends NodeModel<
     this.valid = valid;
     return valid;
   }
+
+  // Esta función permite generar la topología a realizar dentro del bloque:
+  // Al ser solamente la operación Root la única que se puede realizar
+  // entonces la operación queda reducida a:
+  generate_topology = () => {
+    if (!this.validate()) {
+      return null;
+    }
+    let connected_node = this.get_node_connected_to_root();
+    return {
+      ROOT: connected_node.getID()
+    }
+  }
+
+  get_root_port = () => {
+    let ports = this.getPorts();
+    for (var id_port in ports) {
+      let port = ports[id_port];
+      if (port.getType() === "ROOT") {
+        return port;
+      }
+    }
+    return null;
+  }
+
+  // obtiene el node al que está conectado el ROOT
+  get_node_connected_to_root = () => {
+    let root_node = this.get_root_port();
+    if (root_node === null) {
+      return null;
+    }
+    let links = root_node.links;
+    for (var id_link in links) { 
+      let link = links[id_link];
+      if (link.getSourcePort().getType() !== "ROOT") {
+        return link.getSourcePort().getNode();
+      } else {
+        return link.getTargetPort().getNode();
+      }
+    }
+  }
+
 
   performanceTune = () => {
     this.validate();

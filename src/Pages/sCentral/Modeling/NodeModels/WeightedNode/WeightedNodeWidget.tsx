@@ -1,15 +1,8 @@
 import * as React from "react";
 import { WeightedNodeModel } from "./WeightedNodeModel";
-import {
-  DiagramEngine,
-  PortWidget,
-} from "@projectstorm/react-diagrams";
+import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams";
 import "./WeightedNodeStyle.css";
-import {
-  faSave,
-  faCheck,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faSave, faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTooltip from "react-tooltip";
@@ -34,12 +27,14 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
   node: WeightedNodeModel; // edited node
   state = {
     edited: false,
+    weight: {},
   };
 
   constructor(props) {
     super(props);
     this.state = {
       edited: false,
+      weight: {},
     };
     this.node = _.cloneDeep(props.node);
     this.bck_node = _.cloneDeep(props.node);
@@ -88,20 +83,23 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
     this._handle_message(msg);
     // actualizando el Canvas
     this.props.engine.repaintCanvas();
-  }
+  };
 
   _update_node = () => {
     this.node.data.editado = !this.node.data.editado;
-    //this.is_edited();
-    // actualizar posición del nodo
-    this.node.updateBlock();
+    // crear si no existe:
+    if (!this.node.create_if_not_exist()) {
+      // actualizar posición del nodo
+      this.node.updatePosition();
+    }
+    
     this.props.engine.repaintCanvas();
   };
 
   _delete_node = () => {
     this.node.data.editado = !this.node.data.editado;
     let node = this.props.engine.getModel().getNode(this.node.getID());
-    let ports = node.getPorts()
+    let ports = node.getPorts();
     for (var p in ports) {
       let port = ports[p];
       let links = port.getLinks();
@@ -143,7 +141,7 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
         </div>
         <ReactTooltip />
         <div className="BtnContainer">
-          {/* Permite eliminar el elemento*/ }
+          {/* Permite eliminar el elemento*/}
           <FontAwesomeIcon
             icon={faTrash}
             size="2x"
@@ -175,7 +173,9 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
           <button
             data-tip="Desconectar este puerto"
             className="widget-delete"
-            onClick={() => this._disconnect_port(this.props.node.getPort("InPut"))}
+            onClick={() =>
+              this._disconnect_port(this.props.node.getPort("InPut"))
+            }
           >
             -
           </button>
@@ -192,7 +192,9 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
           <button
             data-tip="Desconectar este puerto"
             className="widget-delete"
-            onClick={() => this._disconnect_port(this.props.node.getPort("SERIE"))}
+            onClick={() =>
+              this._disconnect_port(this.props.node.getPort("SERIE"))
+            }
           >
             .
           </button>
@@ -202,10 +204,42 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
     );
   };
 
-  /* Generando puerto en paralelo */
+  _on_weighted_change = (event, public_id: string) => {
+    var value = event.target.value;
+    let weight = this.state.weight;
+    weight[public_id] = value;
+    this.setState({ weight: weight });
+  };
+
+  _validate_weighted_change = () => {
+    this.props.node.setLocked(false);
+    let weightedPorts = this.node.get_weighted_ports();
+    let weight = this.state.weight;
+    let acc = 100;
+    let last_port = null;
+    let last_value = 0;
+    weightedPorts.forEach((port) => {
+      let port_name = port.getName();
+      if (weight[port_name] === undefined) {
+        weight[port_name] = 0;
+      }
+      acc -= weight[port_name];
+      if (acc < 0) {
+        weight[port_name] = 0;
+      }
+      last_port = port_name;
+      last_value = weight[port_name];
+    });
+    if (last_port !== null && acc > 0) {
+      weight[last_port] = ((acc + last_value).toFixed(2)).toString();
+    }
+    this.setState({ weight: weight });
+  };
+
+  /* Generando puertos con ponderación */
   generateWeightedPort = () => {
     return this.node.data.connections.map((port) => (
-      <div key={_.uniqueId("PONDERADO")} className="Port-Container">
+      <div id={port.public_id} key={port.public_id} className="Port-Container">
         <button
           data-tip="Remover este puerto"
           className="widget-delete"
@@ -214,8 +248,19 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
           -
         </button>
         <ReactTooltip />
-        <div className="ParallelLabel">
-          {port.name}{" "}
+        <div id={port.public_id} key={port.public_id} className="ParallelLabel">
+          <input
+            type="number"
+            step="0.000001"
+            min="0"
+            className="input-style"
+            value={this.state.weight[port.public_id] || 0}
+            onChange={(e) => this._on_weighted_change(e, port.public_id)}
+            onFocus={() => {
+              this.props.node.setLocked(true);
+            }}
+            onBlur={this._validate_weighted_change}
+          ></input>
           <span className="badge badge-warning right">WeigtOut</span>
         </div>
 
@@ -231,6 +276,13 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
   // Esta sección define la vista/diseño de cada nodo
   // Widget
   render() {
+    window.onkeydown = function (e) {
+      if (e.keyCode === 8)
+        if (e.target === document.body) {
+          e.preventDefault();
+        }
+    };
+
     const { node } = this.props;
     return (
       <div
@@ -240,7 +292,11 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
         }}
         key={this.props.node.getID()}
       >
-        <div className={this.props.node.valid? "sr-weigthed": "sr-weigthed in_error"} >
+        <div
+          className={
+            this.props.node.valid ? "sr-weigthed" : "sr-weigthed in_error"
+          }
+        >
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
 
@@ -254,4 +310,3 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
     );
   }
 }
-
