@@ -118,9 +118,8 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     // actualizar posición del nodo
     this.node.updatePosition();
     // Guarda la configuración actual del nodo:
-    this.node.updateOperations();
-    // Generar topología de operaciones:
-    this.node.generate_topology();
+    // Generar topología de operaciones
+    this.node.updateTopology();
     // Actualizar el lienzo
     this.props.engine.repaintCanvas();
   };

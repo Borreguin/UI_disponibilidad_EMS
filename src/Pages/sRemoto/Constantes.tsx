@@ -1,1 +1,1 @@
-export const SRM_API_URL = "/api";
+export const SRM_API_URL = "/api-rmt";

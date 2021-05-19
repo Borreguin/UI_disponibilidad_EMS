@@ -60,6 +60,9 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
     //this.is_edited();
     // actualizar posición del nodo
     this.node.updatePosition();
+    // Guarda la configuración actual del nodo:
+    // Generar topología de operaciones
+    this.node.updateTopology();
     this.props.engine.repaintCanvas();
   };
 

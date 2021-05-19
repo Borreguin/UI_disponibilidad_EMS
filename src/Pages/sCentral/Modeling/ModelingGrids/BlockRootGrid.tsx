@@ -102,14 +102,14 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     const { static_menu } = this.props;
     let nodes = [];
     static_menu.blocks.forEach((block) => {
-      console.log(block.object.document);
+      console.log(block);
       let data = {
         name: block.name,
         editado: false,
         public_id: block.public_id,
         parent_id: static_menu.public_id,
-        posx: block.object["position_x_y"][0],
-        posy: block.object["position_x_y"][1],
+        posx: block.object.position_x_y[0],
+        posy: block.object.position_x_y[1],
       }
 
       var node = null;
@@ -133,6 +133,12 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     });
     return nodes;
   };
+
+  create_links = () => {
+    
+
+
+  }
 
   /*
   create_block_operations = () => {

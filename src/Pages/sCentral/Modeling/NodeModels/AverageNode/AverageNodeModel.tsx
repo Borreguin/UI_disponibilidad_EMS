@@ -8,6 +8,7 @@ import {
   common_get_node_connected_serie,
   common_get_serie_port,
   update_leaf_position,
+  update_leaf_topology,
 } from "../_common/common_functions";
 /*
     ---- Define el modelo del nodo (Average Block) ----
@@ -96,6 +97,11 @@ export class AverageNodeModel extends NodeModel<
       this.getPosition().x,
       this.getPosition().y
     );
+  };
+
+  // Actualiza la topología del bloque
+  updateTopology = () => {
+    update_leaf_topology(this.data.parent_id, this.data.public_id, this.generate_topology());
   };
 
   // TODO: actualizar mensajes al finalizar

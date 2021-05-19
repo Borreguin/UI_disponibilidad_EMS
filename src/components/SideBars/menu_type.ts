@@ -31,6 +31,7 @@ export type properties = {
     position_x_y: Array<Number>,
     block_leafs: Array<block_leaf>,
     operations: Array<operation>
+    topology: Object,
 }
 
 export type block_leaf = {

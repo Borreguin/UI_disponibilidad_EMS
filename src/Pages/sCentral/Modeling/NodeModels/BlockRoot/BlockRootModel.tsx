@@ -1,7 +1,4 @@
-import {
-  NodeModel,
-  NodeModelGenerics,
-} from "@projectstorm/react-diagrams";
+import { NodeModel, NodeModelGenerics } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 import { OutPortModel } from "./RootPort";
 import { SCT_API_URL } from "../../../Constantes";
@@ -16,13 +13,13 @@ import { SCT_API_URL } from "../../../Constantes";
 */
 
 export type Root = {
-  name: string,
-  type: string,
-  editado: boolean,
-  public_id: string,
-  parent_id?: string,
-  posx: number,
-  posy: number,
+  name: string;
+  type: string;
+  editado: boolean;
+  public_id: string;
+  parent_id?: string;
+  posx: number;
+  posy: number;
 };
 
 export interface BlockRootParams {
@@ -47,21 +44,35 @@ export class BlockRootModel extends NodeModel<
     this.edited = false;
     this.valid = false;
   }
-  
-  
+
   updatePosition = () => {
     let path = SCT_API_URL + "/block-root/" + this.data.public_id + "/position";
-    let body = {pos_x: this.getPosition().x, pos_y: this.getPosition().y};
+    let body = { pos_x: this.getPosition().x, pos_y: this.getPosition().y };
     fetch(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    }).then((res) => res.json())
-    .then((json) => {
     })
+      .then((res) => res.json())
+      .then((json) => {})
       .catch(console.log);
+  };
+
+  updateTopology = () => {
     let topology = this.generate_topology();
-    console.log(topology);
+    if (!topology) { return }
+    let path = `${SCT_API_URL}/block-root/${this.data.public_id}/topology`;
+    let body = { topology: topology };
+    fetch(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log("topology", json);
+      })
+      .catch(console.log);
   };
 
   validate = () => {
@@ -72,7 +83,7 @@ export class BlockRootModel extends NodeModel<
     }
     this.valid = valid;
     return valid;
-  }
+  };
 
   // Esta función permite generar la topología a realizar dentro del bloque:
   // Al ser solamente la operación Root la única que se puede realizar
@@ -83,9 +94,9 @@ export class BlockRootModel extends NodeModel<
     }
     let connected_node = this.get_node_connected_to_root();
     return {
-      ROOT: connected_node.getID()
-    }
-  }
+      ROOT: [connected_node.getID()],
+    };
+  };
 
   get_root_port = () => {
     let ports = this.getPorts();
@@ -96,7 +107,7 @@ export class BlockRootModel extends NodeModel<
       }
     }
     return null;
-  }
+  };
 
   // obtiene el node al que está conectado el ROOT
   get_node_connected_to_root = () => {
@@ -105,7 +116,7 @@ export class BlockRootModel extends NodeModel<
       return null;
     }
     let links = root_node.links;
-    for (var id_link in links) { 
+    for (var id_link in links) {
       let link = links[id_link];
       if (link.getSourcePort().getType() !== "ROOT") {
         return link.getSourcePort().getNode();
@@ -113,13 +124,12 @@ export class BlockRootModel extends NodeModel<
         return link.getTargetPort().getNode();
       }
     }
-  }
-
+  };
 
   performanceTune = () => {
     this.validate();
     return true;
-  }
+  };
 
   setRootInfo(_root: Root) {
     this.data = _root;

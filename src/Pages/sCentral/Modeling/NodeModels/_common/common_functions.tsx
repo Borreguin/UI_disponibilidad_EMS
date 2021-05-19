@@ -63,3 +63,19 @@ export const update_leaf_position = (parent_id:string, public_id:string, pos_x:n
     })
     .catch(console.log);
 }
+
+export const update_leaf_topology = (parent_id:string, public_id:string, topology) => {
+  if (!topology) { return }
+    let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/topology`
+    let body = { topology: topology };
+    fetch(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log("topology", json);
+      })
+      .catch(console.log);
+}
