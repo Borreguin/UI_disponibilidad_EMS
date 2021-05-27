@@ -14,7 +14,7 @@ import { BlockWidget } from './BlockWidget'
 */
 export class BlockFactory extends AbstractReactFactory<BlockNodeModel, DiagramEngine> {
 	constructor() {
-		super('BlockNode');
+		super('BloqueLeaf');
 	}
 	// genera el widget
 	generateReactWidget(event: { model: BlockNodeModel; }): JSX.Element {

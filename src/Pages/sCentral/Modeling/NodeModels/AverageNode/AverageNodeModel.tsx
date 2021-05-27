@@ -29,7 +29,7 @@ export type AverageNode = {
   public_id: string;
   name: string;
   type: string;
-  editado: boolean;
+  editado?: boolean;
   parent_id?: string;
   posx: number;
   posy: number;
@@ -65,29 +65,34 @@ export class AverageNodeModel extends NodeModel<
     this.valid = false;
   }
 
-  create_if_not_exist = async() => {
-    if (this.getID().includes("AverageNode")) {
-      // Este es un nodo nuevo:
-      let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
-      let payload = JSON.stringify({
-        name: "PROMEDIO",
-        document: this.getType(),
-        calculation_type: "PROMEDIO",
-        position_x_y: [this.getPosition().x, this.getPosition().y],
-      });
-      await fetch(path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: payload,
+  create_block = async () => {
+    let success = false;
+    // Este es un nodo nuevo:
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
+    let payload = JSON.stringify({
+      name: "PROMEDIO",
+      document: this.getType(),
+      calculation_type: "PROMEDIO",
+      position_x_y: [this.getPosition().x, this.getPosition().y],
+    });
+    await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          let bloqueleaf = json.bloqueleaf as AverageNode;
+          let parent_id = this.data.parent_id;
+          this.data = bloqueleaf;
+          this.data.parent_id = parent_id;
+          // this.setNodeInfo({ data: bloqueleaf });
+        }
+        success = json.success;
       })
-        .then((res) => res.json())
-        .then((json) => {
-          console.log("create", json);
-          return true;
-        })
-        .catch(console.log);
-    }
-    return false;
+      .catch(console.log);
+    return success;
   };
 
   updatePosition = () => {
@@ -101,110 +106,12 @@ export class AverageNodeModel extends NodeModel<
 
   // Actualiza la topología del bloque
   updateTopology = () => {
-    update_leaf_topology(this.data.parent_id, this.data.public_id, this.generate_topology());
+    update_leaf_topology(
+      this.data.parent_id,
+      this.data.public_id,
+      this.generate_topology()
+    );
   };
-
-  // TODO: actualizar mensajes al finalizar
-  /*updateBlock = () => {
-    
-    let ports = this.getPorts();
-    let operator_ids = [];
-    for (var id_port in ports) {
-      let port = ports[id_port];
-      if (port.getType() === "PROMEDIO") {
-        let links = port.getLinks();
-        for (var id_link in links) {
-          let link = links[id_link];
-          let sPort = link.getSourcePort();
-          let tPort = link.getTargetPort();
-          if (sPort.getType() === "InPort") {
-            operator_ids.push(sPort.getParent().getID());
-          } else {
-            operator_ids.push(tPort.getParent().getID());
-          }
-        }
-      }
-    }
-
-    let op1= {
-      public_id: this.data.public_id,
-      name: this.data.name,
-      type: this.data.type,
-      operator_ids: operator_ids,
-    };
-    let op2= {
-      public_id: this.data.public_id,
-      name: this.data.name,
-      type: this.data.type,
-      operator_ids: operator_ids,
-    };
-
-    let operation = {
-      public_id: this.data.public_id,
-      name: this.data.name,
-      type: this.data.type,
-      operator_ids: operator_ids,
-      position_x_y: [this.getPosition().x, this.getPosition().y],
-      operations: [op1, op2]
-    };
-
-    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
-    fetch(path, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(operation),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-      })
-      .catch(console.log);
-    // TODO: update result in graph
-  }; */
-
-  create_block = () => {
-    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
-    let payload = JSON.stringify({
-      name: "PROMEDIO",
-      document: "AverageNode",
-      calculation_type: "PROMEDIO",
-      position_x_y: [this.getPosition().x, this.getPosition().y],
-    });
-    fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload,
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-      })
-      .catch(console.log);
-    // TODO: update result in graph
-  };
-  /*
-  update_operations = () => {
-    let ports = this.getPorts();
-    let operator_ids = [];
-    for (var id_port in ports) {
-      let port = ports[id_port];
-      console.log(port.getType());
-      if (port.getType() === "PROMEDIO") {
-        console.log(port.getType());
-        let links = port.getLinks();
-        for (var id_link in links) {
-          let link = links[id_link];
-          let sPort = link.getSourcePort();
-          let tPort = link.getTargetPort();
-          if (sPort.getType() === "InPort") {
-            operator_ids.push(sPort.getParent().getID());
-          } else {
-            operator_ids.push(tPort.getParent().getID());
-          }
-        }
-      }
-    }
-  };*/
 
   // TODO: actualizar mensaje
   delete = () => {
@@ -307,6 +214,11 @@ export class AverageNodeModel extends NodeModel<
   }
 
   addAveragePort = () => {
+    this.add_average_port();
+    return { data: this.data };
+  };
+
+  add_average_port = () => {
     let newH = Object.assign([], this.data.connections);
     let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
     let p_port = {
@@ -316,8 +228,7 @@ export class AverageNodeModel extends NodeModel<
     newH.push(p_port);
     // edititing the node:
     this.data.connections = newH;
-    this.addPort(new AverageOutPortModel(p_port.public_id));
-    return { data: this.data };
+    return this.addPort(new AverageOutPortModel(p_port.public_id));
   };
 
   deleteAveragePort = (id_port) => {

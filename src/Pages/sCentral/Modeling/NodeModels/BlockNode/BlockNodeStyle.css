@@ -246,7 +246,7 @@
 
 .ParallelLabel{
   float: left;
-  width: 152px;
+  max-width: 153px;
   overflow: hidden;
   height: 20px;
 }

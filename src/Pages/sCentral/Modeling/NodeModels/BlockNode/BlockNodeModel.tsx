@@ -57,7 +57,7 @@ export class BlockNodeModel extends NodeModel<
   valid: boolean;
 
   constructor(params: { node: any }) {
-    super({ type: "BlockNode", id: params.node.public_id });
+    super({ type: "BloqueLeaf", id: params.node.public_id });
     this.data = params.node;
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
@@ -129,6 +129,13 @@ export class BlockNodeModel extends NodeModel<
     }
     return topology;
   };
+
+  // add parallel ports:
+  add_parallel_port = (name="p-port") => {
+    let id = _.uniqueId("p-port");
+    this.data.parallel_connections.push({name: name, public_id: id});
+    return this.addPort(new ParallelOutPortModel(id));
+  }
 
   // obtener puertos paralelos:
   get_parallel_ports = () => {

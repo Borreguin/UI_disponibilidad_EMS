@@ -116,7 +116,7 @@ class CustomDeleteItemsAction extends Action {
 					
 					if (selectedEntities.length > 0) {
 						// Enridades protegidas, que no permiten eliminación:
-						let protected_entities = ["BlockNode"];
+						let protected_entities = ["BloqueLeaf"];
 						const confirm = window.confirm('Seguro que desea eliminar este elemento?');
 						// No se debe permitir eliminar nodos
 						

@@ -220,10 +220,10 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         </button>
         <ReactTooltip />
         <div className="ParallelLabel">
-          {parallelPort.name}{" "}
+          {parallelPort.name!==undefined?
+            parallelPort.name.substring(0, 15) : ""}{" "}
           <span className="badge badge-warning right">ParalOut</span>
         </div>
-
         <PortWidget
           className="ParallelPort"
           port={this.props.node.getPort(parallelPort.public_id)}

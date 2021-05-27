@@ -6,6 +6,9 @@ import createEngine, {
   DefaultLinkModel,
   PortModelAlignment,
   DiagramEngine,
+  PortModel,
+  DefaultPortModel,
+  LinkModel,
 } from "@projectstorm/react-diagrams";
 import {
   CanvasWidget,
@@ -30,6 +33,7 @@ import "../NodeModels/DragAndDropWidget/styles.css";
 import * as _ from "lodash";
 import { Button } from "react-bootstrap";
 import { right } from "@popperjs/core";
+import { InPortModel } from "../NodeModels/BlockNode/InPort";
 
 type BlockRootGridProps = {
   static_menu: static_menu;
@@ -87,22 +91,39 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     var root_data = this.props.static_menu.object;
     // Estructura determinada para bloque Root:
     let Root = {
-      name: root_data["name"],
-      type: root_data["document"],
+      name: root_data.name,
+      type: root_data.document,
       editado: false,
-      public_id: root_data["public_id"],
+      public_id: root_data.public_id,
       parent_id: null,
-      posx: root_data["position_x_y"][0],
-      posy: root_data["position_x_y"][1],
+      posx: root_data.position_x_y[0],
+      posy: root_data.position_x_y[1],
     };
     return new BlockRootModel({ root: Root });
   };
 
+  create_root_link = () => {
+    // Creación de link root
+    var root_data = this.props.static_menu.object;
+    
+    if (root_data.topology && root_data.topology["ROOT"] !== undefined) {
+      let root_node = this.model.getNode(root_data.public_id) as BlockRootModel;
+      let node_id = root_data.topology["ROOT"][0];
+      let node = this.model.getNode(node_id);
+      let source_port = root_node.get_root_port();
+      let target_port = node.getPort("InPut");
+      let link = new DefaultLinkModel();
+      link.setSourcePort(source_port);
+      link.setTargetPort(target_port);
+      this.model.addLink(link);
+    }
+  }
+
+  // creando nodos de acuerdo a cada tipo.
   create_nodes = () => {
     const { static_menu } = this.props;
     let nodes = [];
     static_menu.blocks.forEach((block) => {
-      console.log(block);
       let data = {
         name: block.name,
         editado: false,
@@ -134,10 +155,93 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     return nodes;
   };
 
-  create_links = () => {
-    
+  connect_serie_if_exist = (topology:Object, serie_port) => {
+    let next_topology = null;
+    const operation = 'SERIE';
+    if (topology.hasOwnProperty(operation)) {
+      // Caso serie simple, se conecta con el primer miembro de la lista
+      let node = null;
+      if (topology[operation].length == 1) {
+        node = this.model.getNode(topology[operation][0]);
+      }
+      // Caso serie avanzado, se conecta con el segundo miembro de la lista
+      else if (topology[operation].length == 2) {
+        next_topology = topology[operation][0];
+        node = this.model.getNode(topology[operation][1]);
+      }
+      if (node === undefined) { return next_topology };
+      // creando el link de conexión:
+      let target_port = node.getPort("InPut");
+      let link = new DefaultLinkModel();
+      link.setSourcePort(serie_port);
+      link.setTargetPort(target_port);
+      this.model.addLink(link);
+      return next_topology;
+    }
+    return topology;
+  }
 
+  create_node_links = () => {
+    const { static_menu } = this.props;
+    let next_topology = null;
+    static_menu.blocks.forEach((block) => {
+      let raw_node = this.model.getNode(block.public_id);
+      console.log(raw_node.getType());
+      switch (raw_node.getType()) {
+        case "BloqueLeaf":
+          let block_node = raw_node as BlockNodeModel;
+          next_topology = this.connect_serie_if_exist(block.object.topology, block_node.get_serie_port());
+          // si existe una topology que deserializar:
+          if (next_topology) {
+            const operation = "PARALELO";
+            // añadiendo puertos paralelos si existen en la topología
+            if (next_topology.hasOwnProperty(operation)) {
+              let ids_operandos = next_topology[operation] as Array<string>;
+              ids_operandos.forEach((id_operando) => {
+                let node_to_connect = this.model.getNode(id_operando);
+                if (node_to_connect !== undefined) {
+                  let source_port = block_node.add_parallel_port(node_to_connect["data"]["name"]);
+                  let target_port = node_to_connect.getPort("InPut");
+                  let link = new DefaultLinkModel();
+                  link.setSourcePort(source_port);
+                  link.setTargetPort(target_port);
+                  this.model.addLink(link);
+                }
+              })
+            }
+          }
+          break;
+        case "AverageNode":
+          let average_node = raw_node as AverageNodeModel;
+          next_topology = this.connect_serie_if_exist(block.object.topology, average_node.get_serie_port());
+          // si existe una topology que deserializar:
+          if (next_topology) {
+            const operation = "PROMEDIO";
+            // añadiendo puertos paralelos si existen en la topología
+            if (next_topology.hasOwnProperty(operation)) {
+              let ids_operandos = next_topology[operation] as Array<string>;
+              ids_operandos.forEach((id_operando) => {
+                let node_to_connect = this.model.getNode(id_operando);
+                if (node_to_connect !== undefined) {
+                  let source_port = average_node.add_average_port();
+                  let target_port = node_to_connect.getPort("InPut");
+                  let link = new DefaultLinkModel();
+                  link.setSourcePort(source_port);
+                  link.setTargetPort(target_port);
+                  this.model.addLink(link);
+                }
+              })
+            }
+          }
+          break;
+      
+        case "WeightedNode":
+          let weighted_node = raw_node as WeightedNodeModel;
 
+          break;
+        
+      }
+    });
   }
 
   /*
@@ -251,7 +355,19 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     // Añadir nodos de acuerdo a cada tipo
     this.create_nodes().forEach((node) => model.addNode(node));
 
-    engine.setModel(model);
+    // lets update models and engine:
+    this.model = model;
+    this.engine = engine;
+
+    // Añadir links
+    // Link root
+    this.create_root_link();
+    
+    // Link root de nodos:
+    this.create_node_links();
+    
+
+    engine.setModel(this.model);
     // Use this custom "DefaultState" instead of the actual default state we get with the engine
     engine.getStateMachine().pushState(new DefaultState());
 
@@ -298,7 +414,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
           }}
         >
           <StyledCanvasWidget className="grid">
-            <CanvasWidget engine={engine} />
+            <CanvasWidget engine={this.engine} />
           </StyledCanvasWidget>
         </div>
       </>

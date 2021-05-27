@@ -6,7 +6,6 @@ import { faSave, faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTooltip from "react-tooltip";
-import { WeightedOutPortModel } from "./WeightedOutputPort";
 
 export interface WeightedNodeWidgetProps {
   node: WeightedNodeModel;
@@ -88,8 +87,14 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
   _update_node = () => {
     this.node.data.editado = !this.node.data.editado;
     // crear si no existe, caso contrario actualizar la posición del nodo
-    this.node.create_if_not_exist().then(() => this.node.updatePosition());
-    console.log("continue");
+    if (this.node.getID().includes("WeightedNode")) {
+      this.node.create_block().then(() => this.node.updateTopology());
+    } else {
+      // actualizar posición del nodo
+      this.node.updatePosition();
+      // Generar topología de operaciones
+      this.node.updateTopology();
+    }
     this.props.engine.repaintCanvas();
   };
 
@@ -220,16 +225,18 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
       if (weight[port_name] === undefined) {
         weight[port_name] = 0;
       }
-      acc -= weight[port_name];
+      acc -= parseFloat(weight[port_name]);
       if (acc < 0) {
         weight[port_name] = 0;
       }
       last_port = port_name;
-      last_value = weight[port_name];
+      last_value = parseFloat(weight[port_name]);
     });
     if (last_port !== null && acc > 0) {
-      weight[last_port] = ((acc + last_value).toFixed(2)).toString();
+      let value = acc + last_value;
+      weight[last_port] = value.toFixed(2).toString();
     }
+    this.node.set_weight(weight);
     this.setState({ weight: weight });
   };
 
