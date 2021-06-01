@@ -39,7 +39,8 @@ export class DefaultState extends State<DiagramEngine> {
 			new Action({
 				type: InputType.MOUSE_DOWN,
 				fire: (event: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(event);
+					const eventBus = this.engine.getActionEventBus();
+					const element = eventBus.getModelForEvent(event);
 
 					// the canvas was clicked on, transition to the dragging canvas state
 					if (!element) {

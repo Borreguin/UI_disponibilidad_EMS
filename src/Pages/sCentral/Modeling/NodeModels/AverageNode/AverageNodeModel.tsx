@@ -57,16 +57,16 @@ export class AverageNodeModel extends NodeModel<
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.connections.forEach((port) => {
+    /*this.data.connections.forEach((port) => {
       this.addPort(new AverageOutPortModel(port.public_id));
-    });
+    });*/
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
   }
 
   create_block = async () => {
-    let success = false;
+    let result = { success: false, bloqueleaf: null };
     // Este es un nodo nuevo:
     let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
     let payload = JSON.stringify({
@@ -82,19 +82,16 @@ export class AverageNodeModel extends NodeModel<
     })
       .then((res) => res.json())
       .then((json) => {
-        if (json.success) {
-          let bloqueleaf = json.bloqueleaf as AverageNode;
-          let parent_id = this.data.parent_id;
-          this.data = bloqueleaf;
-          this.data.parent_id = parent_id;
-          // this.setNodeInfo({ data: bloqueleaf });
-        }
-        success = json.success;
+        let bloqueleaf = json.bloqueleaf as AverageNode;
+        bloqueleaf.parent_id = _.cloneDeep(this.data.parent_id);
+        this.setNodeInfo(json.bloqueleaf);
+        result = {success:json.success, bloqueleaf: json.bloqueleaf}
       })
       .catch(console.log);
-    return success;
+    return result;
   };
 
+  // Actualiza la posición del elemento
   updatePosition = () => {
     update_leaf_position(
       this.data.parent_id,
@@ -113,6 +110,21 @@ export class AverageNodeModel extends NodeModel<
     );
   };
 
+   // Permite validar que el elemento ha sido correctamente conectado
+   validate = () => {
+    let valid = true;
+    for (var type_port in this.getPorts()) {
+      // todos los nodos deben estar conectados
+      // a excepción del puerto SERIE ya que es opcional
+      if (type_port !== "SERIE") {
+        var port = this.getPorts()[type_port];
+        valid = valid && Object.keys(port.links).length === 1;
+      }
+    }
+    this.valid = valid;
+    return valid;
+  };
+
   // TODO: actualizar mensaje
   delete = () => {
     let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}/block-leaf/${this.data.public_id}`;
@@ -126,20 +138,7 @@ export class AverageNodeModel extends NodeModel<
       });
   };
 
-  // Permite validar que el elemento ha sido correctamente conectado
-  validate = () => {
-    let valid = true;
-    for (var type_port in this.getPorts()) {
-      // todos los nodos deben estar conectados
-      // a excepción del puerto SERIE ya que es opcional
-      if (type_port !== "SERIE") {
-        var port = this.getPorts()[type_port];
-        valid = valid && Object.keys(port.links).length === 1;
-      }
-    }
-    this.valid = valid;
-    return valid;
-  };
+ 
 
   // Esta función permite generar la topología a realizar dentro del bloque:
   // Se maneja dos tipode conexiones: promedio, Serie

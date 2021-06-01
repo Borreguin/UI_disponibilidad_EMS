@@ -1,27 +1,31 @@
-
 import { PortModel } from "@projectstorm/react-diagrams";
 import { SCT_API_URL } from "../../../Constantes";
 
 export const canLinkToInportPort = (port: PortModel) => {
-    // Esta función comprueba si se puede realizar las conexiones:
-    // 1. Input -> SERIE
-    // 2. Input -> PARALELO
-    // 3. Input -> ROOT (conexión con root) 
-    // 4. Input -> PROMEDIO (conexión para operación: promedio)
-    // 5. Input -> PONDERADO (conexión para operación: ponderado)
-    const isSerialOutPort = port.getType() === "SERIE";
-    const isParallelOutPort = port.getType() === "PARALELO";
-    const isOutPut = port.getType() === "ROOT";
-    const isAverageOutPut = port.getType() === "PROMEDIO";
-    const isWeightedOutPut = port.getType() === "PONDERADO";
-    const isFreeConnect = Object.keys(port.links).length === 0;
-    const connect = isFreeConnect &&
-      (isSerialOutPort || isParallelOutPort || isOutPut || isAverageOutPut || isWeightedOutPut);
-    
-    return connect;
-}
-  
- // obtener puerto serie:
+  // Esta función comprueba si se puede realizar las conexiones:
+  // 1. Input -> SERIE
+  // 2. Input -> PARALELO
+  // 3. Input -> ROOT (conexión con root)
+  // 4. Input -> PROMEDIO (conexión para operación: promedio)
+  // 5. Input -> PONDERADO (conexión para operación: ponderado)
+  const isSerialOutPort = port.getType() === "SERIE";
+  const isParallelOutPort = port.getType() === "PARALELO";
+  const isOutPut = port.getType() === "ROOT";
+  const isAverageOutPut = port.getType() === "PROMEDIO";
+  const isWeightedOutPut = port.getType() === "PONDERADO";
+  const isFreeConnect = Object.keys(port.links).length === 0;
+  const connect =
+    isFreeConnect &&
+    (isSerialOutPort ||
+      isParallelOutPort ||
+      isOutPut ||
+      isAverageOutPut ||
+      isWeightedOutPut);
+
+  return connect;
+};
+
+// obtener puerto serie:
 export const common_get_serie_port = (ports) => {
   for (var id_port in ports) {
     if (ports[id_port].getType() === "SERIE") {
@@ -49,7 +53,12 @@ export const common_get_node_connected_serie = (ports) => {
   return null;
 };
 
-export const update_leaf_position = (parent_id:string, public_id:string, pos_x:number, pos_y:number) => {
+export const update_leaf_position = (
+  parent_id: string,
+  public_id: string,
+  pos_x: number,
+  pos_y: number
+) => {
   let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/position`;
   let body = { pos_x: pos_x, pos_y: pos_y };
   fetch(path, {
@@ -62,20 +71,36 @@ export const update_leaf_position = (parent_id:string, public_id:string, pos_x:n
       console.log(json);
     })
     .catch(console.log);
-}
+};
 
-export const update_leaf_topology = (parent_id:string, public_id:string, topology) => {
-  if (!topology) { return }
-    let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/topology`
-    let body = { topology: topology };
-    fetch(path, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+export const update_leaf_topology = async (
+  parent_id: string,
+  public_id: string,
+  topology
+) => {
+  let resp = { success: false, msg: "No hay topología a guardar" };
+  let ans = null;
+  if (!topology) {
+    return resp;
+  }
+  let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/topology`;
+  let body = { topology: topology };
+  await fetch(path, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })
+    .then((res) => {
+      ans = resp;
+      return res.json();
     })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log("topology", json);
-      })
-      .catch(console.log);
-}
+    .then((json) => {
+      console.log("topology", json);
+      resp = json;
+    })
+    .catch((e) => {
+      console.log(e);
+      console.log(ans);
+    });
+  return resp;
+};

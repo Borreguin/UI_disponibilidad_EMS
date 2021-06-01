@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AverageNodeModel } from "./AverageNodeModel";
+import { AverageNode, AverageNodeModel } from "./AverageNodeModel";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams";
 import "./AverageNodeStyle.css";
 import { faTrash, faSave, faCheck } from "@fortawesome/free-solid-svg-icons";
@@ -88,17 +88,23 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
     // Guarda la configuración actual del nodo:
     this.node.data.editado = !this.node.data.editado;
     // si AverageNode está en el ID, entonces no existe aún en base de datos:
-    if (this.node.getID().includes("AverageNode")) {
-      this.node.create_block().then(() => (this.node.updateTopology()));
-    }
-    else{
+    if (this.node.data.public_id.includes("AverageNode")) {
+      this.node.create_block().then((result) => {
+        if (result.success) {
+          let bloqueleaf = _.cloneDeep(result.bloqueleaf) as AverageNode;
+          bloqueleaf.connections = this.node.data.connections;
+          this.node.setNodeInfo(bloqueleaf);
+          // Generar topología de operaciones
+          this.node.updateTopology();
+        }
+      });
+    } else {
       // actualizar posición del nodo
       this.node.updatePosition();
       // Generar topología de operaciones
       this.node.updateTopology();
     }
-    
-    
+
     // Actualizar el lienzo
     this.props.engine.repaintCanvas();
   };
@@ -213,6 +219,9 @@ export class AverageNodeWidget extends React.Component<AverageNodeWidgetProps> {
 
   /* Generando puerto en paralelo */
   generateAveragePort = () => {
+    if (this.node.data.connections === undefined) {
+      return <></>;
+    }
     return this.node.data.connections.map((averagePort) => (
       <div key={_.uniqueId("AveragePort")} className="Port-Container">
         <button

@@ -39,6 +39,11 @@ type BlockRootGridProps = {
   static_menu: static_menu;
 };
 
+type WeightedConnection = {
+  public_id: string,
+  weight: string,
+};
+
 /* 
   Esta grid permite el manejo de bloques leafs.
   Se transforma a las siguientes estructuras de datos:
@@ -186,7 +191,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     let next_topology = null;
     static_menu.blocks.forEach((block) => {
       let raw_node = this.model.getNode(block.public_id);
-      console.log(raw_node.getType());
+      // console.log(raw_node.getType());
       switch (raw_node.getType()) {
         case "BloqueLeaf":
           let block_node = raw_node as BlockNodeModel;
@@ -237,47 +242,32 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
       
         case "WeightedNode":
           let weighted_node = raw_node as WeightedNodeModel;
-
+          // identificar si existe topología en serie
+          next_topology = this.connect_serie_if_exist(block.object.topology, weighted_node.get_serie_port());
+          // si existe una topology que deserializar:
+          if (next_topology) {
+            const operation = "PONDERADO";
+            // añadiendo puertos paralelos si existen en la topología
+            if (next_topology.hasOwnProperty(operation)) {
+              let ids_operandos = next_topology[operation] as Array<WeightedConnection>;
+              ids_operandos.forEach((connection) => {
+                let node_to_connect = this.model.getNode(connection.public_id);
+                if (node_to_connect !== undefined) {
+                  let source_port = weighted_node.add_weighted_port(connection.public_id, parseFloat(connection.weight));
+                  let target_port = node_to_connect.getPort("InPut");
+                  let link = new DefaultLinkModel();
+                  link.setSourcePort(source_port);
+                  link.setTargetPort(target_port);
+                  this.model.addLink(link);
+                }
+              })
+            }
+          }
           break;
         
       }
     });
   }
-
-  /*
-  create_block_operations = () => {
-    let operations = this.props.static_menu.object.operations;
-    let nodes = [];
-    operations.forEach((operation) => {
-      let connections = [];
-      operation.operator_ids.forEach((operador_id) => {
-        connections.push({ name: operador_id, public_id: operador_id })
-      })
-      let operation_data = {
-        public_id: operation.public_id,
-        name: operation.name,
-        type: operation.type,
-        editado: false,
-        parent_id: this.props.static_menu.public_id,
-        posx: operation.position_x_y[0],
-        posy: operation.position_x_y[1],
-        connections: connections,
-        serial_connection: [],
-      };
-      let node = null;
-      switch (operation.type) {
-        case "AverageNode":
-          node = new AverageNodeModel({ node: operation_data });
-          nodes.push(node);
-          break;
-        case "WeightedNode":
-          node = new WeightedNodeModel({ node: operation_data });
-          nodes.push(node);
-          break;
-      }
-    });
-    return nodes;
-  };*/
 
   create_selected_node = (type:string, parent_id:string) => {
     // Se crea un nodo dependiendo el botón seleccionado:
@@ -306,13 +296,19 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
           editado: false,
           public_id: _.uniqueId("WeightedNode_"),
           parent_id: parent_id,
-          connections: [],
+          connections: [{
+            public_id: _.uniqueId("WeightedPort_"),
+            weight: 50
+          }, {
+            public_id: _.uniqueId("WeightedPort_"),
+            weight: 50
+          }],
           serial_connection: [],
         };
         node = new WeightedNodeModel({ node: data });
         // añadiendo mínimo 2 puertos ponderados:
-        node.addWeightedPort();
-        node.addWeightedPort();
+        // node.addWeightedPort(null, 50);
+        // node.addWeightedPort(null, 50);
         break;
     };
     return node;
@@ -366,7 +362,6 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     // Link root de nodos:
     this.create_node_links();
     
-
     engine.setModel(this.model);
     // Use this custom "DefaultState" instead of the actual default state we get with the engine
     engine.getStateMachine().pushState(new DefaultState());

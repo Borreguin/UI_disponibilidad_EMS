@@ -1,5 +1,5 @@
 import * as React from "react";
-import { WeightedNodeModel } from "./WeightedNodeModel";
+import { WeightedNode, WeightedNodeModel } from "./WeightedNodeModel";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams";
 import "./WeightedNodeStyle.css";
 import { faSave, faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -31,13 +31,21 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
 
   constructor(props) {
     super(props);
-    this.state = {
-      edited: false,
-      weight: {},
-    };
     this.node = _.cloneDeep(props.node);
     this.bck_node = _.cloneDeep(props.node);
+    if (props.node.data !== undefined && props.node.data.connections) {
+      let weight = {};
+      // Actualizando los pesos desde el modelo -> hacia widget
+      props.node.data.connections.forEach((weighted) => {
+        weight[weighted.public_id] = weighted.weight;
+        this.state = {
+          edited: false,
+          weight:weight
+        }
+      });
+    }
   }
+
 
   _handle_message(msg: Object) {
     if (this.props.handle_messages !== undefined) {
@@ -85,10 +93,19 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
   };
 
   _update_node = () => {
+    // Guarda la configuración actual del nodo:
     this.node.data.editado = !this.node.data.editado;
-    // crear si no existe, caso contrario actualizar la posición del nodo
-    if (this.node.getID().includes("WeightedNode")) {
-      this.node.create_block().then(() => this.node.updateTopology());
+    // si WeightedNode está en el ID, entonces no existe aún en base de datos:
+    if (this.node.data.public_id.includes("WeightedNode")) {
+      this.node.create_block().then((result) => {
+        if (result.success) {
+          let bloqueleaf = _.cloneDeep(result.bloqueleaf) as WeightedNode;
+          bloqueleaf.connections = this.node.data.connections;
+          this.node.setNodeInfo(bloqueleaf);
+          // Generar topología de operaciones
+          this.node.updateTopology();
+        }
+      });
     } else {
       // actualizar posición del nodo
       this.node.updatePosition();
@@ -242,6 +259,7 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
 
   /* Generando puertos con ponderación */
   generateWeightedPort = () => {
+    
     return this.node.data.connections.map((port) => (
       <div id={port.public_id} key={port.public_id} className="Port-Container">
         <button
@@ -286,8 +304,8 @@ export class WeightedNodeWidget extends React.Component<WeightedNodeWidgetProps>
           e.preventDefault();
         }
     };
-
     const { node } = this.props;
+ 
     return (
       <div
         className="node css-nlpftr"

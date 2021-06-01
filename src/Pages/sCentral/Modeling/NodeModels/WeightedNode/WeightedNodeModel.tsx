@@ -22,7 +22,7 @@ import {
 */
 
 export type PortData = {
-  name: string;
+  name?: string;
   public_id: string;
   weight?: number;
 };
@@ -66,14 +66,43 @@ export class WeightedNodeModel extends NodeModel<
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
-    this.data.connections.forEach((parallel) => {
-      this.addPort(new WeightedOutPortModel(parallel.public_id));
+    this.data.connections.forEach((weighted) => {
+      this.addPort(new WeightedOutPortModel(weighted.public_id, weighted.weight));
+      
     });
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
     this.weight = [];
   }
+
+  create_block = async () => {
+    let result = { success: false, bloqueleaf: null };
+    // Este es un nodo nuevo:
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
+    let payload = JSON.stringify({
+      name: "PONDERADO",
+      document: this.getType(),
+      calculation_type: "PONDERADO",
+      position_x_y: [this.getPosition().x, this.getPosition().y],
+    });
+    await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          let bloqueleaf = json.bloqueleaf as WeightedNode;
+          bloqueleaf.parent_id = _.cloneDeep(this.data.parent_id);
+          this.setNodeInfo(json.bloqueleaf)
+          result = {success:json.success, bloqueleaf: json.bloqueleaf}
+        }
+      })
+      .catch(console.log);
+    return result;
+  };
 
   // Actualiza la posición del elemento
   updatePosition = () => {
@@ -109,6 +138,80 @@ export class WeightedNodeModel extends NodeModel<
     return valid;
   };
 
+   // TODO: actualizar mensaje
+   delete = () => {
+    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}/block-leaf/${this.data.public_id}`;
+    fetch(path, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
+      });
+  };
+
+// Esta función permite generar la topología a realizar dentro del bloque:
+  // Se maneja dos tipode conexiones: Paralela, Serie
+  generate_topology = () => {
+    if (!this.validate()) {
+      return null;
+    }
+    this.update_weight();
+    let topology = {};
+    let w_nodes = this.get_nodes_connected_weighted();
+    if (w_nodes) {
+      topology["PONDERADO"] = this.weight;
+    }
+    let s_node = this.get_node_connected_serie();
+    if (w_nodes && s_node) {
+      // conexiones paralelas y serie
+      topology = {
+        SERIE: [topology, s_node.getID()],
+      };
+    } else if (s_node) {
+      // solamente conexion serie
+      topology["SERIE"] = [s_node.getID()];
+    }
+    return topology;
+  };
+
+  get_weighted_ports = () => {
+    return _.filter(this.ports, (portModel) => {
+      return portModel.getType() === "PONDERADO";
+    });
+  };
+
+  // obtener puerto serie:
+  get_serie_port = () => {
+    return common_get_serie_port(this.ports);
+  };
+
+  // get node connected in SERIE port:
+  get_node_connected_serie = () => {
+    return common_get_node_connected_serie(this.ports);
+  };
+
+  get_nodes_connected_weighted = () => {
+    let ports = this.get_weighted_ports();
+    if (ports.length < 2) {
+      return null;
+    }
+    // buscando los nodos conectados de manera PONDERADA
+    let nodes = [];
+    for (let id_port in ports) {
+      let links = ports[id_port].links;
+      for (let id_link in links) {
+        if (links[id_link].getSourcePort().getType() !== "PONDERADO") {
+          nodes.push(links[id_link].getSourcePort().getNode());
+        } else {
+          nodes.push(links[id_link].getTargetPort().getNode());
+        }
+      }
+    }
+    return nodes;
+  };
+
   performanceTune = () => {
     this.validate();
     return true;
@@ -118,38 +221,53 @@ export class WeightedNodeModel extends NodeModel<
     this.data = data;
   }
 
-  create_block = async () => {
-    let success = false;
-    // Este es un nodo nuevo:
-    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}`;
-    let payload = JSON.stringify({
-      name: "PONDERADO",
-      document: this.getType(),
-      calculation_type: "PONDERADO",
-      position_x_y: [this.getPosition().x, this.getPosition().y],
+  addWeightedPort = (public_id=null, weight=0) => {
+    this.add_weighted_port(public_id, weight);
+    return { data: this.data };
+  };
+
+  add_weighted_port = (public_id=null, weight=0) => {
+    let newH = Object.assign([], this.data.connections);
+    let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
+    public_id = public_id !== null ? public_id : "PWeighted_" + this.data.public_id + "_" + next_id;
+    let p_port = {
+      name: "",
+      public_id: public_id,
+      weight: weight
+    };
+    this.weight.push({ public_id: public_id, weight: weight })
+    newH.push(p_port);
+    // edititing the node:
+    this.data.connections = newH;
+    return this.addPort(new WeightedOutPortModel(p_port.public_id, weight));
+  };
+
+  deleteWeightedPort = (id_port) => {
+    let newH = [];
+    // eliminando los links conectados a este puerto
+    var port = this.getPort(id_port);
+    var links = this.getPort(id_port).getLinks();
+    for (var link in links) {
+      this.getLink(link).remove();
+    }
+    // removiendo el puerto
+    this.removePort(port);
+    // actualizando la metadata del nodo:
+    this.data.connections.forEach((port) => {
+      if (port.public_id !== id_port) {
+        newH.push(port);
+      }
     });
-    await fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload,
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) {
-          let bloqueleaf = json.bloqueleaf as WeightedNode;
-          let parent_id = this.data.parent_id;
-          this.data = bloqueleaf;
-          this.data.parent_id = parent_id;
-          // this.setNodeInfo({ data: bloqueleaf });
-        }
-        success = json.success;
-      })
-      .catch(console.log);
-    return success;
+    // edititing the node:
+    this.data.connections = newH;
+    return { data: this.data };
   };
 
   set_weight = (weight) => {
     this.weight_from_widget = weight;
+    for (var ix in this.data.connections) {
+      this.data.connections[ix].weight = weight[this.data.connections[ix].public_id];
+    }
   }
 
   update_weight = () => {
@@ -175,126 +293,6 @@ export class WeightedNodeModel extends NodeModel<
         }
       }
     }
-    console.log("updated weight", this.weight);
   }
-
-  // Esta función permite generar la topología a realizar dentro del bloque:
-  // Se maneja dos tipode conexiones: Paralela, Serie
-  generate_topology = () => {
-    if (!this.validate()) {
-      return null;
-    }
-    this.update_weight();
-    let topology = {};
-    let w_nodes = this.get_nodes_connected_weighted();
-    if (w_nodes) {
-      let ids = [];
-      w_nodes.forEach((w_node) => {
-        let id = w_node.getID();
-        let weight = this.weight[id];
-        console.log("weight", this.weight);
-        ids.push(w_node.getID());
-      });
-      topology["PONDERADO"] = this.weight;
-    }
-    let s_node = this.get_node_connected_serie();
-    if (w_nodes && s_node) {
-      // conexiones paralelas y serie
-      topology = {
-        SERIE: [topology, s_node.getID()],
-      };
-    } else if (s_node) {
-      // solamente conexion serie
-      topology["SERIE"] = [s_node.getID()];
-    }
-    return topology;
-  };
-
-  get_weighted_ports = () => {
-    return _.filter(this.ports, (portModel) => {
-      return portModel.getType() === "PONDERADO";
-    });
-  };
-
-  get_nodes_connected_weighted = () => {
-    let ports = this.get_weighted_ports();
-    if (ports.length < 2) {
-      return null;
-    }
-    // buscando los nodos conectados de manera PONDERADA
-    let nodes = [];
-    for (let id_port in ports) {
-      let links = ports[id_port].links;
-      for (let id_link in links) {
-        if (links[id_link].getSourcePort().getType() !== "PONDERADO") {
-          nodes.push(links[id_link].getSourcePort().getNode());
-        } else {
-          nodes.push(links[id_link].getTargetPort().getNode());
-        }
-      }
-    }
-    return nodes;
-  };
-
-  // obtener puerto serie:
-  get_serie_port = () => {
-    return common_get_serie_port(this.ports);
-  };
-
-  // get node connected in SERIE port:
-  get_node_connected_serie = () => {
-    return common_get_node_connected_serie(this.ports);
-  };
-
-  // TODO: actualizar mensaje
-  delete = () => {
-    let path = `${SCT_API_URL}/block-leaf/block-root/${this.data.parent_id}/block-leaf/${this.data.public_id}`;
-    fetch(path, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        console.log(json);
-      });
-  };
-
-  addWeightedPort = () => {
-    this.add_weighted_port();
-    return { data: this.data };
-  };
-
-  add_weighted_port = () => {
-    let newH = Object.assign([], this.data.connections);
-    let next_id = newH.length > 0 ? (newH.length as number) + 1 : 1;
-    let p_port = {
-      name: "",
-      public_id: "PWeighted_" + this.data.public_id + "_" + next_id,
-    };
-    newH.push(p_port);
-    // edititing the node:
-    this.data.connections = newH;
-    return this.addPort(new WeightedOutPortModel(p_port.public_id));
-  };
-
-  deleteWeightedPort = (id_port) => {
-    let newH = [];
-    // eliminando los links conectados a este puerto
-    var port = this.getPort(id_port);
-    var links = this.getPort(id_port).getLinks();
-    for (var link in links) {
-      this.getLink(link).remove();
-    }
-    // removiendo el puerto
-    this.removePort(port);
-    // actualizando la metadata del nodo:
-    this.data.connections.forEach((port) => {
-      if (port.public_id !== id_port) {
-        newH.push(port);
-      }
-    });
-    // edititing the node:
-    this.data.connections = newH;
-    return { data: this.data };
-  };
+  
 }

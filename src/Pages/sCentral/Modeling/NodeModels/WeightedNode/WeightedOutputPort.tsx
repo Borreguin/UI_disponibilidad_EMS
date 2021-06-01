@@ -7,12 +7,13 @@ import {
 import * as _ from "lodash";
 
 export class WeightedOutPortModel extends PortModel {
-  constructor(name: string) {
+  constructor(name: string, weight: number = 0) {
     super({
       type: "PONDERADO",
       name: name,
       alignment: PortModelAlignment.RIGHT,
       connected_to: name,
+      weight: weight
     });
   }
 

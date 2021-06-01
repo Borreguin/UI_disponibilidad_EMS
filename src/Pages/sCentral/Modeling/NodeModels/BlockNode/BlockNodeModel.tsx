@@ -45,6 +45,7 @@ export type Node = {
 export interface BlockNodeParams {
   PORT: SerialOutPortModel;
   node: Node;
+  handle_msg?: Function;
 }
 
 // Aquí se definen las funciones del nodo
@@ -76,7 +77,8 @@ export class BlockNodeModel extends NodeModel<
 
   // Actualiza la topología del bloque
   updateTopology = () => {
-    update_leaf_topology(this.data.parent_id, this.data.public_id, this.generate_topology());
+    var resp = update_leaf_topology(this.data.parent_id, this.data.public_id, this.generate_topology());
+    resp.then(console.log);
   };
 
   // Permite validar que el elemento ha sido correctamente conectado
