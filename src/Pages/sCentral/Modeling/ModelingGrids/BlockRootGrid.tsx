@@ -37,6 +37,7 @@ import { InPortModel } from "../NodeModels/BlockNode/InPort";
 
 type BlockRootGridProps = {
   static_menu: static_menu;
+  handle_messages: Function;
 };
 
 type WeightedConnection = {
@@ -79,17 +80,25 @@ type WeightedConnection = {
 class BlockRootGrid extends Component<BlockRootGridProps> {
   engine: DiagramEngine;
   model: DiagramModel;
-  test: string;
+  
   constructor(props) {
     super(props);
     this.engine = null;
     this.model = null;
-    this.test = "";
   }
   
   // Evita actualización innecesaria
   shouldComponentUpdate(nexProps, nextState) {
     return false;
+  }
+
+  // handle messages from internal elements:
+  _handle_messages = (msg: Object) => {
+    console.log("Excuting here", msg);
+    if (this.props.handle_messages !== undefined) {
+      console.log("Excuting here 2", msg);
+      this.props.handle_messages(msg);
+    }
   }
 
   create_root_block = () => {
@@ -142,7 +151,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
       switch (block.object.document) {
         case "BloqueLeaf":
           data["parallel_connections"] = [];
-          node = new BlockNodeModel({ node: data })
+          node = new BlockNodeModel({ node: data, handle_msg: this._handle_messages})
           break;
         case "AverageNode":
           data["connections"] = [];

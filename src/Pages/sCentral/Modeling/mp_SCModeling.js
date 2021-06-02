@@ -49,6 +49,13 @@ class SCManage extends Component {
       this.handle_click_menu_button(this.state.sidebar_menu[0]["static_menu"], undefined);
     }
   }
+  handle_messages = (msg) => {
+    console.log("Excuting here 3", msg);
+    if (msg !== undefined) {
+      this.setState({ log: msg });
+    }
+  }
+
 
   // HOOKS SECTION:
   // permite manejar el sideBar pinned or toggle
@@ -316,7 +323,7 @@ class SCManage extends Component {
             {/* Grid de modelamiento*/}
             <div className="grid">
               {this.evaluate() ? (
-                <BlockRootGrid static_menu={this.state.selected_static_menu} />
+                <BlockRootGrid static_menu={this.state.selected_static_menu} handle_messages={this.handle_messages}/>
               ) : (
                 <></>
               )}

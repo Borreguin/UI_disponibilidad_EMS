@@ -45,7 +45,6 @@ export type Node = {
 export interface BlockNodeParams {
   PORT: SerialOutPortModel;
   node: Node;
-  handle_msg?: Function;
 }
 
 // Aquí se definen las funciones del nodo
@@ -54,12 +53,14 @@ export class BlockNodeModel extends NodeModel<
   BlockNodeParams & NodeModelGenerics
 > {
   data: Node;
+  handle_msg: Function;
   edited: boolean;
   valid: boolean;
 
-  constructor(params: { node: any }) {
+  constructor(params: { node: any, handle_msg?: Function}) {
     super({ type: "BloqueLeaf", id: params.node.public_id });
     this.data = params.node;
+    this.handle_msg = params.handle_msg;
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
@@ -71,6 +72,13 @@ export class BlockNodeModel extends NodeModel<
     this.valid = false;
   }
 
+  // Manejando mensajes desde la creación del objeto:
+  _handle_msg = (msg: Object) => {
+    if (this.handle_msg !== null) {
+      this.handle_msg(msg);
+     }
+  }
+
   updatePosition = () => {
     update_leaf_position(this.data.parent_id, this.data.public_id, this.getPosition().x, this.getPosition().y);
   };
@@ -78,7 +86,10 @@ export class BlockNodeModel extends NodeModel<
   // Actualiza la topología del bloque
   updateTopology = () => {
     var resp = update_leaf_topology(this.data.parent_id, this.data.public_id, this.generate_topology());
-    resp.then(console.log);
+    
+    resp.then((msg) => {
+      this._handle_msg(msg);
+    });
   };
 
   // Permite validar que el elemento ha sido correctamente conectado
