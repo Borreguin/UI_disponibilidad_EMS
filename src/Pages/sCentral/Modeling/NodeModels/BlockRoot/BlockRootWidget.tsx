@@ -13,6 +13,9 @@ import {
   faToggleOn,
   faToggleOff,
   faCheck,
+  faDotCircle,
+  faThumbtack,
+  faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -49,6 +52,14 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
     this.bck_node = _.cloneDeep(props.node);
   }
 
+ componentDidUpdate = () => {
+   if (this.node !== this.bck_node && !this.state.edited) {
+     this.bck_node = _.cloneDeep(this.node);
+     this.setState({ edited: true });
+     this.node.data.editado = true;
+   } 
+  }
+
   _handle_message(msg: Object) {
     if (this.props.handle_messages !== undefined) {
       this.props.handle_messages(msg);
@@ -56,8 +67,7 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
   }
 
   _update_node = () => {
-    this.node.data.editado = !this.node.data.editado;
-    //this.is_edited();
+    this.is_edited();
     // actualizar posición del nodo
     this.node.updatePosition();
     // Guarda la configuración actual del nodo:
@@ -66,14 +76,28 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
     this.props.engine.repaintCanvas();
   };
 
+  _update_position = () => {
+    // actualizar posición del nodo
+    this.node.updatePosition().then((result) => {
+      if (result.success) {
+        // se encuentra sincronizado con la base de datos
+        this.node.data.editado = false;
+      } else {
+        // los cambios no fueron guardados en base de datos
+        this.node.data.editado = true;
+      }
+      
+    }) 
+  }
+
   _disconnect_port = (port) => {
     var links = port.getLinks();
     for (var link in links) {
-      this.props.node.getLink(link).remove();
+      this.node.getLink(link).remove();
     }
     this.is_edited();
     let msg = { msg: "Se ha realizado la desconexión" };
-    this._handle_message(msg);
+    this.node._handle_msg(msg);
     // actualizando el Canvas
     this.props.engine.repaintCanvas();
   }
@@ -81,18 +105,10 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
   is_edited = () => {
     if (_.isEqual(this.bck_node, this.node)) {
       this.setState({ edited: false });
+      this.node.data.editado= false;
     } else {
       this.setState({ edited: true });
-    }
-  };
-
-  hasChanged = (old_word: string, new_word: string) => {
-    if (old_word !== new_word && new_word.length > 3) {
-      this.setState({ edited: true });
-      return true;
-    } else {
-      this.setState({ edited: false });
-      return false;
+      this.node.data.editado = true;
     }
   };
 
@@ -108,10 +124,10 @@ export class BlockRootWidget extends React.Component<BlockWidgetProps> {
         <div className="BtnContainer">
           {/* Permite guardar en base de datos la posición del elemento */}
           <FontAwesomeIcon
-            icon={this.node.data.editado ? faCheck : faSave}
+            icon={this.node.data.editado? faBullseye: faCheck}
             size="2x"
-            className={this.node.data.editado ? "icon-on" : "icon-off"}
-            onClick={this._update_node}
+            className={"icon-off"}
+            onClick={this._update_position}
           />
         </div>
       </div>

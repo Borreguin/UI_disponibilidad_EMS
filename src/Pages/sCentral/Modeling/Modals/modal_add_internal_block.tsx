@@ -166,12 +166,12 @@ export class Modal_add_internal_block extends Component<
   }
 }
 
+// permite la creación de un bloque LEAF
 export const modal_add_internal_block_function = (
   static_menu: static_menu,
   handle_modal_close: Function,
   handle_changes_in_root: Function
 ) => {
-  console.log("me");
   
   return (
     <Modal_add_internal_block

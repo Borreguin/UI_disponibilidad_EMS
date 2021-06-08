@@ -48,12 +48,16 @@ export class AverageNodeModel extends NodeModel<
   AverageNodeParams & NodeModelGenerics
 > {
   data: AverageNode;
+  handle_msg: Function;
+  handle_changes: Function;
   edited: boolean;
   valid: boolean;
 
-  constructor(params: { node: any }) {
+  constructor(params: { node: any,  handle_msg?: Function, handle_changes?: Function}) {
     super({ type: "AverageNode", id: params.node.public_id });
     this.data = params.node;
+    this.handle_msg = params.handle_msg;
+    this.handle_changes = params.handle_changes;
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
@@ -63,6 +67,29 @@ export class AverageNodeModel extends NodeModel<
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
+  }
+
+    // Manejando mensajes desde la creación del objeto:
+    _handle_msg = (msg: Object) => {
+      if (this.handle_msg !== null) {
+        this.handle_msg(msg);
+      }
+    };
+  
+
+  // manejando los cambios del nodo:
+  _handle_changes = (node: Object) => {
+    if (this.handle_changes !== undefined) {
+      this.handle_changes(node);
+    }
+  }
+
+  create_if_not_exist = async () => {
+    let result = null;
+    if(this.data.public_id.includes("AverageNode")){
+      await this.create_block().then((ans) => (result = ans));
+    }
+    return result;
   }
 
   create_block = async () => {
@@ -88,6 +115,7 @@ export class AverageNodeModel extends NodeModel<
         result = {success:json.success, bloqueleaf: json.bloqueleaf}
       })
       .catch(console.log);
+    this._handle_msg(result);
     return result;
   };
 
@@ -98,7 +126,7 @@ export class AverageNodeModel extends NodeModel<
       this.data.public_id,
       this.getPosition().x,
       this.getPosition().y
-    );
+    ).then((result) => this._handle_msg(result))
   };
 
   // Actualiza la topología del bloque
@@ -151,6 +179,7 @@ export class AverageNodeModel extends NodeModel<
     if (a_nodes) {
       let ids = [];
       a_nodes.forEach((port) => ids.push(port.getID()));
+      console.log(a_nodes);
       topology["PROMEDIO"] = ids;
     }
     let s_node = this.get_node_connected_serie();
@@ -161,7 +190,7 @@ export class AverageNodeModel extends NodeModel<
       };
     } else if (s_node) {
       // solamente conexion serie
-      topology["SERIE"] = [s_node.getID()];
+      topology["SERIE"] = [s_node["data"]["public_id"]];
     }
     return topology;
   };
@@ -204,6 +233,7 @@ export class AverageNodeModel extends NodeModel<
   };
 
   performanceTune = () => {
+    this._handle_changes({"node": this})
     this.validate();
     return true;
   };
@@ -250,4 +280,23 @@ export class AverageNodeModel extends NodeModel<
     this.data.connections = newH;
     return { data: this.data };
   };
+
+  fireEvent = async (e, name) => {
+    if (name === "validate") {
+      let answer = { name: name, valid: this.valid };
+      await this.create_if_not_exist().then((result) => {
+        this._handle_changes(result);
+        this.validate();
+        let name = `${this.data.public_id}__${this.getType()}__${
+          this.data.name
+        }`;
+        answer = { name: name, valid: this.valid };
+      });
+      return answer;
+    }
+    if (name === "save topology") {
+      this.updatePosition();
+      this.updateTopology(); 
+    }
+  }
 }

@@ -53,24 +53,26 @@ export const common_get_node_connected_serie = (ports) => {
   return null;
 };
 
-export const update_leaf_position = (
+export const update_leaf_position = async(
   parent_id: string,
   public_id: string,
   pos_x: number,
   pos_y: number
 ) => {
+  let result = {success:false, msg:"Enviando petición de cambio de posición"}
   let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/position`;
   let body = { pos_x: pos_x, pos_y: pos_y };
-  fetch(path, {
+  await fetch(path, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   })
     .then((res) => res.json())
     .then((json) => {
-      console.log(json);
+      result = json;
     })
     .catch(console.log);
+  return result
 };
 
 export const update_leaf_topology = async (

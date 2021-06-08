@@ -14,6 +14,7 @@ import {
   faToggleOn,
   faToggleOff,
   faCheck,
+  faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -51,6 +52,14 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     this.bck_node = _.cloneDeep(props.node);
   }
 
+  componentDidUpdate = () => {
+    if (this.node !== this.bck_node && !this.state.edited) {
+      this.bck_node = _.cloneDeep(this.node);
+      this.setState({ edited: true });
+      this.node.data.editado = true;
+    } 
+  }
+  
   _handle_message(msg: Object) {
     if (this.props.handle_messages !== undefined) {
       this.props.handle_messages(msg);
@@ -124,6 +133,19 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
     this.props.engine.repaintCanvas();
   };
 
+  _update_position = () => {
+    // actualizar posición del nodo
+    this.node.updatePosition().then((result) => {
+      if (result.success) {
+        // se encuentra sincronizado con la base de datos
+        this.node.data.editado = false;
+      } else {
+        // los cambios no fueron guardados en base de datos
+        this.node.data.editado = true;
+      }
+    }) 
+  }
+
   is_edited = () => {
     if (_.isEqual(this.bck_node, this.node)) {
       this.setState({ edited: false });
@@ -157,10 +179,10 @@ export class BlockWidget extends React.Component<BlockWidgetProps> {
         <div className="BtnContainer">
           {/* Permite guardar en base de datos la posición del elemento */}
           <FontAwesomeIcon
-            icon={this.node.data.editado ? faCheck : faSave}
-            size="2x"
-            className={this.node.data.editado ? "icon-on" : "icon-off"}
-            onClick={this._update_node}
+             icon={this.node.data.editado? faBullseye: faCheck}
+             size="2x"
+            className={"icon-off"}
+            onClick={this._update_position}
           />
         </div>
       </div>

@@ -33,33 +33,57 @@ export class BlockRootModel extends NodeModel<
   BlockRootParams & NodeModelGenerics
 > {
   data: Root;
+  handle_msg: Function;
+  handle_changes: Function;
   edited: boolean;
   valid: boolean;
 
-  constructor(params: { root: any }) {
+  constructor(params: { root: any; handle_msg?: Function, handle_changes?: Function }) {
     super({ type: "BlockRoot", id: params.root.public_id });
     this.data = params.root;
+    this.handle_msg = params.handle_msg;
+    this.handle_changes = params.handle_changes;
     this.addPort(new OutPortModel("ROOT"));
     this.setPosition(this.data.posx, this.data.posy);
     this.edited = false;
     this.valid = false;
   }
 
-  updatePosition = () => {
+  // Manejando mensajes desde la creación del objeto:
+  _handle_msg = (msg: Object) => {
+    if (this.handle_msg !== null) {
+      this.handle_msg(msg);
+    }
+  };
+
+  // manejando los cambios del nodo:
+  _handle_changes = (node: Object) => {
+    if (this.handle_changes !== undefined) {
+      this.handle_changes(node);
+    }
+  }
+
+  updatePosition = async () => {
+    let result = {success:false, msg:"Enviando petición"}
     let path = SCT_API_URL + "/block-root/" + this.data.public_id + "/position";
     let body = { pos_x: this.getPosition().x, pos_y: this.getPosition().y };
-    fetch(path, {
+    await fetch(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
       .then((res) => res.json())
-      .then((json) => {})
+      .then((json) => {
+        this._handle_msg(json);
+        result = json;
+      })
       .catch(console.log);
+    return result;
   };
 
   updateTopology = () => {
     let topology = this.generate_topology();
+    console.log("root", topology);
     if (!topology) { return }
     let path = `${SCT_API_URL}/block-root/${this.data.public_id}/topology`;
     let body = { topology: topology };
@@ -94,7 +118,7 @@ export class BlockRootModel extends NodeModel<
     }
     let connected_node = this.get_node_connected_to_root();
     return {
-      ROOT: [connected_node.getID()],
+      ROOT: [connected_node["data"]["public_id"]],
     };
   };
 
@@ -127,6 +151,7 @@ export class BlockRootModel extends NodeModel<
   };
 
   performanceTune = () => {
+    this._handle_changes({"node": this})
     this.validate();
     return true;
   };
@@ -140,4 +165,17 @@ export class BlockRootModel extends NodeModel<
       return !portModel.in;
     });
   }
+  fireEvent = (e, name) => {
+    if (name === "validate") {
+      this.updatePosition();
+      this.validate();
+      let name = `${this.data.public_id}__${this.getType()}__${this.data.name}`;
+      return {name: name, valid: this.valid}
+    }
+    if (name === "save topology") {
+      this.updatePosition();
+      this.updateTopology(); 
+    }
+  }
+  
 }

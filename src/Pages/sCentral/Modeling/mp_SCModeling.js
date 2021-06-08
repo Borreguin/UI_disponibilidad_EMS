@@ -50,7 +50,6 @@ class SCManage extends Component {
     }
   }
   handle_messages = (msg) => {
-    console.log("Excuting here 3", msg);
     if (msg !== undefined) {
       this.setState({ log: msg });
     }
@@ -285,7 +284,7 @@ class SCManage extends Component {
             // ------ MENU PRINCIPAL
             // Editar el menú superior de cada menú
             edit_menu_modal={[modal_edit_root_block_function, undefined]}
-            // Añadir un nuevo bloque:
+            // Añadir un nuevo bloque leaf:
             add_submenu_modal={[
               modal_add_internal_block_function,
               modal_add_root_component_function,
@@ -333,7 +332,7 @@ class SCManage extends Component {
                 name={false}
                 displayObjectSize={true}
                 indentWidth={2}
-                collapsed={false}
+                collapsed={true}
                 iconStyle="circle"
                 displayDataTypes={false}
                 theme="monokai"

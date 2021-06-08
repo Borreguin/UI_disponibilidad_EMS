@@ -67,7 +67,6 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     if (block !== undefined) {
       this.setState({ selected_block: block });
     }
-    
   };
 
   check_if_is_active = (current_static_menu, current_block) => {
@@ -109,6 +108,14 @@ class FatherMenu extends Component<FatherPros, FatherState> {
       this.props.handle_click_menu_button(static_menu, block);
     }
     this.setState({ selected_static_menu: static_menu, selected_block: block });
+  };
+
+  shouldBeInMenu = (block_object) => {
+    let isBloqueLeaf = block_object.document === "BloqueLeaf";
+    let isComponenteRoot = block_object.document === "ComponenteRoot";
+    let notParallelOperation = block_object.calculation_type !== "PARALELO";
+    let notMixOperation = block_object.calculation_type !== "MIXTO";
+    return (isBloqueLeaf || isComponenteRoot) && ( notParallelOperation && notMixOperation);
   };
 
   // menu minimizado
@@ -155,28 +162,32 @@ class FatherMenu extends Component<FatherPros, FatherState> {
               ) : (
                 <Card.Body className="submenu-container">
                   <ListGroup variant="flush">
-                    {this.props.fatherMenu.static_menu.blocks.map((block) => (
-                      <ListGroup.Item
-                        key={block.public_id}
-                        className={
-                          "submenu-item " +
-                          this.check_if_is_active(static_menu, block)
-                        }
-                        data-tip={"<div>" + block.name + "</div>"}
-                        data-html={true}
-                        onClick={(e) =>
-                          this.on_click_menu_button(e, static_menu, block)
-                        }
-                      >
-                        <span>
-                          <FontAwesomeIcon
-                            icon={faCaretRight}
-                            size="1x"
-                            style={{ marginRight: "7px" }}
-                          />
-                        </span>
-                      </ListGroup.Item>
-                    ))}
+                    {this.props.fatherMenu.static_menu.blocks.map((block) => {
+                      if (this.shouldBeInMenu(block.object)) {
+                        return (
+                          <ListGroup.Item
+                            key={block.public_id}
+                            className={
+                              "submenu-item " +
+                              this.check_if_is_active(static_menu, block)
+                            }
+                            data-tip={"<div>" + block.name + "</div>"}
+                            data-html={true}
+                            onClick={(e) =>
+                              this.on_click_menu_button(e, static_menu, block)
+                            }
+                          >
+                            <span>
+                              <FontAwesomeIcon
+                                icon={faCaretRight}
+                                size="1x"
+                                style={{ marginRight: "7px" }}
+                              />
+                            </span>
+                          </ListGroup.Item>
+                        );
+                      }
+                    })}
                     <ReactTooltip />
                   </ListGroup>
                 </Card.Body>
@@ -190,7 +201,6 @@ class FatherMenu extends Component<FatherPros, FatherState> {
 
   // menu extendido
   toggled_menu = (header, static_menu) => {
-
     // si el submenú no esta definido totalmente, entonces no se presenta
     if (header === undefined || static_menu.name === undefined) {
       return <></>;
@@ -233,17 +243,23 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                     icon={faPlusCircle}
                     size="1x"
                     className="add_button"
-                    onClick={() => this.on_click_show("add_submenu_modal", static_menu)}
+                    onClick={() =>
+                      this.on_click_show("add_submenu_modal", static_menu)
+                    }
                   />
                   {/* Botón de edición*/}
-                  {this.props.edit_menu_modal === undefined? <></>:
-                  <FontAwesomeIcon
-                    icon={faPen}
-                    size="1x"
-                    className="edit_block_button"
-                    onClick={() => this.on_click_show("edit_menu_modal", static_menu)}
+                  {this.props.edit_menu_modal === undefined ? (
+                    <></>
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faPen}
+                      size="1x"
+                      className="edit_block_button"
+                      onClick={() =>
+                        this.on_click_show("edit_menu_modal", static_menu)
+                      }
                     />
-                  }
+                  )}
                 </span>
               </Card.Header>
 
@@ -254,58 +270,64 @@ class FatherMenu extends Component<FatherPros, FatherState> {
                 <Card.Body className="submenu-container">
                   <ListGroup variant="flush">
                     {/* Creando los sub-menus */}
-                    {this.props.fatherMenu.static_menu.blocks.map((block) => (
-                      <ListGroup.Item
-                        key={block.public_id}
-                        className={
-                          "submenu-item " +
-                          this.check_if_is_active(static_menu, block)
-                        }
-                        onClick={(e) =>
-                          this.on_click_menu_button(e, static_menu, block)
-                        }
-                      >
-                        <span style={{ marginRight: "15px" }}>&middot;</span>
-                        <span>
-                          {block.name.length > 30
-                            ? block.name.substring(0, 20) +
-                              "..." +
-                              block.name.substring(
-                                block.name.length - 5,
-                                block.name.length
-                              )
-                            : block.name}
-                        </span>
-                        <span className="right-button-section">
-                          {/* Open edit modal */}
-                          <FontAwesomeIcon
-                            icon={faPen}
-                            size="1x"
-                            className="edit_button"
-                            onClick={() =>
-                              this.on_click_show(
-                                "edit_item_modal",
-                                static_menu,
-                                block
-                              )
+                    {this.props.fatherMenu.static_menu.blocks.map((block) => {
+                      if (this.shouldBeInMenu(block.object)) {
+                        return (
+                          <ListGroup.Item
+                            key={block.public_id}
+                            className={
+                              "submenu-item " +
+                              this.check_if_is_active(static_menu, block)
                             }
-                          />
-                          {/* Open delete modal */}
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            size="1x"
-                            className="delete_button"
-                            onClick={() =>
-                              this.on_click_show(
-                                "delete_item_modal",
-                                static_menu,
-                                block
-                              )
+                            onClick={(e) =>
+                              this.on_click_menu_button(e, static_menu, block)
                             }
-                          />
-                        </span>
-                      </ListGroup.Item>
-                    ))}
+                          >
+                            <span style={{ marginRight: "15px" }}>
+                              &middot;
+                            </span>
+                            <span>
+                              {block.name.length > 30
+                                ? block.name.substring(0, 20) +
+                                  "..." +
+                                  block.name.substring(
+                                    block.name.length - 5,
+                                    block.name.length
+                                  )
+                                : block.name}
+                            </span>
+                            <span className="right-button-section">
+                              {/* Open edit modal */}
+                              <FontAwesomeIcon
+                                icon={faPen}
+                                size="1x"
+                                className="edit_button"
+                                onClick={() =>
+                                  this.on_click_show(
+                                    "edit_item_modal",
+                                    static_menu,
+                                    block
+                                  )
+                                }
+                              />
+                              {/* Open delete modal */}
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size="1x"
+                                className="delete_button"
+                                onClick={() =>
+                                  this.on_click_show(
+                                    "delete_item_modal",
+                                    static_menu,
+                                    block
+                                  )
+                                }
+                              />
+                            </span>
+                          </ListGroup.Item>
+                        );
+                      }
+                    })}
                   </ListGroup>
                 </Card.Body>
               )}
@@ -316,7 +338,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
         {
           // Llamando modal para editar cabecera del menú
           this.state.show["edit_menu_modal"] !== undefined &&
-            this.state.show["edit_menu_modal"] === true &&
+          this.state.show["edit_menu_modal"] === true &&
           this.props.edit_menu_modal !== undefined ? (
             this.props.edit_menu_modal(
               static_menu.public_id,
@@ -341,7 +363,6 @@ class FatherMenu extends Component<FatherPros, FatherState> {
           ) : (
             <></>
           )
-
         }
 
         {

@@ -54,13 +54,15 @@ export class BlockNodeModel extends NodeModel<
 > {
   data: Node;
   handle_msg: Function;
+  handle_changes: Function;
   edited: boolean;
   valid: boolean;
 
-  constructor(params: { node: any, handle_msg?: Function}) {
+  constructor(params: { node: any, handle_msg?: Function, handle_changes?: Function}) {
     super({ type: "BloqueLeaf", id: params.node.public_id });
     this.data = params.node;
     this.handle_msg = params.handle_msg;
+    this.handle_changes = params.handle_changes;
     this.addPort(new SerialOutPortModel("SERIE"));
     this.addPort(new InPortModel("InPut"));
 
@@ -79,8 +81,21 @@ export class BlockNodeModel extends NodeModel<
      }
   }
 
-  updatePosition = () => {
-    update_leaf_position(this.data.parent_id, this.data.public_id, this.getPosition().x, this.getPosition().y);
+  // manejando los cambios del nodo:
+  _handle_changes = (node: Object) => {
+    if (this.handle_changes !== undefined) {
+      this.handle_changes(node);
+    }
+  }
+
+  updatePosition = async() => {
+    let answer = null
+    let promise = update_leaf_position(this.data.parent_id, this.data.public_id, this.getPosition().x, this.getPosition().y);
+    await promise.then((result) => {
+      this._handle_msg(result);
+      answer = result;
+    })
+    return answer;
   };
 
   // Actualiza la topología del bloque
@@ -138,7 +153,7 @@ export class BlockNodeModel extends NodeModel<
       }
     } else if (s_node) {
       // solamente conexion serie
-      topology["SERIE"] = [s_node.getID()];
+      topology["SERIE"] = [s_node["data"]["public_id"]];
     }
     return topology;
   };
@@ -189,10 +204,24 @@ export class BlockNodeModel extends NodeModel<
 
   performanceTune = () => {
     this.validate();
+    this._handle_changes({"node": this})
     return true;
   };
 
   setNodeInfo(_node: Node) {
     this.data = _node;
+  }
+
+  fireEvent = (e, name) => {
+    if (name === "validate") {
+      this.updatePosition();
+      this.validate();
+      let name = `${this.data.public_id}__${this.getType()}__${this.data.name}`;
+      return {name: name, valid: this.valid}
+    }
+    if (name === "save topology") {
+      this.updatePosition();
+      this.updateTopology(); 
+    }
   }
 }
