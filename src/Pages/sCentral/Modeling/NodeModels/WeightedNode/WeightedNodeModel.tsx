@@ -140,22 +140,30 @@ export class WeightedNodeModel extends NodeModel<
   };
 
   // Actualiza la posición del elemento
-  updatePosition = () => {
-    update_leaf_position(
+  updatePosition = async () => {
+    let answer = null;
+    let promise = update_leaf_position(
       this.data.parent_id,
       this.data.public_id,
       this.getPosition().x,
       this.getPosition().y
     );
+    await promise.then((result) => {
+      this._handle_msg(result);
+      answer = result;
+    });
+    return answer;
   };
 
   // Actualiza la topología del bloque
-  updateTopology = () => {
-    update_leaf_topology(
+  updateTopology = async () => {
+    let answer = null;
+    await update_leaf_topology(
       this.data.parent_id,
       this.data.public_id,
       this.generate_topology()
-    );
+    ).then((result) => (answer = result));
+    return answer;
   };
 
   // Permite validar que el elemento ha sido correctamente conectado
@@ -202,7 +210,7 @@ export class WeightedNodeModel extends NodeModel<
       if (isNaN(w)) {
         w = 100 / w_nodes.length;
       }
-      weight.push({ public_id: w_node["data"]["public_id"], weight: w })
+      weight.push({ public_id: w_node["data"]["public_id"], weight: w });
     }
     if (w_nodes) {
       topology["PONDERADO"] = weight;
@@ -317,7 +325,8 @@ export class WeightedNodeModel extends NodeModel<
       this.data.connections[ix].weight =
         weight[this.data.connections[ix].public_id];
       console.log("check2", weight[this.data.connections[ix].public_id]);
-      this.weight_dict[this.data.connections[ix].public_id] = weight[this.data.connections[ix].public_id];
+      this.weight_dict[this.data.connections[ix].public_id] =
+        weight[this.data.connections[ix].public_id];
       console.log(this.weight_dict);
     }
   };
@@ -367,8 +376,13 @@ export class WeightedNodeModel extends NodeModel<
       return answer;
     }
     if (name === "save topology") {
-      this.updatePosition();
-      this.updateTopology(); 
+      let answer = null;
+      await this.updatePosition().then(async (resp) => {
+        answer = await this.updateTopology();
+        console.log("answer1", answer);
+      });
+      console.log("answer2", answer);
+      return answer;
     }
   };
 }

@@ -109,8 +109,8 @@ export class Modal_new_root_block extends Component<
         .catch((error) => {
           console.log(error);
           let msg =
-            "Ha fallado la conexión con la API de modelamiento (api-sct)";
-          this.setState({ message: msg });
+            "Ha fallado la conexión con la API de modelamiento (api-sct). Error: " + error;
+          this.setState({ message: msg});
           this.handleMessages(msg);
         });
     }

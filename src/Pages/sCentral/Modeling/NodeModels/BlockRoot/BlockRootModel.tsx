@@ -81,22 +81,23 @@ export class BlockRootModel extends NodeModel<
     return result;
   };
 
-  updateTopology = () => {
+  updateTopology = async() => {
     let topology = this.generate_topology();
-    console.log("root", topology);
+    let answer = {success: false, msg: "Enviando petición"}
     if (!topology) { return }
     let path = `${SCT_API_URL}/block-root/${this.data.public_id}/topology`;
     let body = { topology: topology };
-    fetch(path, {
+    await fetch(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     })
       .then((res) => res.json())
       .then((json) => {
-        console.log("topology", json);
+        answer = json;
       })
       .catch(console.log);
+    return answer;
   };
 
   validate = () => {
@@ -165,7 +166,7 @@ export class BlockRootModel extends NodeModel<
       return !portModel.in;
     });
   }
-  fireEvent = (e, name) => {
+  fireEvent = async (e, name) => {
     if (name === "validate") {
       this.updatePosition();
       this.validate();
@@ -173,8 +174,13 @@ export class BlockRootModel extends NodeModel<
       return {name: name, valid: this.valid}
     }
     if (name === "save topology") {
-      this.updatePosition();
-      this.updateTopology(); 
+      let answer = null;
+      await this.updatePosition().then(async (resp) => {
+        answer = await this.updateTopology();
+        console.log("answer1", answer);
+      });
+      console.log("answer2", answer);
+      return answer;
     }
   }
   

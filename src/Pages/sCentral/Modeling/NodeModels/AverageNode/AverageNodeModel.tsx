@@ -53,7 +53,11 @@ export class AverageNodeModel extends NodeModel<
   edited: boolean;
   valid: boolean;
 
-  constructor(params: { node: any,  handle_msg?: Function, handle_changes?: Function}) {
+  constructor(params: {
+    node: any;
+    handle_msg?: Function;
+    handle_changes?: Function;
+  }) {
     super({ type: "AverageNode", id: params.node.public_id });
     this.data = params.node;
     this.handle_msg = params.handle_msg;
@@ -69,28 +73,27 @@ export class AverageNodeModel extends NodeModel<
     this.valid = false;
   }
 
-    // Manejando mensajes desde la creación del objeto:
-    _handle_msg = (msg: Object) => {
-      if (this.handle_msg !== null) {
-        this.handle_msg(msg);
-      }
-    };
-  
+  // Manejando mensajes desde la creación del objeto:
+  _handle_msg = (msg: Object) => {
+    if (this.handle_msg !== null) {
+      this.handle_msg(msg);
+    }
+  };
 
   // manejando los cambios del nodo:
   _handle_changes = (node: Object) => {
     if (this.handle_changes !== undefined) {
       this.handle_changes(node);
     }
-  }
+  };
 
   create_if_not_exist = async () => {
     let result = null;
-    if(this.data.public_id.includes("AverageNode")){
+    if (this.data.public_id.includes("AverageNode")) {
       await this.create_block().then((ans) => (result = ans));
     }
     return result;
-  }
+  };
 
   create_block = async () => {
     let result = { success: false, bloqueleaf: null };
@@ -112,7 +115,7 @@ export class AverageNodeModel extends NodeModel<
         let bloqueleaf = json.bloqueleaf as AverageNode;
         bloqueleaf.parent_id = _.cloneDeep(this.data.parent_id);
         this.setNodeInfo(json.bloqueleaf);
-        result = {success:json.success, bloqueleaf: json.bloqueleaf}
+        result = { success: json.success, bloqueleaf: json.bloqueleaf };
       })
       .catch(console.log);
     this._handle_msg(result);
@@ -120,26 +123,34 @@ export class AverageNodeModel extends NodeModel<
   };
 
   // Actualiza la posición del elemento
-  updatePosition = () => {
-    update_leaf_position(
+  updatePosition = async () => {
+    let answer = null;
+    let promise = update_leaf_position(
       this.data.parent_id,
       this.data.public_id,
       this.getPosition().x,
       this.getPosition().y
-    ).then((result) => this._handle_msg(result))
+    );
+    await promise.then((result) => {
+      this._handle_msg(result);
+      answer = result;
+    });
+    return answer;
   };
 
   // Actualiza la topología del bloque
-  updateTopology = () => {
-    update_leaf_topology(
+  updateTopology = async () => {
+    let answer = null;
+    await update_leaf_topology(
       this.data.parent_id,
       this.data.public_id,
       this.generate_topology()
-    );
+    ).then((result) => answer = result);
+    return answer
   };
 
-   // Permite validar que el elemento ha sido correctamente conectado
-   validate = () => {
+  // Permite validar que el elemento ha sido correctamente conectado
+  validate = () => {
     let valid = true;
     for (var type_port in this.getPorts()) {
       // todos los nodos deben estar conectados
@@ -165,8 +176,6 @@ export class AverageNodeModel extends NodeModel<
         console.log(json);
       });
   };
-
- 
 
   // Esta función permite generar la topología a realizar dentro del bloque:
   // Se maneja dos tipode conexiones: promedio, Serie
@@ -233,7 +242,7 @@ export class AverageNodeModel extends NodeModel<
   };
 
   performanceTune = () => {
-    this._handle_changes({"node": this})
+    this._handle_changes({ node: this });
     this.validate();
     return true;
   };
@@ -295,8 +304,13 @@ export class AverageNodeModel extends NodeModel<
       return answer;
     }
     if (name === "save topology") {
-      this.updatePosition();
-      this.updateTopology(); 
+      let answer = null;
+      await this.updatePosition().then(async (resp) => {
+        answer = await this.updateTopology();
+        console.log("answer1", answer);
+      });
+      console.log("answer2", answer);
+      return answer;
     }
-  }
+  };
 }

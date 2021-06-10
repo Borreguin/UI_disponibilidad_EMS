@@ -101,7 +101,9 @@ class FatherMenu extends Component<FatherPros, FatherState> {
     }
     return "";
   };
-
+  
+  // static_menu: la estructura estática de menu
+  // block: bloque seleccionado
   on_click_menu_button = (e, static_menu, block = undefined) => {
     if (e.target.tagName !== "DIV" && e.target.tagName !== "SPAN") return;
     if (this.props.handle_click_menu_button !== undefined) {

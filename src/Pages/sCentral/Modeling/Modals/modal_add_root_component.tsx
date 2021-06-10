@@ -125,12 +125,12 @@ export class Modal_add_root_component extends Component<
           animation={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Añadir componente general</Modal.Title>
+            <Modal.Title>Añadir componente</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="BlockName">
-                <Form.Label>Nombre del componente general:</Form.Label>
+                <Form.Label>Nombre del componente:</Form.Label>
                 <Form.Control
                   onChange={(e) => this._handle_form_changes(e, "name")}
                   type="text"
@@ -158,7 +158,7 @@ export class Modal_add_root_component extends Component<
               onClick={this._onclick_create}
               disabled={!this._check_form()}
             >
-              Crear componente general
+              Crear componente
             </Button>
           </Modal.Footer>
         </Modal>

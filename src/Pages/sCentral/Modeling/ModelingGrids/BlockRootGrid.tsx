@@ -8,7 +8,7 @@ import createEngine, {
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { StyledCanvasWidget } from "../../../../components/Diagrams/helpers/StyledCanvasWidget";
 import { BlockFactory } from "../NodeModels/BlockNode/BlockFactory";
-import { static_menu } from "../../../../components/SideBars/menu_type";
+import { block, static_menu } from "../../../../components/SideBars/menu_type";
 import { BlockNodeModel } from "../NodeModels/BlockNode/BlockNodeModel";
 import { BlockRootModel } from "../NodeModels/BlockRoot/BlockRootModel";
 import { DefaultState } from "../../DefaultState";
@@ -26,6 +26,7 @@ import { Button } from "react-bootstrap";
 type BlockRootGridProps = {
   static_menu: static_menu;
   handle_messages: Function;
+  handle_reload: Function;
 };
 
 type WeightedConnection = {
@@ -66,19 +67,112 @@ type WeightedConnection = {
 */
 
 class BlockRootGrid extends Component<BlockRootGridProps> {
+  state: {
+    engine: DiagramEngine;
+    model: DiagramModel;
+  };
+
   engine: DiagramEngine;
   model: DiagramModel;
+  last_props: any;
+  parent_id: string;
 
   constructor(props) {
     super(props);
     this.engine = null;
     this.model = null;
+    this.last_props = _.cloneDeep(props);
+    this.parent_id = "";
+    this.state = {
+      engine: null,
+      model: null,
+    };
   }
 
-  // Evita actualización innecesaria
-  shouldComponentUpdate(nexProps, nextState) {
-    return false;
-  }
+  componentDidMount = () => {
+    // inicializando el componente con los nodos correspondientes
+    const resp = this._init_graph();
+    this.setState({ engine: resp.engine, model: resp.model });
+  };
+ 
+
+  // Permite actualizar el grid cada vez que recibe un cambio desde las propiedades
+  // Esto ocurre cuando se añade un bloque en el menú lateral
+  componentWillReceiveProps = (newProps) => {
+    if (
+      newProps.static_menu.blocks.length !==
+      this.last_props.static_menu.blocks.length
+    ) {
+      this.last_props = _.cloneDeep(newProps);
+      this.update_nodes_from_changes(newProps.static_menu.blocks);
+    }
+  };
+
+  update_nodes_from_changes = (new_blocks: Array<block>) => {
+    // actualizando en el grid solamente aquellos elementos
+    // que no están presentes en el grid:
+    let engine = this.state.engine;
+    let nodes = engine.getModel().getNodes();
+    console.log("nodes", nodes.length, "blocks", new_blocks.length);
+    if (nodes.length <= new_blocks.length) {
+      for (const block of new_blocks) {
+        let found = false;
+        for (const node of nodes) {
+          if (block.public_id === node["data"]["public_id"]) {
+            found = true;
+            break;
+          }
+        }
+        console.log(block.object.document);
+        if (!found && block.object.document === "BloqueLeaf") {
+          // Se asume que solamente serán de tipo BlockLeaf:
+          let data = {
+            name: block.name,
+            editado: false,
+            public_id: block.public_id,
+            parent_id: this.parent_id,
+            posx: 300,
+            posy: 300,
+            parallel_connections: [],
+          };
+          let node = new BlockNodeModel({
+            node: data,
+            handle_msg: this._handle_messages,
+            handle_changes: this._handle_changes,
+          });
+          console.log("creando", node);
+          engine.getModel().addNode(node);
+        }
+      }
+    } else {
+      for (const node of nodes) {
+        let found = false;
+        for (const block of new_blocks) {
+          if (block.public_id === node["data"]["public_id"]) {
+            found = true;
+            break;
+          }
+        }
+        if (!found && node.getType() === "BloqueLeaf") {
+          // Se ha eliminado este nodo:
+          console.log("eliminando..", node.getType());
+          let ports = node.getPorts();
+          for (var p in ports) {
+            let port = ports[p];
+            let links = port.getLinks();
+            for (var id_l in links) {
+              let link = links[id_l];
+              node.getLink(id_l).remove();
+              engine.getModel().removeLink(link);
+            }
+          }
+          engine.getModel().removeNode(node);
+        }
+      }
+    }
+
+    this.setState({ engine: engine });
+  };
 
   // handle messages from internal elements:
   _handle_messages = (msg: Object) => {
@@ -372,54 +466,39 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     for (const node of nodes) {
       const check = await node.fireEvent(e, "validate");
       msg.validate[check["name"]] = check["valid"];
-        all_is_valid = all_is_valid && check["valid"];
-        if (!check["valid"]) {
-          msg.state = `El elemento ${check["name"]} no es válido`;
-        }
+      all_is_valid = all_is_valid && check["valid"];
+      if (!check["valid"]) {
+        msg.state = `El elemento ${check["name"]} no es válido`;
+      }
     }
     // si todo es válido entonces se puede proceder a
     if (all_is_valid) {
+      all_is_valid = true;
       for (const node of nodes) {
-        var clear = await node.fireEvent(e, "save topology");
-        console.log(clear);
-      }
-    }
-
-    /*Promise.all(promises).then(async (results) => {
-      await results.forEach((check) => {
-        msg.validate[check["name"]] = check["valid"];
-        all_is_valid = all_is_valid && check["valid"];
-        console.log(all_is_valid, check);
-        if (!check["valid"]) {
-          msg.state = `El elemento ${check["name"]} no es válido`;
+        const check = await node.fireEvent(e, "save topology");
+        console.log(node["data"]["name"], check);
+        all_is_valid = all_is_valid && check["success"];
+        if (!check["success"]) {
+          msg.state = `El elemento ${node["data"]["name"]} no es válido`;
+          msg["log"] = check;
         }
-      });
-      console.log("all_is_valid?", all_is_valid);
-      // si todo es válido, antes de guardar todo,
-      // se debe limpiar la topología de todos los nodos:
-      if (all_is_valid) {
-        this.model.getNodes().forEach((node) => {
-          var clear = node.fireEvent(e, "save topology");
-          console.log(clear);
-        });
       }
-      //node.fireEvent(e, "clear topology");
-      //node.fireEvent(e, "save");
+      if (all_is_valid) {
+        msg.state = "Se ha guardado de manera correcta la modelación";
+      }
       this._handle_messages(msg);
-    });*/
-    /*
-    await 
-
-    */
+    }
+    this._handle_messages(msg);
+  
   };
 
-  load_graph_as_serial = () => {
-    var model2 = new DiagramModel();
-    //model2.deserializeModel(JSON.parse(this.test), this.engine);
-    //this.engine.setModel(model2);
+  reload_graph = () => {
+    if (this.props.handle_reload !== undefined) {
+      this.props.handle_reload();
+    }
   };
 
-  render() {
+  _init_graph = () => {
     //1) setup the diagram engine
     // IMPORTANTE: No se registra la manera por defecto de eliminar elementos
     let engine = createEngine({ registerDefaultDeleteItemsAction: false });
@@ -435,6 +514,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
 
     // Variables generales:
     let parent_id = this.props.static_menu.object["public_id"];
+    this.parent_id = parent_id;
 
     // Añadir el bloque root (inicio de operaciones):
     model.addNode(this.create_root_block());
@@ -460,6 +540,15 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     // el diagrama ha quedado actualizado:
     this.engine = engine;
     this.model = model;
+    // this.setState({ engine: engine, model: model });
+    return { model: model, engine: engine };
+  };
+
+  render() {
+    //const resp = this._init_graph();
+    //console.log(this.state.engine);
+    //let model = resp.model;
+    //let engine = resp.engine;
 
     return (
       <>
@@ -479,7 +568,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
           <Button
             style={{ float: "right" }}
             variant="outline-success"
-            onClick={this.load_graph_as_serial}
+            onClick={this.reload_graph}
           >
             Actualizar
           </Button>
@@ -490,22 +579,27 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
             var data = JSON.parse(
               event.dataTransfer.getData("storm-diagram-node")
             );
-            let node = this.create_selected_node(data.type, parent_id);
-            var point = engine.getRelativeMousePoint(event);
+            let node = this.create_selected_node(data.type, this.parent_id);
+            var point = this.state.engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            model.addNode(node);
-            engine.repaintCanvas();
+            this.model.addNode(node);
+            this.engine.repaintCanvas();
             // manteniendo actualizado:
-            this.engine = engine;
-            this.model = model;
+            //this.engine = engine;
+            //this.model = model;
+            this.setState({ engine: this.engine, model: this.model });
           }}
           onDragOver={(event) => {
             event.preventDefault();
           }}
         >
-          <StyledCanvasWidget className="grid">
-            <CanvasWidget engine={this.engine} />
-          </StyledCanvasWidget>
+          {this.state.engine === null ? (
+            <></>
+          ) : (
+            <StyledCanvasWidget className="grid">
+              <CanvasWidget engine={this.state.engine} />
+            </StyledCanvasWidget>
+          )}
         </div>
       </>
     );

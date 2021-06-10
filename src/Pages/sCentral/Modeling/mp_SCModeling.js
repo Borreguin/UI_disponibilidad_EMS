@@ -42,11 +42,25 @@ class SCManage extends Component {
   a_evaluar = true;
 
   async componentDidMount() {
+    this.load_this_component();
+  };
+
+  handle_reload = () => {
+    this.load_this_component();
+  }
+
+  load_this_component = async () => {
     await this._search_root_block();
-    // Seleccionar la primera por defecto al empezar 
-    if (this.state.sidebar_menu !== undefined && this.state.sidebar_menu[0] !== undefined
-      && this.state.sidebar_menu[0]["static_menu"] !== undefined) {
-      this.handle_click_menu_button(this.state.sidebar_menu[0]["static_menu"], undefined);
+    // Seleccionar la primera por defecto al empezar
+    if (
+      this.state.sidebar_menu !== undefined &&
+      this.state.sidebar_menu[0] !== undefined &&
+      this.state.sidebar_menu[0]["static_menu"] !== undefined
+    ) {
+      this.handle_click_menu_button(
+        this.state.sidebar_menu[0]["static_menu"],
+        undefined
+      );
     }
   }
   handle_messages = (msg) => {
@@ -54,7 +68,6 @@ class SCManage extends Component {
       this.setState({ log: msg });
     }
   }
-
 
   // HOOKS SECTION:
   // permite manejar el sideBar pinned or toggle
@@ -72,6 +85,23 @@ class SCManage extends Component {
   handle_changes_in_structure = (changed_root_block) => {
     // Maneja los cambios realizados sobre la estructura general de datos
     // changed_root_block contiene toda la estructura jerárquica
+    
+    if (this.state.selected_static_menu !== undefined) {
+      let selected_static_menu = this.state.selected_static_menu;
+      selected_static_menu.object = changed_root_block;
+      let blocks = [];
+      for (const block of changed_root_block.block_leafs) {
+        let new_block = {
+          name: block["name"],
+          public_id: block["public_id"],
+          object: block,
+        };
+        blocks.push(new_block);
+      }
+      selected_static_menu.blocks = blocks;
+      this.setState({ selected_static_menu: selected_static_menu });
+    }
+
     let sidebar = this._root_block_to_sidebar_menu(
       changed_root_block,
       this.state.selected_static_menu,
@@ -97,6 +127,9 @@ class SCManage extends Component {
 
   // INTERNAL FUNCTIONS:
   // Transformando la estructura de datos en menú:
+  // r_bloque: info enviada desde la API
+  // selected_static_menu: estructura menu seleccionada
+  // selected_block: en caso de ser seleccionado
   _root_block_to_sidebar_menu = (
     r_bloque,
     selected_static_menu = undefined,
@@ -242,10 +275,12 @@ class SCManage extends Component {
     this.setState({ loading: false, sidebar_menu: sidebar });
   };
 
-  evaluate = () =>{ 
-    var check = this.state.selected_static_menu !== undefined && this.state.selected_block === undefined;
+  evaluate = () => {
+    var check =
+      this.state.selected_static_menu !== undefined &&
+      this.state.selected_block === undefined;
     return check;
-  }
+  };
 
   render() {
     window.onkeydown = function (e) {
@@ -322,7 +357,11 @@ class SCManage extends Component {
             {/* Grid de modelamiento*/}
             <div className="grid">
               {this.evaluate() ? (
-                <BlockRootGrid static_menu={this.state.selected_static_menu} handle_messages={this.handle_messages}/>
+                <BlockRootGrid
+                  static_menu={this.state.selected_static_menu}
+                  handle_messages={this.handle_messages}
+                  handle_reload={ this.handle_reload}
+                />
               ) : (
                 <></>
               )}
