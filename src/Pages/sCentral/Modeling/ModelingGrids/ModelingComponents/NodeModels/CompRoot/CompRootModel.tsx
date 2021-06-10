@@ -1,7 +1,7 @@
 import { NodeModel, NodeModelGenerics } from "@projectstorm/react-diagrams";
 import * as _ from "lodash";
 import { OutPortModel } from "./RootPort";
-import { SCT_API_URL } from "../../../Constantes";
+import { SCT_API_URL } from "../../../../../Constantes";
 /*
     ---- Define el modelo del root  ----
     Tipo de puertos a colocar en el nodo: 
@@ -22,15 +22,15 @@ export type Root = {
   posy: number;
 };
 
-export interface BlockRootParams {
+export interface CompRootParams {
   PORT: OutPortModel;
   root: Root;
 }
 
 // Aquí se definen las funciones del nodo
 
-export class BlockRootModel extends NodeModel<
-  BlockRootParams & NodeModelGenerics
+export class CompRootModel extends NodeModel<
+  CompRootParams & NodeModelGenerics
 > {
   data: Root;
   handle_msg: Function;

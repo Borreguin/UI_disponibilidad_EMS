@@ -25,21 +25,45 @@ export type static_menu = {
 }
 
 export type properties = {
+    parent_id?: string,
     public_id: string,
     document: string,
     name: string,
     position_x_y: Array<Number>,
-    block_leafs: Array<block_leaf>,
+    block_leafs?: Array<block_leaf>,
     operations: Array<operation>
     topology: Object,
 }
 
-export type block_leaf = {
+export type leaf_component = {
+    parent_id: string,
     public_id: string,
     calculation_type: string,
     document: string,
     name: string,
     position_x_y: Array<Number>
+    leafs?: Array<block_leaf>
+    object?: properties;
+}
+
+export type comp_root = {
+    bloque: string,
+    document: string,
+    leafs: Array<leaf_component>,
+    name: string,
+    position_x_y: Array<Number>,
+    public_id: string,
+}
+
+export type block_leaf = {
+    parent_id: string,
+    public_id: string,
+    calculation_type: string,
+    document: string,
+    name: string,
+    position_x_y: Array<Number>,
+    topology?: Object, 
+    comp_root: comp_root
 }
 
 export type operation = {
@@ -55,6 +79,13 @@ export type block = {
     name: string,
     public_id: string,
     object?: properties
+}
+
+export type selectedBlock = {
+    name: string,
+    parent_id: string,
+    public_id: string,
+    object?: block_leaf
 }
 
 export type navData = {

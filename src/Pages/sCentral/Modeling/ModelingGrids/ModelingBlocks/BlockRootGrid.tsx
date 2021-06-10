@@ -6,20 +6,20 @@ import createEngine, {
   DiagramEngine,
 } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import { StyledCanvasWidget } from "../../../../components/Diagrams/helpers/StyledCanvasWidget";
-import { BlockFactory } from "../NodeModels/BlockNode/BlockFactory";
-import { block, static_menu } from "../../../../components/SideBars/menu_type";
-import { BlockNodeModel } from "../NodeModels/BlockNode/BlockNodeModel";
-import { BlockRootModel } from "../NodeModels/BlockRoot/BlockRootModel";
-import { DefaultState } from "../../DefaultState";
-import { BlockRootFactory } from "../NodeModels/BlockRoot/BlockRootFactory";
-import { AverageNodeFactory } from "../NodeModels/AverageNode/AverageNodeFactory";
-import { AverageNodeModel } from "../NodeModels/AverageNode/AverageNodeModel";
-import { WeightedNodeFactory } from "../NodeModels/WeightedNode/WeightedNodeFactory";
-import { WeightedNodeModel } from "../NodeModels/WeightedNode/WeightedNodeModel";
-import { TrayWidget } from "../NodeModels/DragAndDropWidget/TrayWidget";
-import { TrayItemWidget } from "../NodeModels/DragAndDropWidget/TrayItemWidget";
-import "../NodeModels/DragAndDropWidget/styles.css";
+import { StyledCanvasWidget } from "../../../../../components/Diagrams/helpers/StyledCanvasWidget";
+import { BlockFactory } from "./NodeModels/BlockNode/BlockFactory";
+import { block, static_menu } from "../../../../../components/SideBars/menu_type";
+import { BlockNodeModel } from "./NodeModels/BlockNode/BlockNodeModel";
+import { BlockRootModel } from "./NodeModels/BlockRoot/BlockRootModel";
+import { DefaultState } from "../../../DefaultState";
+import { BlockRootFactory } from "./NodeModels/BlockRoot/BlockRootFactory";
+import { AverageNodeFactory } from "./NodeModels/AverageNode/AverageNodeFactory";
+import { AverageNodeModel } from "./NodeModels/AverageNode/AverageNodeModel";
+import { WeightedNodeFactory } from "./NodeModels/WeightedNode/WeightedNodeFactory";
+import { WeightedNodeModel } from "./NodeModels/WeightedNode/WeightedNodeModel";
+import { TrayWidget } from "./NodeModels/DragAndDropWidget/TrayWidget";
+import { TrayItemWidget } from "./NodeModels/DragAndDropWidget/TrayItemWidget";
+import "./NodeModels/DragAndDropWidget/styles.css";
 import * as _ from "lodash";
 import { Button } from "react-bootstrap";
 
@@ -489,6 +489,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
       this._handle_messages(msg);
     }
     this._handle_messages(msg);
+    this.reload_graph();
   
   };
 

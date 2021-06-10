@@ -9,13 +9,14 @@ import { modal_add_internal_block_function } from "./Modals/modal_add_internal_b
 import { modal_add_root_component_function } from "./Modals/modal_add_root_component";
 import { modal_edit_internal_block_function } from "./Modals/modal_edit_internal_block";
 import { modal_delete_internal_block_function } from "./Modals/modal_delete_internal_block";
-import BlockRootGrid from "./ModelingGrids/BlockRootGrid";
+import BlockRootGrid from "./ModelingGrids/ModelingBlocks/BlockRootGrid";
 import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
 import ReactJson from "react-json-view";
 import DynamicSideBar from "../../../components/SideBars/DynamicSideBar/dynamicSidebar";
 import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
 import { SCT_API_URL } from "../Constantes";
+import BlockLeafGrid from "./ModelingGrids/ModelingComponents/BlockLeafGrid";
 
 // Pagina inicial de manejo de nodos:
 class SCManage extends Component {
@@ -43,11 +44,11 @@ class SCManage extends Component {
 
   async componentDidMount() {
     this.load_this_component();
-  };
+  }
 
   handle_reload = () => {
     this.load_this_component();
-  }
+  };
 
   load_this_component = async () => {
     await this._search_root_block();
@@ -62,12 +63,12 @@ class SCManage extends Component {
         undefined
       );
     }
-  }
+  };
   handle_messages = (msg) => {
     if (msg !== undefined) {
       this.setState({ log: msg });
     }
-  }
+  };
 
   // HOOKS SECTION:
   // permite manejar el sideBar pinned or toggle
@@ -85,7 +86,7 @@ class SCManage extends Component {
   handle_changes_in_structure = (changed_root_block) => {
     // Maneja los cambios realizados sobre la estructura general de datos
     // changed_root_block contiene toda la estructura jerárquica
-    
+
     if (this.state.selected_static_menu !== undefined) {
       let selected_static_menu = this.state.selected_static_menu;
       selected_static_menu.object = changed_root_block;
@@ -139,7 +140,8 @@ class SCManage extends Component {
     let sidebar = [];
     // Construcción de menú superior (menú de bloques)
     let first_blocks = [];
-    let comp_roots = [];
+    let comp_root = null;
+    let leafs = [];
     let click_inside = false;
     // creando la estructura del submenu superior e inferior:
     if (
@@ -149,21 +151,28 @@ class SCManage extends Component {
       r_bloque["block_leafs"].forEach((block) => {
         let new_block = {
           name: block["name"],
+          parent_id: block["parent_id"],
           public_id: block["public_id"],
           object: block,
         };
         first_blocks.push(new_block);
+
+        // click en el primer menú:
         if (
           selected_block !== undefined &&
-          block.public_id === selected_block.public_id
+          block.public_id === selected_block.public_id &&
+          block.comp_root !== undefined
         ) {
-          comp_roots = block.comp_roots;
+          comp_root = block.comp_root;
+          console.log("primer menú", comp_root);
+          leafs = block.comp_root.leafs;
         }
+        //
         if (
           selected_static_menu !== undefined &&
           selected_static_menu.public_id === block.public_id
         ) {
-          comp_roots = block.comp_roots;
+          leafs = block.comp_root.leafs
           click_inside = true;
         }
       });
@@ -184,15 +193,17 @@ class SCManage extends Component {
 
     // Construcción de menú inferior (menú de componentes)
     let second_blocks = [];
-    comp_roots.forEach((comp) => {
+    leafs.forEach((comp) => {
       let new_block = {
         name: comp["name"],
+        parent_id: comp["parent_id"],
         public_id: comp["public_id"],
         object: comp,
       };
       second_blocks.push(new_block);
     });
 
+    
     // caso en el que se da click sobre el bloque leaf
     if (
       selected_static_menu !== undefined &&
@@ -212,7 +223,7 @@ class SCManage extends Component {
       };
       sidebar.push(menu_2);
     }
-    // caso en el que se da click sobre el componente root
+    // caso en el que se da click sobre los componentes leaf
     if (click_inside) {
       let menu_2 = {
         header: "Componentes",
@@ -227,6 +238,7 @@ class SCManage extends Component {
       };
       sidebar.push(menu_2);
     }
+    console.log("sidebar", sidebar);
     return sidebar;
   };
 
@@ -275,11 +287,32 @@ class SCManage extends Component {
     this.setState({ loading: false, sidebar_menu: sidebar });
   };
 
-  evaluate = () => {
-    var check =
-      this.state.selected_static_menu !== undefined &&
-      this.state.selected_block === undefined;
-    return check;
+  show_grid = () => {
+    const isSelected_menu = this.state.selected_static_menu !== undefined;
+    const isSelected_block = this.state.selected_block !== undefined;
+
+    console.log("menu", this.state.selected_static_menu);
+    console.log("selected_block", this.state.selected_block);
+
+    if (isSelected_menu && !isSelected_block) {
+      return (
+        <BlockRootGrid
+          static_menu={this.state.selected_static_menu}
+          handle_messages={this.handle_messages}
+          handle_reload={this.handle_reload}
+        />
+      );
+    }
+    if (isSelected_menu && isSelected_block) {
+      return (
+        <BlockLeafGrid
+          selected_block={this.state.selected_block}
+          handle_messages={this.handle_messages}
+          handle_reload={this.handle_reload}
+        />
+      );
+    }
+    return <></>;
   };
 
   render() {
@@ -356,7 +389,7 @@ class SCManage extends Component {
           <div className="page-content content-shift">
             {/* Grid de modelamiento*/}
             <div className="grid">
-              {this.evaluate() ? (
+              {/*this.show_grid() ? (
                 <BlockRootGrid
                   static_menu={this.state.selected_static_menu}
                   handle_messages={this.handle_messages}
@@ -364,7 +397,8 @@ class SCManage extends Component {
                 />
               ) : (
                 <></>
-              )}
+              )*/}
+              {this.show_grid()}
             </div>
             <div className="logger">
               <ReactJson

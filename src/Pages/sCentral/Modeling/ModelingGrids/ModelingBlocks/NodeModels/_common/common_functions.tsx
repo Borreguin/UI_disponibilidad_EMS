@@ -1,5 +1,5 @@
 import { PortModel } from "@projectstorm/react-diagrams";
-import { SCT_API_URL } from "../../../Constantes";
+import { SCT_API_URL } from "../../../../../Constantes";
 
 export const canLinkToInportPort = (port: PortModel) => {
   // Esta función comprueba si se puede realizar las conexiones:

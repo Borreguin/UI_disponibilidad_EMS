@@ -107,6 +107,8 @@ class FatherMenu extends Component<FatherPros, FatherState> {
   on_click_menu_button = (e, static_menu, block = undefined) => {
     if (e.target.tagName !== "DIV" && e.target.tagName !== "SPAN") return;
     if (this.props.handle_click_menu_button !== undefined) {
+      console.log("check this out", static_menu, block);
+      
       this.props.handle_click_menu_button(static_menu, block);
     }
     this.setState({ selected_static_menu: static_menu, selected_block: block });
@@ -114,10 +116,10 @@ class FatherMenu extends Component<FatherPros, FatherState> {
 
   shouldBeInMenu = (block_object) => {
     let isBloqueLeaf = block_object.document === "BloqueLeaf";
-    let isComponenteRoot = block_object.document === "ComponenteRoot";
+    let isComponenteLeaf = block_object.document === "ComponenteLeaf";
     let notParallelOperation = block_object.calculation_type !== "PARALELO";
     let notMixOperation = block_object.calculation_type !== "MIXTO";
-    return (isBloqueLeaf || isComponenteRoot) && ( notParallelOperation && notMixOperation);
+    return (isBloqueLeaf || isComponenteLeaf) && ( notParallelOperation && notMixOperation);
   };
 
   // menu minimizado
@@ -266,6 +268,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
               </Card.Header>
 
               {/* MENU SECUNDARIO */}
+              
               {this.props.fatherMenu.static_menu.blocks.length === 0 ? (
                 <></>
               ) : (

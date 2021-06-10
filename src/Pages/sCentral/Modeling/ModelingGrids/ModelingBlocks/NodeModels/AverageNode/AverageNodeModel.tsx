@@ -3,7 +3,7 @@ import { SerialOutPortModel } from "./SerialOutputPort";
 import * as _ from "lodash";
 import { InPortModel } from "./InPort";
 import { AverageOutPortModel } from "./AverageOutputPort";
-import { SCT_API_URL } from "../../../Constantes";
+import { SCT_API_URL } from "../../../../../Constantes";
 import {
   common_get_node_connected_serie,
   common_get_serie_port,
