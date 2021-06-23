@@ -7,7 +7,7 @@ export interface modal_props {
   static_menu: static_menu;
   block: block;
   handle_close?: Function;
-  handle_edited_root_block?: Function;
+  handle_edited_root_component?: Function;
   handle_message?: Function;
 }
 
@@ -16,9 +16,9 @@ export interface modal_state {
   message: string;
 }
 
-let modal_id = "Modal_delete_root_component";
+let modal_id = "Modal_delete_component";
 
-export class Modal_delete_root_component extends Component<
+export class Modal_delete_component extends Component<
   modal_props,
   modal_state
 > {
@@ -47,21 +47,18 @@ export class Modal_delete_root_component extends Component<
   handleShow = () => {
     this.setState({ show: true });
   };
-  handleEditedRootBloack = (bloqueroot) => {
-    if (this.props.handle_edited_root_block !== undefined) {
+  handleEditedRootComponent = (bloqueroot) => {
+    if (this.props.handle_edited_root_component !== undefined) {
       // permite enviar el bloque root editado:
-      this.props.handle_edited_root_block(bloqueroot);
+      this.props.handle_edited_root_component(bloqueroot);
     }
   };
 
   // INTERNAL FUNCTIONS:
   // Elimina un componente root mediante: id del bloque root, id del bloque leaf e id del componente
   _onclick_delete = () => {
-    console.log(this.props);
-    let path =
-      SCT_API_URL + "/component-root/block-root/" + this.props.static_menu.parent_id +
-      "/block-leaf/" + this.props.static_menu.public_id +
-      "/comp-root/" + this.props.block.public_id;
+    console.log("datos a usar", this.props.block);
+    let path = `${SCT_API_URL}/component-leaf/comp-root/${this.props.block.parent_id}/comp-leaf/${this.props.block.public_id}`;
     this.setState({ message: "Eliminando componente root interno" });
     // Creando el nuevo root block mediante la API
     fetch(path, {
@@ -73,7 +70,7 @@ export class Modal_delete_root_component extends Component<
       .then((res) => res.json())
       .then((json) => {
         if (json.success) {
-          this.handleEditedRootBloack(json.bloqueroot);
+          this.handleEditedRootComponent(json.component_root);
           // this.handleClose();
         } else {
           this.setState({ message: json.msg });
@@ -140,18 +137,18 @@ export class Modal_delete_root_component extends Component<
   }
 }
 
-export const modal_delete_root_component_function = (
+export const modal_delete_component_function = (
   static_menu: static_menu,
   block: block,
   handle_close: Function,
   handle_changes_in_root: Function
 ) => {
   return (
-    <Modal_delete_root_component
+    <Modal_delete_component
       static_menu={static_menu}
       block={block}
       handle_close={handle_close}
-      handle_edited_root_block={handle_changes_in_root}
+      handle_edited_root_component={handle_changes_in_root}
     />
   );
 };

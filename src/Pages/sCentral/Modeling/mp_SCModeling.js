@@ -3,18 +3,18 @@ import DefaultNavBar from "../../../components/NavBars/default";
 import DefaultFooter from "../../../components/NavBars/footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { modal_edit_root_block_function } from "./Modals/modal_edit_root_block";
-import { modal_edit_root_component_function } from "./Modals/modal_edit_root_component";
+import { modal_edit_component_function } from "./Modals/modal_edit_component";
 import { Modal_new_root_block } from "./Modals/modal_new_root_block";
-import { modal_add_internal_block_function } from "./Modals/modal_add_internal_block";
-import { modal_add_root_component_function } from "./Modals/modal_add_root_component";
-import { modal_edit_internal_block_function } from "./Modals/modal_edit_internal_block";
-import { modal_delete_internal_block_function } from "./Modals/modal_delete_internal_block";
+import { modal_add_block_function } from "./Modals/modal_add_block";
+import { modal_add_component_function } from "./Modals/modal_add_component";
+import { modal_edit_block_function } from "./Modals/modal_edit_block";
+import { modal_delete_block_function } from "./Modals/modal_delete_block";
 import BlockRootGrid from "./ModelingGrids/ModelingBlocks/BlockRootGrid";
 import { faChalkboard, faCog } from "@fortawesome/free-solid-svg-icons";
 import "../styles.css";
 import ReactJson from "react-json-view";
 import DynamicSideBar from "../../../components/SideBars/DynamicSideBar/dynamicSidebar";
-import { modal_delete_root_component_function } from "./Modals/modal_delete_root_component";
+import { modal_delete_component_function } from "./Modals/modal_delete_component";
 import { SCT_API_URL } from "../Constantes";
 import BlockLeafGrid from "./ModelingGrids/ModelingComponents/BlockLeafGrid";
 
@@ -91,6 +91,7 @@ class SCManage extends Component {
       let selected_static_menu = this.state.selected_static_menu;
       selected_static_menu.object = changed_root_block;
       let blocks = [];
+      if (changed_root_block.block_leafs === undefined) { return}
       for (const block of changed_root_block.block_leafs) {
         let new_block = {
           name: block["name"],
@@ -161,7 +162,8 @@ class SCManage extends Component {
         if (
           selected_block !== undefined &&
           block.public_id === selected_block.public_id &&
-          block.comp_root !== undefined
+          block.comp_root !== null &&
+          block.comp_root.leafs !== undefined
         ) {
           comp_root = block.comp_root;
           console.log("primer menú", comp_root);
@@ -238,7 +240,7 @@ class SCManage extends Component {
       };
       sidebar.push(menu_2);
     }
-    console.log("sidebar", sidebar);
+    // console.log("sidebar", sidebar);
     return sidebar;
   };
 
@@ -290,11 +292,9 @@ class SCManage extends Component {
   show_grid = () => {
     const isSelected_menu = this.state.selected_static_menu !== undefined;
     const isSelected_block = this.state.selected_block !== undefined;
-
-    console.log("menu", this.state.selected_static_menu);
-    console.log("selected_block", this.state.selected_block);
-
-    if (isSelected_menu && !isSelected_block) {
+    const isRoot = isSelected_menu && this.state.selected_static_menu.object.document === "BloqueRoot" ? true : false;
+    
+    if (isSelected_menu && !isSelected_block && isRoot) {
       return (
         <BlockRootGrid
           static_menu={this.state.selected_static_menu}
@@ -303,6 +303,17 @@ class SCManage extends Component {
         />
       );
     }
+
+    if (isSelected_menu && !isSelected_block && !isRoot) {
+      return (
+        <BlockLeafGrid
+          selected_block={this.state.selected_static_menu}
+          handle_messages={this.handle_messages}
+          handle_reload={this.handle_reload}
+        />
+      );
+    }
+
     if (isSelected_menu && isSelected_block) {
       return (
         <BlockLeafGrid
@@ -354,19 +365,19 @@ class SCManage extends Component {
             edit_menu_modal={[modal_edit_root_block_function, undefined]}
             // Añadir un nuevo bloque leaf:
             add_submenu_modal={[
-              modal_add_internal_block_function,
-              modal_add_root_component_function,
+              modal_add_block_function,
+              modal_add_component_function,
             ]}
             // ------ MENU SECUNDARIO
             // Editar el submenú
             edit_submenu_modal={[
-              modal_edit_internal_block_function,
-              modal_edit_root_component_function,
+              modal_edit_block_function,
+              modal_edit_component_function,
             ]}
             // Eliminar el submenú
             delete_submenu_modal={[
-              modal_delete_internal_block_function,
-              modal_delete_root_component_function,
+              modal_delete_block_function,
+              modal_delete_component_function,
             ]}
             // actualiza el estado del modal (cerrar/abrir)
             modal_show={this.state.modal_show}
@@ -389,15 +400,6 @@ class SCManage extends Component {
           <div className="page-content content-shift">
             {/* Grid de modelamiento*/}
             <div className="grid">
-              {/*this.show_grid() ? (
-                <BlockRootGrid
-                  static_menu={this.state.selected_static_menu}
-                  handle_messages={this.handle_messages}
-                  handle_reload={ this.handle_reload}
-                />
-              ) : (
-                <></>
-              )*/}
               {this.show_grid()}
             </div>
             <div className="logger">

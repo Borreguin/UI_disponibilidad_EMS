@@ -44,7 +44,7 @@ export const get_last_month_dates = () => {
   return { first_day_month: first_day_month, last_day_month: last_day_month };
 };
 
-export class DateRangeTime extends React.Component<
+export class DateRangeTimeOne extends React.Component<
   RangeDateProps,
   RangeDateState
 > {
@@ -79,11 +79,10 @@ export class DateRangeTime extends React.Component<
     this.props.onPickerChange(this.state.ini_date, this.state.end_date);
   };
 
-  setStartDate = (date) => {
-    if (date < this.state.end_date) {
-      this.setState({ ini_date: date });
-      this.props.onPickerChange(date, this.state.end_date);
-    }
+  on_change_dates = (dates) => {
+    console.log("dates", dates);
+    const [start, end] = dates;
+    this.setState({ ini_date: start, end_date:end });
   };
 
   setEndDate = (date) => {
@@ -95,34 +94,21 @@ export class DateRangeTime extends React.Component<
 
   render() {
     return (
-      <div className="div-pick-container">
-        <div className="picker-timer-div-left">
-          <DatePicker
-            showTimeSelect
+      <div className="div-pick-timer-container">
+       
+        <DatePicker
+          selectsRange
+            className="picker-timer-div"
             selected={this.state.ini_date}
-            onChange={(date) => this.setStartDate(date)}
-            onBlur={(date) => this.setStartDate(date)}
-            selectsStart
-            startDate={this.state.ini_date}
+            onChange={this.on_change_dates}
+          //onBlur={(date) => this.on_change_dates(date)}
+          startDate={this.state.ini_date}
             endDate={this.state.end_date}
+          inline
+            
             dateFormat="yyyy/MMM/d h:mm a"
-            className="pick-size"
           />
-        </div>
-        <div className="picker-timer-div-right">
-          <DatePicker
-            showTimeSelect
-            selected={this.state.end_date}
-            onChange={(date) => this.setEndDate(date)}
-            onBlur={(date) => this.setEndDate(date)}
-            selectsEnd
-            startDate={this.state.ini_date}
-            endDate={this.state.end_date}
-            // minDate={this.state.ini_date}
-            dateFormat="yyyy/MMM/d h:mm a"
-            className="pick-size"
-          />
-        </div>
+          
       </div>
     );
   }

@@ -107,7 +107,7 @@ class FatherMenu extends Component<FatherPros, FatherState> {
   on_click_menu_button = (e, static_menu, block = undefined) => {
     if (e.target.tagName !== "DIV" && e.target.tagName !== "SPAN") return;
     if (this.props.handle_click_menu_button !== undefined) {
-      console.log("check this out", static_menu, block);
+      // console.log("check this out", static_menu, block);
       
       this.props.handle_click_menu_button(static_menu, block);
     }

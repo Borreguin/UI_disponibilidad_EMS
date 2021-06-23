@@ -17,6 +17,11 @@ export const to_yyyy_mm_dd = (date) => {
   return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 }
 
+export const to_dd_mm_yyyy = (date) => { 
+  return date.getDate() +  "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+}
+
+
 export const to_yyyy_mm_dd_hh_mm_ss = (date:Date) => { 
   return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
     date.getHours() + ":" + date.getMinutes() + ":"  + date.getSeconds();

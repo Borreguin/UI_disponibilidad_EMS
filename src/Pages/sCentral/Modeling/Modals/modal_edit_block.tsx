@@ -1,15 +1,15 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
-import { static_menu } from "../../../../components/SideBars/menu_type";
-import { leaf_block_form } from "../../types";
-import ReactDOM from 'react-dom';
+import { block, static_menu } from "../../../../components/SideBars/menu_type";
 import { SCT_API_URL } from "../../Constantes";
+import { leaf_block_form } from "../../types";
 
 export interface menu_props {
   static_menu: static_menu;
+  block: block;
   handle_close?: Function;
-  handle_message?: Function;
   handle_edited_root_block?: Function;
+  handle_message?: Function;
 }
 
 export interface menu_state {
@@ -18,9 +18,9 @@ export interface menu_state {
   message: string;
 }
 
-let modal_id = "modal_add_internal_block";
+let modal_id = "modal_edit_block";
 
-export class Modal_add_internal_block extends Component<
+export class Modal_edit_block extends Component<
   menu_props,
   menu_state
 > {
@@ -32,7 +32,6 @@ export class Modal_add_internal_block extends Component<
       message: "",
     };
   }
-  // HOOKS SECTION:
   handleClose = () => {
     // actualizo el estado local
     this.setState({ show: false });
@@ -41,16 +40,19 @@ export class Modal_add_internal_block extends Component<
       this.props.handle_close(modal_id, false);
     }
   };
+
   handleMessages = (message) => {
     if (this.props.handle_message !== undefined) {
       // actualizo el estado del componente padre
       this.props.handle_message(modal_id, message);
     }
   };
+
   handleShow = () => {
     this.setState({ show: true });
   };
-  handleEditedRootBloack = (bloqueroot) => {
+
+  handleEditedRootBlock = (bloqueroot) => {
     if (this.props.handle_edited_root_block !== undefined) {
       // permite enviar el bloque root editado:
       this.props.handle_edited_root_block(bloqueroot);
@@ -58,15 +60,20 @@ export class Modal_add_internal_block extends Component<
   };
 
   // INTERNAL FUNCTIONS:
-  _onclick_create = () => {
-    
+  // Edita los atributos de un bloque interno
+  _onclick_edit = () => {
     if (this._check_form()) {
-      let path = `${SCT_API_URL}/block-leaf/block-root/${this.props.static_menu.public_id}`;
+      let path =
+        SCT_API_URL +
+        "/block-leaf/block-root/" +
+        this.props.static_menu.public_id +
+        "/block-leaf/" +
+        this.props.block.public_id;
       let payload = JSON.stringify(this.state.form);
-      this.setState({ message: "Creando bloque interno" });
+      this.setState({ message: "Editando bloque interno..." });
       // Creando el nuevo root block mediante la API
       fetch(path, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -75,8 +82,8 @@ export class Modal_add_internal_block extends Component<
         .then((res) => res.json())
         .then((json) => {
           if (json.success) {
-            this.handleEditedRootBloack(json.bloqueroot);
-            // this.handleClose();
+            this.handleEditedRootBlock(json.bloqueroot);
+            //this.handleClose();
           } else {
             this.setState({ message: json.msg });
             this.handleMessages(json.msg);
@@ -118,6 +125,12 @@ export class Modal_add_internal_block extends Component<
   };
 
   render() {
+    if (
+      this.props.block === undefined ||
+      this.props.static_menu === undefined
+    ) {
+      return <div>No existen parámetros suficientes</div>;
+    }
     return (
       <>
         <Modal
@@ -126,17 +139,16 @@ export class Modal_add_internal_block extends Component<
           animation={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Creación de bloque interno</Modal.Title>
+            <Modal.Title>Edición del bloque interno:</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
-              {/* Forma - diálogo */}
-              <Form.Group controlId="BlockName">
-                <Form.Label>Nombre del bloque:</Form.Label>
+              <Form.Group controlId="EditBlockName">
+                <Form.Label>Cambiar el nombre del bloque:</Form.Label>
                 <Form.Control
                   onChange={(e) => this._handle_form_changes(e, "name")}
                   type="text"
-                  placeholder="Ingrese nombre"
+                  placeholder="Ingrese nuevo nombre"
                 />
               </Form.Group>
               {this.state.message.length === 0 ? (
@@ -153,11 +165,11 @@ export class Modal_add_internal_block extends Component<
               Cancelar
             </Button>
             <Button
-              variant="primary"
+              variant="warning"
+              onClick={this._onclick_edit}
               disabled={!this._check_form()}
-              onClick={this._onclick_create}
             >
-              Crear bloque interno
+              Editar {this.props.block.name}
             </Button>
           </Modal.Footer>
         </Modal>
@@ -166,17 +178,17 @@ export class Modal_add_internal_block extends Component<
   }
 }
 
-// permite la creación de un bloque LEAF
-export const modal_add_internal_block_function = (
+export const modal_edit_block_function = (
   static_menu: static_menu,
-  handle_modal_close: Function,
+  block: block,
+  handle_close: Function,
   handle_changes_in_root: Function
 ) => {
-  
   return (
-    <Modal_add_internal_block
+    <Modal_edit_block
       static_menu={static_menu}
-      handle_close={handle_modal_close}
+      block={block}
+      handle_close={handle_close}
       handle_edited_root_block={handle_changes_in_root}
     />
   );

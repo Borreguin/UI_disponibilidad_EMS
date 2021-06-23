@@ -42,8 +42,7 @@ export type leaf_component = {
     document: string,
     name: string,
     position_x_y: Array<Number>
-    leafs?: Array<block_leaf>
-    object?: properties;
+    topology: Object
 }
 
 export type comp_root = {
@@ -53,6 +52,7 @@ export type comp_root = {
     name: string,
     position_x_y: Array<Number>,
     public_id: string,
+    topology?: Object
 }
 
 export type block_leaf = {
@@ -77,6 +77,7 @@ export type operation = {
 
 export type block = {
     name: string,
+    parent_id: string,
     public_id: string,
     object?: properties
 }

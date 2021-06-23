@@ -32,7 +32,7 @@ class NodeReport extends Component<NodeReportProps, NodeReportState> {
   
   render() {
     return (
-      <div>
+      <div className="calc_report">
         {this.props.calculating && !this.state.finish ?
           <StatusCalcReport
             ini_date={this.props.ini_date}

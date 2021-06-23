@@ -1,25 +1,16 @@
 import * as React from "react";
 import { CompRootModel } from "./CompRootModel";
 import {
-  DefaultPortLabel,
   DiagramEngine,
-  PortModelAlignment,
   PortWidget,
 } from "@projectstorm/react-diagrams";
-import "./BlockRootStyle.css";
+import "./CompRootStyle.css";
 import {
-  faTrash,
-  faSave,
-  faToggleOn,
-  faToggleOff,
   faCheck,
-  faDotCircle,
-  faThumbtack,
   faBullseye,
 } from "@fortawesome/free-solid-svg-icons";
 import * as _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "react-bootstrap";
 import ReactTooltip from "react-tooltip";
 
 export interface CompWidgetProps {
@@ -173,7 +164,7 @@ export class CompRootWidget extends React.Component<CompWidgetProps> {
         }}
         key={this.props.node.getID()}
       >
-        <div className={this.props.node.valid? "sr-root": "sr-root in_error"} >
+        <div className={this.props.node.valid? "cmp-root": "cmp-root in_error"} >
           {this.generateTitle(node)}
           {this.generateInAndOutSerialPort()}
         </div>

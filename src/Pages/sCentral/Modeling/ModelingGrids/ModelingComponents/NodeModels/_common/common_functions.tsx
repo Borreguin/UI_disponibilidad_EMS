@@ -60,7 +60,7 @@ export const update_leaf_position = async(
   pos_y: number
 ) => {
   let result = {success:false, msg:"Enviando petición de cambio de posición"}
-  let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/position`;
+  let path = `${SCT_API_URL}/component-leaf/comp-root/${parent_id}/comp-leaf/${public_id}/position`;
   let body = { pos_x: pos_x, pos_y: pos_y };
   await fetch(path, {
     method: "PUT",
@@ -85,7 +85,7 @@ export const update_leaf_topology = async (
   if (!topology) {
     return resp;
   }
-  let path = `${SCT_API_URL}/block-leaf/block-root/${parent_id}/block-leaf/${public_id}/topology`;
+  let path = `${SCT_API_URL}/component-leaf/comp-root/${parent_id}/comp-leaf/${public_id}/topology`;
   let body = { topology: topology };
   await fetch(path, {
     method: "PUT",

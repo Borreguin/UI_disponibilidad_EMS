@@ -39,7 +39,7 @@ export class CompRootModel extends NodeModel<
   valid: boolean;
 
   constructor(params: { root: any; handle_msg?: Function, handle_changes?: Function }) {
-    super({ type: "BlockRoot", id: params.root.public_id });
+    super({ type: "CompRoot", id: params.root.public_id });
     this.data = params.root;
     this.handle_msg = params.handle_msg;
     this.handle_changes = params.handle_changes;
@@ -64,8 +64,8 @@ export class CompRootModel extends NodeModel<
   }
 
   updatePosition = async () => {
-    let result = {success:false, msg:"Enviando petición"}
-    let path = SCT_API_URL + "/block-root/" + this.data.public_id + "/position";
+    let result = { success: false, msg: "Enviando petición" };
+    let path = `${SCT_API_URL}/component-root/${this.data.public_id}/position`;  
     let body = { pos_x: this.getPosition().x, pos_y: this.getPosition().y };
     await fetch(path, {
       method: "PUT",
@@ -85,7 +85,7 @@ export class CompRootModel extends NodeModel<
     let topology = this.generate_topology();
     let answer = {success: false, msg: "Enviando petición"}
     if (!topology) { return }
-    let path = `${SCT_API_URL}/block-root/${this.data.public_id}/topology`;
+    let path = `${SCT_API_URL}/component-root/${this.data.public_id}/topology`;
     let body = { topology: topology };
     await fetch(path, {
       method: "PUT",

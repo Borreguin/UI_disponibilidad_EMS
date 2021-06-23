@@ -13,7 +13,7 @@
 }
 
 .sc-search {
-  width: 100%;
+  width: 95%;
   margin: 5px;
   padding-top: 70px;
 }
@@ -28,11 +28,12 @@
   padding-left: 0px;
 }
 
+
 .sc-pick-menu {
   padding: 4px;
   min-width: 340px;
-  max-width: 360px;
   height: 40px;
+  z-index: 1000;
 }
 
 .bt-download{
@@ -48,6 +49,13 @@
 .btn-search {
   width: 100% !important;
   margin-left: 5px;
+}
+
+.btn-date {
+  width: 130px;
+  margin-left: 2px;
+  margin-top: -7px;
+  margin-right: 2px;
 }
 
 .btn-add-node {
@@ -232,3 +240,33 @@
   float: right;
 }
 
+.calc_report {
+  min-height: 700px;
+}
+
+.date-range-no-show{
+  display: none;
+}
+
+.date-range-show{
+  margin-top: 4px;
+  width: min-content;
+  height: min-content;
+  background-color: rgb(252, 253, 253);
+  overflow: hidden;
+  padding: 1px !important;
+  margin: 1px;
+}
+
+.date-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap:wrap;
+  justify-content: space-between;
+}
+
+.date-input{
+  width: 120px;
+  height: 37px;
+  margin-top: -4px;
+}

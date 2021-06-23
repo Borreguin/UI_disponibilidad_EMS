@@ -1,24 +1,26 @@
 import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
-import { block, static_menu } from "../../../../components/SideBars/menu_type";
+import { static_menu } from "../../../../components/SideBars/menu_type";
+import { leaf_block_form } from "../../types";
+import ReactDOM from 'react-dom';
 import { SCT_API_URL } from "../../Constantes";
-import { leaf_block_form, root_component_form } from "../../types";
 
 export interface menu_props {
   static_menu: static_menu;
   handle_close?: Function;
-  handle_edited_root_block?: Function;
   handle_message?: Function;
+  handle_edited_root_block?: Function;
 }
 
 export interface menu_state {
   show: boolean;
-  form: root_component_form;
+  form: leaf_block_form;
   message: string;
 }
 
-let modal_id = "modal_add_root_component";
-export class Modal_add_root_component extends Component<
+let modal_id = "modal_add_block";
+
+export class Modal_add_block extends Component<
   menu_props,
   menu_state
 > {
@@ -48,7 +50,7 @@ export class Modal_add_root_component extends Component<
   handleShow = () => {
     this.setState({ show: true });
   };
-  handleEditedRootBlock = (bloqueroot) => {
+  handleEditedRootBloack = (bloqueroot) => {
     if (this.props.handle_edited_root_block !== undefined) {
       // permite enviar el bloque root editado:
       this.props.handle_edited_root_block(bloqueroot);
@@ -56,13 +58,12 @@ export class Modal_add_root_component extends Component<
   };
 
   // INTERNAL FUNCTIONS:
-  // crea un nuevo componente root dentro de un bloque:
   _onclick_create = () => {
+    
     if (this._check_form()) {
-      let path = SCT_API_URL + "/component-root/block-root/" + this.props.static_menu.parent_id
-        + "/block-leaf/" + this.props.static_menu.public_id;
+      let path = `${SCT_API_URL}/block-leaf/block-root/${this.props.static_menu.public_id}`;
       let payload = JSON.stringify(this.state.form);
-      this.setState({ message: "Creando componente interno" });
+      this.setState({ message: "Creando bloque interno" });
       // Creando el nuevo root block mediante la API
       fetch(path, {
         method: "POST",
@@ -74,7 +75,7 @@ export class Modal_add_root_component extends Component<
         .then((res) => res.json())
         .then((json) => {
           if (json.success) {
-            this.handleEditedRootBlock(json.bloqueroot);
+            this.handleEditedRootBloack(json.bloqueroot);
             // this.handleClose();
           } else {
             this.setState({ message: json.msg });
@@ -125,20 +126,18 @@ export class Modal_add_root_component extends Component<
           animation={false}
         >
           <Modal.Header closeButton>
-            <Modal.Title>Añadir componente</Modal.Title>
+            <Modal.Title>Creación de bloque interno</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
+              {/* Forma - diálogo */}
               <Form.Group controlId="BlockName">
-                <Form.Label>Nombre del componente:</Form.Label>
+                <Form.Label>Nombre del bloque:</Form.Label>
                 <Form.Control
                   onChange={(e) => this._handle_form_changes(e, "name")}
                   type="text"
-                  placeholder="Ingrese nuevo nombre"
+                  placeholder="Ingrese nombre"
                 />
-                <Form.Text className="text-muted">
-                  Estoy probando esta
-                </Form.Text>
               </Form.Group>
               {this.state.message.length === 0 ? (
                 <></>
@@ -155,10 +154,10 @@ export class Modal_add_root_component extends Component<
             </Button>
             <Button
               variant="primary"
-              onClick={this._onclick_create}
               disabled={!this._check_form()}
+              onClick={this._onclick_create}
             >
-              Crear componente
+              Crear bloque interno
             </Button>
           </Modal.Footer>
         </Modal>
@@ -167,15 +166,17 @@ export class Modal_add_root_component extends Component<
   }
 }
 
-export const modal_add_root_component_function = (
+// permite la creación de un bloque LEAF
+export const modal_add_block_function = (
   static_menu: static_menu,
-  handle_close: Function,
+  handle_modal_close: Function,
   handle_changes_in_root: Function
 ) => {
+  
   return (
-    <Modal_add_root_component
+    <Modal_add_block
       static_menu={static_menu}
-      handle_close={handle_close}
+      handle_close={handle_modal_close}
       handle_edited_root_block={handle_changes_in_root}
     />
   );

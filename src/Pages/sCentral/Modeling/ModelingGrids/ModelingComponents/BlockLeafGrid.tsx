@@ -7,21 +7,21 @@ import createEngine, {
 } from "@projectstorm/react-diagrams";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { StyledCanvasWidget } from "../../../../../components/Diagrams/helpers/StyledCanvasWidget";
-import { BlockFactory } from "../ModelingBlocks/NodeModels/BlockNode/BlockFactory";
-import { block, block_leaf, selectedBlock, static_menu } from "../../../../../components/SideBars/menu_type";
-import { BlockNodeModel } from "../ModelingBlocks/NodeModels/BlockNode/BlockNodeModel";
-import { BlockRootModel } from "../ModelingBlocks/NodeModels/BlockRoot/BlockRootModel";
+import { leaf_component, selectedBlock } from "../../../../../components/SideBars/menu_type";
 import { DefaultState } from "../../../DefaultState";
-import { BlockRootFactory } from "../ModelingBlocks/NodeModels/BlockRoot/BlockRootFactory";
-import { AverageNodeFactory } from "../ModelingBlocks/NodeModels/AverageNode/AverageNodeFactory";
-import { AverageNodeModel } from "../ModelingBlocks/NodeModels/AverageNode/AverageNodeModel";
-import { WeightedNodeFactory } from "../ModelingBlocks/NodeModels/WeightedNode/WeightedNodeFactory";
-import { WeightedNodeModel } from "../ModelingBlocks/NodeModels/WeightedNode/WeightedNodeModel";
-import { TrayWidget } from "../ModelingBlocks/NodeModels/DragAndDropWidget/TrayWidget";
-import { TrayItemWidget } from "../ModelingBlocks/NodeModels/DragAndDropWidget/TrayItemWidget";
-import "./NodeModels/DragAndDropWidget/styles.css";
+import { TrayWidget } from "../ModelingComponents/NodeModels/DragAndDropWidget/TrayWidget";
+import { TrayItemWidget } from "../ModelingComponents/NodeModels/DragAndDropWidget/TrayItemWidget";
+import "../ModelingComponents/NodeModels/DragAndDropWidget/styles.css";
 import * as _ from "lodash";
 import { Button } from "react-bootstrap";
+import { CompRootModel } from "./NodeModels/CompRoot/CompRootModel";
+import { ComponentLeafModel } from "./NodeModels/ComponentLeaf/ComponentLeafModel";
+import { CompRootFactory } from "./NodeModels/CompRoot/CompRootFactory";
+import { AverageNodeModel } from "./NodeModels/AverageNode/AverageNodeModel";
+import { WeightedNodeModel } from "./NodeModels/WeightedNode/WeightedNodeModel";
+import { ComponentLeafFactory } from "./NodeModels/ComponentLeaf/ComponentLeafFactory";
+import { AverageNodeFactory } from "./NodeModels/AverageNode/AverageNodeFactory";
+import { WeightedNodeFactory } from "./NodeModels/WeightedNode/WeightedNodeFactory";
 
 type BlockLeafGridProps = {
   selected_block: selectedBlock;
@@ -99,22 +99,45 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
   // Permite actualizar el grid cada vez que recibe un cambio desde las propiedades
   // Esto ocurre cuando se añade un bloque en el menú lateral
   componentWillReceiveProps = (newProps: BlockLeafGridProps) => {
-    if (
-      newProps.selected_block.object.comp_root.leafs.length !==
-      this.last_props.selected_block.object.comp_root.leafs.length
-    ) {
-      this.last_props = _.cloneDeep(newProps);
-      this.update_nodes_from_changes(newProps.selected_block.object.comp_root.leafs);
+    if (this.props.selected_block.name !== newProps.selected_block.name) {
+      // limpiar el modelo antes de iniciar nuevamente 
+      let model = this.state.model;
+      let engine = this.state.engine;
+      for (const node of model.getNodes()) {
+        model.removeNode(node);
+      }
+      for (const link of model.getLinks()) {
+        model.removeLink(link);
+      }
+      this.engine = engine;
+      this.model = model;
+      engine.setModel(model);
+      
+      this.setState({ engine: engine, model:model });
     }
   };
 
-  update_nodes_from_changes = (new_blocks: Array<block>) => {
+  componentDidUpdate = (prevProps) => {
+    
+    if (prevProps !== undefined && this.props.selected_block.name !== prevProps.selected_block.name &&
+      this.props.selected_block.object.comp_root !== undefined) {
+      const resp = this._init_graph();
+      let engine = this.state.engine;
+      engine.setModel(resp.model);
+      this.engine = resp.engine;
+      this.model = resp.model;
+      this.setState({ engine: engine, model: resp.model });
+    }
+  }
+
+  update_nodes_from_changes = (new_blocks: Array<leaf_component>) => {
     // actualizando en el grid solamente aquellos elementos
     // que no están presentes en el grid:
     let engine = this.state.engine;
     let nodes = engine.getModel().getNodes();
-    console.log("nodes", nodes.length, "blocks", new_blocks.length);
+
     if (nodes.length <= new_blocks.length) {
+      console.log("need to update");
       for (const block of new_blocks) {
         let found = false;
         for (const node of nodes) {
@@ -123,8 +146,8 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
             break;
           }
         }
-        console.log(block);
-        if (!found && block.object.document === "BloqueLeaf") {
+        console.log("check block", block);
+        if (!found && block.document === "ComponenteLeaf") {
           // Se asume que solamente serán de tipo BlockLeaf:
           let data = {
             name: block.name,
@@ -135,7 +158,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
             posy: 300,
             parallel_connections: [],
           };
-          let node = new BlockNodeModel({
+          let node = new ComponentLeafModel({
             node: data,
             handle_msg: this._handle_messages,
             handle_changes: this._handle_changes,
@@ -153,7 +176,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
             break;
           }
         }
-        if (!found && node.getType() === "BloqueLeaf") {
+        if (!found && node.getType() === "ComponenteLeaf") {
           // Se ha eliminado este nodo:
           console.log("eliminando..", node.getType());
           let ports = node.getPorts();
@@ -189,7 +212,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
   };
 
   create_root_component = () => {
-    var root_data = this.props.selected_block.object;
+    var root_data = this.props.selected_block.object.comp_root;
     // Estructura determinada para bloque Root:
     let Root = {
       name: root_data.name,
@@ -200,7 +223,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
       posx: root_data.position_x_y[0],
       posy: root_data.position_x_y[1],
     };
-    return new BlockRootModel({
+    return new CompRootModel({
       root: Root,
       handle_msg: this._handle_messages,
       handle_changes: this._handle_changes,
@@ -209,10 +232,9 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
 
   create_root_link = () => {
     // Creación de link root
-    var root_data = this.props.selected_block.object;
-
+    var root_data = this.props.selected_block.object.comp_root;
     if (root_data.topology && root_data.topology["ROOT"] !== undefined) {
-      let root_node = this.model.getNode(root_data.public_id) as BlockRootModel;
+      let root_node = this.model.getNode(root_data.public_id) as CompRootModel;
       let node_id = root_data.topology["ROOT"][0];
       let node_to_connect = this.model.getNode(node_id);
       if (node_to_connect === undefined) {
@@ -230,23 +252,25 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
   // creando nodos de acuerdo a cada tipo.
   create_nodes = () => {
     const { selected_block } = this.props;
-    console.log("leaf info", selected_block.object);
     let nodes = [];
+    if (selected_block.object.comp_root === null) {
+      return nodes;
+    }
     selected_block.object.comp_root.leafs.forEach((leaf) => {
       let data = {
         name: leaf.name,
         editado: false,
         public_id: leaf.public_id,
-        parent_id: selected_block.public_id,
+        parent_id: leaf.parent_id,
         posx: leaf.position_x_y[0],
         posy: leaf.position_x_y[1],
       };
 
       var node = null;
       switch (leaf.document) {
-        case "BloqueLeaf":
+        case "ComponenteLeaf":
           data["parallel_connections"] = [];
-          node = new BlockNodeModel({
+          node = new ComponentLeafModel({
             node: data,
             handle_msg: this._handle_messages,
             handle_changes: this._handle_changes,
@@ -303,18 +327,19 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
     }
     return topology;
   };
-/*
+
   create_node_links = () => {
-    const { static_menu } = this.props;
+    const { selected_block } = this.props;
     let next_topology = null;
-    static_menu.blocks.forEach((block) => {
-      let raw_node = this.model.getNode(block.public_id);
+    selected_block.object.comp_root.leafs.forEach((leaf) => {
+      console.log("leaf", leaf);
+      let raw_node = this.model.getNode(leaf.public_id);
       // console.log(raw_node.getType());
       switch (raw_node.getType()) {
-        case "BloqueLeaf":
-          let block_node = raw_node as BlockNodeModel;
+        case "ComponenteLeaf":
+          let block_node = raw_node as ComponentLeafModel;
           next_topology = this.connect_serie_if_exist(
-            block.object.topology,
+            leaf.topology,
             block_node.get_serie_port()
           );
           // si existe una topology que deserializar:
@@ -342,7 +367,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
         case "AverageNode":
           let average_node = raw_node as AverageNodeModel;
           next_topology = this.connect_serie_if_exist(
-            block.object.topology,
+            leaf.topology,
             average_node.get_serie_port()
           );
           // si existe una topology que deserializar:
@@ -370,7 +395,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
           let weighted_node = raw_node as WeightedNodeModel;
           // identificar si existe topología en serie
           next_topology = this.connect_serie_if_exist(
-            block.object.topology,
+            leaf.topology,
             weighted_node.get_serie_port()
           );
           // si existe una topology que deserializar:
@@ -400,7 +425,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
           break;
       }
     });
-  };*/
+  };
 
   create_selected_node = (type: string, parent_id: string) => {
     // Se crea un nodo dependiendo el botón seleccionado:
@@ -507,15 +532,16 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
     let model = new DiagramModel();
 
     // 1.a) Register factories: Puertos y Nodos
-    engine.getNodeFactories().registerFactory(new BlockFactory());
-    engine.getNodeFactories().registerFactory(new BlockRootFactory());
+    engine.getNodeFactories().registerFactory(new CompRootFactory());
+    engine.getNodeFactories().registerFactory(new ComponentLeafFactory());
     engine.getNodeFactories().registerFactory(new AverageNodeFactory());
     engine.getNodeFactories().registerFactory(new WeightedNodeFactory());
 
     // Empezando la población de grid:
 
     // Variables generales:
-    this.parent_id = this.props.selected_block.parent_id;
+    this.parent_id = this.props.selected_block.object.comp_root.public_id;
+    console.log("voy a trabajar con esto:", this.props.selected_block)
 
     // Añadir el bloque root (inicio de operaciones):
     model.addNode(this.create_root_component());
@@ -532,7 +558,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
     this.create_root_link();
 
     // Link root de nodos:
-    // this.create_node_links();
+    this.create_node_links();
 
     engine.setModel(this.model);
     // Use this custom "DefaultState" instead of the actual default state we get with the engine
@@ -580,15 +606,18 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
             var data = JSON.parse(
               event.dataTransfer.getData("storm-diagram-node")
             );
+            console.log("check me this", data, this.props.selected_block);
             let node = this.create_selected_node(data.type, this.parent_id);
             var point = this.state.engine.getRelativeMousePoint(event);
             node.setPosition(point);
-            this.model.addNode(node);
-            this.engine.repaintCanvas();
+            let model = this.state.model;
+            let engine = this.state.engine;
+            model.addNode(node);
+            engine.setModel(model);
             // manteniendo actualizado:
-            //this.engine = engine;
-            //this.model = model;
-            this.setState({ engine: this.engine, model: this.model });
+            this.model = model;
+            this.engine = engine;
+            this.setState({ engine: engine, model: model });
           }}
           onDragOver={(event) => {
             event.preventDefault();

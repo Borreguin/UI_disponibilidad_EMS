@@ -1,28 +1,28 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { Alert, Button, Form, Modal } from "react-bootstrap";
 import { block, static_menu } from "../../../../components/SideBars/menu_type";
 import { SCT_API_URL } from "../../Constantes";
-import { leaf_block_form } from "../../types";
-
-export interface menu_props {
+import { root_block_form, root_component_form } from "../../types";
+import { Sources } from "../Sources/Sources";
+export interface add_menu_props {
   static_menu: static_menu;
   block: block;
   handle_close?: Function;
-  handle_edited_root_block?: Function;
   handle_message?: Function;
+  handle_edited_root_block?: Function;
 }
 
-export interface menu_state {
+export interface add_menu_state {
   show: boolean;
-  form: leaf_block_form;
+  form: root_component_form;
   message: string;
 }
 
-let modal_id = "modal_edit_internal_block";
+let modal_id = "Modal_edit_component";
 
-export class Modal_edit_internal_block extends Component<
-  menu_props,
-  menu_state
+export class Modal_edit_component extends Component<
+  add_menu_props,
+  add_menu_state
 > {
   constructor(props) {
     super(props);
@@ -32,6 +32,7 @@ export class Modal_edit_internal_block extends Component<
       message: "",
     };
   }
+  // HOOKS SECTION:
   handleClose = () => {
     // actualizo el estado local
     this.setState({ show: false });
@@ -60,17 +61,12 @@ export class Modal_edit_internal_block extends Component<
   };
 
   // INTERNAL FUNCTIONS:
-  // Edita los atributos de un bloque interno
+  // Edita un componente root mediante: id del bloque root, id del bloque leaf e id del componente
   _onclick_edit = () => {
     if (this._check_form()) {
-      let path =
-        SCT_API_URL +
-        "/block-leaf/block-root/" +
-        this.props.static_menu.public_id +
-        "/block-leaf/" +
-        this.props.block.public_id;
+      let path = `${SCT_API_URL}/component-root/block-root/${this.props.static_menu.parent_id}/block-leaf/${this.props.static_menu.public_id}/comp-root/${this.props.block.public_id}`;
       let payload = JSON.stringify(this.state.form);
-      this.setState({ message: "Editando bloque interno..." });
+      this.setState({ message: "Editando el componente" });
       // Creando el nuevo root block mediante la API
       fetch(path, {
         method: "PUT",
@@ -125,40 +121,42 @@ export class Modal_edit_internal_block extends Component<
   };
 
   render() {
-    if (
-      this.props.block === undefined ||
-      this.props.static_menu === undefined
-    ) {
-      return <div>No existen parámetros suficientes</div>;
-    }
     return (
       <>
         <Modal
           show={this.state.show}
           onHide={this.handleClose}
           animation={false}
+          size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Edición del bloque interno:</Modal.Title>
+            <Modal.Title>
+              Editar configuraciones
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
               <Form.Group controlId="EditBlockName">
-                <Form.Label>Cambiar el nombre del bloque:</Form.Label>
+                <Form.Label>Cambiar el nombre de este componente:</Form.Label>
                 <Form.Control
                   onChange={(e) => this._handle_form_changes(e, "name")}
+                  defaultValue={ this.props.block.object.name}
                   type="text"
                   placeholder="Ingrese nuevo nombre"
                 />
               </Form.Group>
-              {this.state.message.length === 0 ? (
-                <></>
-              ) : (
-                <Alert variant="secondary" style={{ padding: "7px" }}>
-                  {this.state.message}
-                </Alert>
-              )}
+              <Form.Group>
+              <Form.Label>Configure la fuente de datos por defecto:</Form.Label>
+                <Sources></Sources>
+              </Form.Group>
             </Form>
+            {this.state.message.length === 0 ? (
+              <></>
+            ) : (
+              <Alert variant="secondary" style={{ padding: "7px" }}>
+                {this.state.message}
+              </Alert>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={this.handleClose}>
@@ -166,10 +164,10 @@ export class Modal_edit_internal_block extends Component<
             </Button>
             <Button
               variant="warning"
-              onClick={this._onclick_edit}
               disabled={!this._check_form()}
+              onClick={this._onclick_edit}
             >
-              Editar {this.props.block.name}
+              Editar componente {this.props.block.name}
             </Button>
           </Modal.Footer>
         </Modal>
@@ -178,14 +176,14 @@ export class Modal_edit_internal_block extends Component<
   }
 }
 
-export const modal_edit_internal_block_function = (
+export const modal_edit_component_function = (
   static_menu: static_menu,
   block: block,
   handle_close: Function,
   handle_changes_in_root: Function
 ) => {
   return (
-    <Modal_edit_internal_block
+    <Modal_edit_component
       static_menu={static_menu}
       block={block}
       handle_close={handle_close}

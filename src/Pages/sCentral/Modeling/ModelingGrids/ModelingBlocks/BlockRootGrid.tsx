@@ -517,6 +517,7 @@ class BlockRootGrid extends Component<BlockRootGridProps> {
     let parent_id = this.props.static_menu.object["public_id"];
     this.parent_id = parent_id;
 
+    
     // Añadir el bloque root (inicio de operaciones):
     model.addNode(this.create_root_block());
 

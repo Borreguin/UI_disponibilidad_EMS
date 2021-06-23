@@ -18,7 +18,7 @@ export interface modal_state {
 
 let modal_id = "Modal_delete_block";
 
-export class Modal_delete_internal_block extends Component<
+export class Modal_delete_block extends Component<
   modal_props,
   modal_state
 > {
@@ -136,14 +136,14 @@ export class Modal_delete_internal_block extends Component<
   }
 }
 
-export const modal_delete_internal_block_function = (
+export const modal_delete_block_function = (
   static_menu: static_menu,
   block: block,
   handle_close: Function,
   handle_changes_in_root: Function
 ) => {
   return (
-    <Modal_delete_internal_block
+    <Modal_delete_block
       static_menu={static_menu}
       block={block}
       handle_close={handle_close}

@@ -23,11 +23,11 @@
   border-color: red !important;
 }
 
-.sr-root {
+.cmp-root {
   box-sizing: border-box;
   white-space: nowrap;
   pointer-events: all;
-  background-color: hsla(43, 83%, 45%, 0.705);
+  background-color: hsla(238, 79%, 53%, 0.583);
   color: white;
   border-radius: 1px;
   border: black solid 1px;
