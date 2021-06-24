@@ -9,9 +9,11 @@ import {
 import { SCT_API_URL } from "../../Constantes";
 import "./Sources.css";
 import ReactJson from "react-json-view";
+import { block } from "../../../../components/SideBars/menu_type";
 
 export interface props {
   handle_msg?: Function;
+  component: block;
 }
 
 export type Range = {
@@ -46,7 +48,7 @@ export class Manual extends Component<props, state> {
       end_date: r.last_day_month,
       end_date_str: to_yyyy_mm_dd_hh_mm_ss(r.last_day_month),
       range: [range],
-      log: {msg: "Aún no se ha ejecutado la prueba"}
+      log: { msg: "Aún no se ha ejecutado la prueba" },
     };
   }
 
@@ -56,11 +58,36 @@ export class Manual extends Component<props, state> {
     }
   };
 
-  componentDidMount = () => {};
+  componentDidMount = () => {
+    console.log("component", this.props.component);
+  };
 
-  /*_handle_selection = (e) => {
-    this.setState({ select: e.target.value });
-  };*/
+  _test_source = () => {
+    let path = `${SCT_API_URL}/source/manual/test`;
+    let payload = JSON.stringify({
+      root_id: this.props.component.parent_id,
+      leaf_id: this.props.component.public_id,
+      fecha_inicio: to_yyyy_mm_dd_hh_mm_ss(this.state.ini_date),
+      fecha_final: to_yyyy_mm_dd_hh_mm_ss(this.state.end_date),
+    });
+    fetch(path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: payload,
+    })
+      .then((resp) => resp.json())
+      .then((json) => {
+        this.setState({ log: json });
+      })
+      .catch((error) => {
+        console.log(error);
+        let log = {
+          msg: "Error al conectarse con la API (api-sct)",
+        };
+      });
+  };
 
   handleSelect = (range) => {
     this.setState({
@@ -144,12 +171,16 @@ export class Manual extends Component<props, state> {
             </div>
           </Form.Label>
 
-          <Button variant="outline-info" className="test-manual-btn">
+          <Button
+            variant="outline-info"
+            className="test-manual-btn"
+            onClick={this._test_source}
+          >
             Probar
           </Button>
         </Form.Group>
         <Form.Group>
-        <ReactJson
+          <ReactJson
             name="log"
             displayObjectSize={true}
             collapsed={true}

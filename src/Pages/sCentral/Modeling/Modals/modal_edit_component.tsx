@@ -147,7 +147,7 @@ export class Modal_edit_component extends Component<
               </Form.Group>
               <Form.Group>
               <Form.Label>Configure la fuente de datos por defecto:</Form.Label>
-                <Sources></Sources>
+                <Sources component={ this.props.block}></Sources>
               </Form.Group>
             </Form>
             {this.state.message.length === 0 ? (

@@ -1,11 +1,13 @@
 import React, { Component, useState } from "react";
 import { Form } from "react-bootstrap";
+import { block } from "../../../../components/SideBars/menu_type";
 import { SCT_API_URL } from "../../Constantes";
 import { DB_sistema_remoto } from "./DB_sistema_remoto";
 import { Manual } from "./Manual";
 
 export interface props {
   handle_msg?: Function;
+  component: block;
 }
 
 export interface state {
@@ -63,7 +65,7 @@ export class Sources extends Component<props, state> {
   show_source_form = () => {
     switch (this.state.select) {
       case "MANUAL":
-            return <Manual/>;
+        return <Manual component={ this.props.component}/>;
         case "BD SIST.REMOTO":
             return <DB_sistema_remoto/>;
         case "HISTORICO":
