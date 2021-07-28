@@ -268,7 +268,7 @@ class DatosConsultar extends Component<SRConsigProps, SRConsigState> {
               onChange={(e) => this._handle_form_changes(e, "no_consignacion")}
             />
           </Col>
-          <Col sm="5">
+          <Col sm="7">
             <span className="cons-mandatory">* </span>
             <Form.Label>Fecha de consignación: </Form.Label>
             <br></br>
