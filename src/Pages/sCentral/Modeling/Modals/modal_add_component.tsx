@@ -74,8 +74,8 @@ export class Modal_add_component extends Component<
         .then((res) => res.json())
         .then((json) => {
           if (json.success) {
-           // this.handleEditedRootBlock(json.bloqueroot);
-            // this.handleClose();
+           this.handleEditedRootBlock(json.bloqueroot);
+           this.handleClose();
           } else {
             this.setState({ message: json.msg });
             this.handleMessages(json.msg);

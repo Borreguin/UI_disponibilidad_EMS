@@ -13,6 +13,7 @@ import { block } from "../../../../components/SideBars/menu_type";
 
 export interface props {
   handle_msg?: Function;
+  handle_isValid?: Function;
   component: block;
 }
 
@@ -20,6 +21,13 @@ export type Range = {
   startDate: Date;
   endDate: Date;
   key: string;
+};
+
+type parameters = {
+  root_id: string;
+  leaf_id: string;
+  fecha_inicio: string;
+  fecha_final: string;
 };
 
 export interface state {
@@ -57,36 +65,46 @@ export class Manual extends Component<props, state> {
       this.props.handle_msg(msg);
     }
   };
+  _handle_isValid = (isvalid: boolean) => {
+    if (this.props.handle_isValid !== undefined) {
+      this.props.handle_isValid(isvalid)
+    }
+  }
 
   componentDidMount = () => {
     console.log("component", this.props.component);
   };
 
-  _test_source = () => {
+  _test_source = async () => {
     let path = `${SCT_API_URL}/source/manual/test`;
-    let payload = JSON.stringify({
+    let parameters = {
       root_id: this.props.component.parent_id,
       leaf_id: this.props.component.public_id,
       fecha_inicio: to_yyyy_mm_dd_hh_mm_ss(this.state.ini_date),
       fecha_final: to_yyyy_mm_dd_hh_mm_ss(this.state.end_date),
-    });
-    fetch(path, {
+    }
+    let isValid = false;
+    await fetch(path, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: payload,
+      body: JSON.stringify(parameters),
     })
       .then((resp) => resp.json())
       .then((json) => {
         this.setState({ log: json });
+        isValid = true;
       })
       .catch((error) => {
         console.log(error);
         let log = {
           msg: "Error al conectarse con la API (api-sct)",
         };
+        isValid = false;
+        this.setState({ log: log });
       });
+    this._handle_isValid(isValid);
   };
 
   handleSelect = (range) => {
@@ -119,10 +137,7 @@ export class Manual extends Component<props, state> {
     }
   };
 
-  handle_picker_change = (ini_date, end_date) => {
-    console.log(ini_date, end_date);
-    // this.setState({ ini_date: ini_date, end_date: end_date });
-  };
+
 
   render() {
     return (

@@ -36,7 +36,6 @@ class SRConsignaciones extends Component {
   // permite obtener datos del componente:
   handle_datos_mantenimiento = (forma) => {
     this.setState({ forma: forma });
-    console.log(forma);
     this.check_values();
   };
 
@@ -85,10 +84,10 @@ class SRConsignaciones extends Component {
       "/" +
       to_yyyy_mm_dd_hh_mm_ss(this.state.forma.fecha_final);
     let payload = {
+      elemento: this.state.forma.selected,
       no_consignacion: this.state.forma["no_consignacion"],
-      detalle: {},
+      detalle: {observaciones: this.state.forma.detalle },
     };
-    payload.detalle["observaciones"] = this.state.forma["detalle"];
     fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

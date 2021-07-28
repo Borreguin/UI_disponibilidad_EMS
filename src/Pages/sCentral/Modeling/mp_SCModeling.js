@@ -51,6 +51,8 @@ class SCManage extends Component {
   };
 
   load_this_component = async () => {
+    console.log("selected_static_menu", this.state.selected_static_menu);
+    console.log("sidebar_menu", this.state.sidebar_menu);
     await this._search_root_block();
     // Seleccionar la primera por defecto al empezar
     if (

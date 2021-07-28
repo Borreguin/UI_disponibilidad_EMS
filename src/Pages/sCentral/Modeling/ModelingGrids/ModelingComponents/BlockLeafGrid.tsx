@@ -515,7 +515,7 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
       this._handle_messages(msg);
     }
     this._handle_messages(msg);
-    this.reload_graph();
+    //this.reload_graph();
   
   };
 
@@ -538,10 +538,16 @@ class BlockLeafGrid extends Component<BlockLeafGridProps> {
     engine.getNodeFactories().registerFactory(new WeightedNodeFactory());
 
     // Empezando la población de grid:
-
+    if (this.props.selected_block.object.comp_root === null) {
+      this.model = model;
+      this.engine = engine;
+      engine.setModel(this.model);
+      return { model: model, engine: engine };
+    }
     // Variables generales:
     this.parent_id = this.props.selected_block.object.comp_root.public_id;
-    console.log("voy a trabajar con esto:", this.props.selected_block)
+    // console.log("voy a trabajar con esto:", this.props.selected_block)
+    
 
     // Añadir el bloque root (inicio de operaciones):
     model.addNode(this.create_root_component());
