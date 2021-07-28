@@ -1,3 +1,4 @@
+// TODO: pasar a producción
 import React, { Component } from "react";
 import DefaultNavBar from "../../../components/NavBars/default";
 import DefaultFooter from "../../../components/NavBars/footer";
