@@ -42,7 +42,7 @@
     "react-native-typescript-transformer": "^1.2.13",
     "react-native-web": "^0.16.5",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.1",
+    "react-scripts": "5.0.1",
     "react-tooltip": "^4.2.7",
     "resize-observer-polyfill": "^1.5.1",
     "styled-components": "^5.1.1",
