@@ -38,7 +38,7 @@
     "react-dates": "^21.8.0",
     "react-dom": "^16.13.1",
     "react-json-view": "^1.21.3",
-    "react-native": "^0.64.2",
+    "react-native": "^0.82.1",
     "react-native-typescript-transformer": "^1.2.13",
     "react-native-web": "^0.16.5",
     "react-router-dom": "^5.1.2",
